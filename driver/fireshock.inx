@@ -21,7 +21,7 @@ ExcludeFromSelect = *
 ; Devices Section
 ; ---------------------------------------------------------
 [NefariusSoftwareSolutions.NT$ARCH$]
-%HID\VID_054C&PID_0268.DeviceDesc%=FireShock_Inst, HID\VID_054C&PID_0268
+%USB\VID_054C&PID_0268.DeviceDesc%=FireShock_Inst, USB\VID_054C&PID_0268
 
 ; Install Section
 ; ---------------------------------------------------------
@@ -103,7 +103,7 @@ FireShock.SvcDesc = "FireShock Service"
 DiskName = "FireShock Driver Disk"
 
 ; HID device IDs
-HID\VID_054C&PID_0268.DeviceDesc = "Nefarius Software Solutions FireShock 3 Device"
+USB\VID_054C&PID_0268.DeviceDesc = "Nefarius Software Solutions FireShock 3 Device"
 
 ; Standard defs
 SPSVCINST_TAGTOFRONT  = 0x00000001
