@@ -168,6 +168,7 @@
   <ItemGroup>
     <ClCompile Include="device.c" />
     <ClCompile Include="driver.c" />
+    <ClCompile Include="power.c" />
     <ClCompile Include="vfeature.c" />
     <ClCompile Include="wmi.c" />
     <ResourceCompile Include="fireshock.rc" />
@@ -183,6 +184,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Exclude="@(ClInclude)" Include="*.h;*.hpp;*.hxx;*.hm;*.inl;*.xsd" />
+    <ClInclude Include="power.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

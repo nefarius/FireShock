@@ -39,10 +39,53 @@
     <ClCompile Include="wmi.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="power.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="fireshock.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fireshock.h" />
+    <ClInclude Include="magic.h" />
+    <ClInclude Include="vfeature.h" />
+    <ClInclude Include="wmi.h" />
+    <ClInclude Include="device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fireshock.h" />
+    <ClInclude Include="magic.h" />
+    <ClInclude Include="vfeature.h" />
+    <ClInclude Include="wmi.h" />
+    <ClInclude Include="device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fireshock.h" />
+    <ClInclude Include="magic.h" />
+    <ClInclude Include="vfeature.h" />
+    <ClInclude Include="wmi.h" />
+    <ClInclude Include="device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fireshock.h" />
+    <ClInclude Include="magic.h" />
+    <ClInclude Include="vfeature.h" />
+    <ClInclude Include="wmi.h" />
+    <ClInclude Include="device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fireshock.h" />
+    <ClInclude Include="magic.h" />
+    <ClInclude Include="vfeature.h" />
+    <ClInclude Include="wmi.h" />
+    <ClInclude Include="power.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

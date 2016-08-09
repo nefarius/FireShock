@@ -1,0 +1,3 @@
+#pragma once
+
+EVT_WDF_DEVICE_PREPARE_HARDWARE FireShockEvtDevicePrepareHardware;

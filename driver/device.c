@@ -59,6 +59,7 @@ Return Value:
     WDFDEVICE                       device;
     WDFMEMORY                       memory;
     size_t                          bufferLength;
+    WDF_PNPPOWER_EVENT_CALLBACKS    pnpPowerCallbacks;
 
     UNREFERENCED_PARAMETER(Driver);
 
@@ -68,6 +69,12 @@ Return Value:
     // Configure the device as a filter driver
     //
     WdfFdoInitSetFilter(DeviceInit);
+
+    WDF_PNPPOWER_EVENT_CALLBACKS_INIT(&pnpPowerCallbacks);
+
+    pnpPowerCallbacks.EvtDevicePrepareHardware = FireShockEvtDevicePrepareHardware;
+
+    WdfDeviceInitSetPnpPowerEventCallbacks(DeviceInit, &pnpPowerCallbacks);
 
     WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DEVICE_CONTEXT);
 

@@ -41,6 +41,9 @@ Environment:
 #include "wmi.h"
 #include "vfeature.h"
 #include "magic.h"
+#include "power.h"
+
+#define DRIVERNAME "FireShock.sys: "
 
 //
 // WDFDRIVER Object Events
