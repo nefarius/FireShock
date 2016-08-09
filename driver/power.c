@@ -24,3 +24,17 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
 
     return status;
 }
+
+NTSTATUS FireShockEvtDeviceD0Entry(
+    _In_ WDFDEVICE              Device,
+    _In_ WDF_POWER_DEVICE_STATE PreviousState
+)
+{
+    UNREFERENCED_PARAMETER(Device); 
+    UNREFERENCED_PARAMETER(PreviousState);
+
+    KdPrint(("FireShockEvtDeviceD0Entry called\n"));
+
+    return STATUS_SUCCESS;
+}
+
