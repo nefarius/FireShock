@@ -16,16 +16,12 @@ ExcludeFromSelect = *
 ; Manufacturer Section
 ; ---------------------------------------------------------
 [Manufacturer]
-%ShinyThings%=ShinyThingsMfg,NT$ARCH$
+%NSS%=NefariusSoftwareSolutions,NT$ARCH$
 
 ; Devices Section
 ; ---------------------------------------------------------
-[ShinyThingsMfg.NT$ARCH$]
-%HID\Vid_045E&Pid_001E.DeviceDesc%=FireShock_Inst, HID\Vid_045E&Pid_001E
-%HID\Vid_045E&Pid_0029.DeviceDesc%=FireShock_Inst, HID\Vid_045E&Pid_0029
-%HID\Vid_045E&Pid_0039.DeviceDesc%=FireShock_Inst, HID\Vid_045E&Pid_0039
-%HID\Vid_045E&Pid_0040.DeviceDesc%=FireShock_Inst, HID\Vid_045E&Pid_0040
-%HID\Vid_045E&Pid_0047.DeviceDesc%=FireShock_Inst, HID\Vid_045E&Pid_0047
+[NefariusSoftwareSolutions.NT$ARCH$]
+%HID\VID_054C&PID_0268.DeviceDesc%=FireShock_Inst, HID\VID_054C&PID_0268
 
 ; Install Section
 ; ---------------------------------------------------------
@@ -95,10 +91,10 @@ KmdfLibraryVersion = $KMDFVERSION$
 ; ---------------------------------------------------------
 [Strings]
 ; Provider names
-Provider = "TODO-Set-Provider"
+Provider = "Nefarius Software Solutions"
 
 ; Mfg names
-ShinyThings = "Shiny Things"
+NSS = "Nefarius Software Solutions"
 
 ; Service names
 FireShock.SvcDesc = "FireShock Service"
@@ -107,11 +103,7 @@ FireShock.SvcDesc = "FireShock Service"
 DiskName = "FireShock Driver Disk"
 
 ; HID device IDs
-HID\VID_045E&PID_001E.DeviceDesc = "Shiny Things FireShock Mouse"
-HID\VID_045E&PID_0029.DeviceDesc = "Shiny Things FireShock Mouse"
-HID\VID_045E&PID_0039.DeviceDesc = "Shiny Things FireShock Mouse"
-HID\VID_045E&PID_0040.DeviceDesc = "Shiny Things FireShock Mouse"
-HID\VID_045E&PID_0047.DeviceDesc = "Shiny Things FireShock Mouse"
+HID\VID_054C&PID_0268.DeviceDesc = "Nefarius Software Solutions FireShock 3 Device"
 
 ; Standard defs
 SPSVCINST_TAGTOFRONT  = 0x00000001
