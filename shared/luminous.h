@@ -13,7 +13,7 @@ Module Name:
 
 Abstract:
 
-    This header exposes definitions for managing firefly devices.
+    This header exposes definitions for managing fireshock devices.
 
 Environment:
 
@@ -33,7 +33,7 @@ Environment:
 #include <wbemcli.h>
 
 #define NAME_SPACE TEXT("root\\WMI")
-#define CLASS_NAME  TEXT("FireflyDeviceInformation")
+#define CLASS_NAME  TEXT("FireShockDeviceInformation")
 #define PROPERTY_NAME TEXT("TailLit")
 
 class CLuminous {

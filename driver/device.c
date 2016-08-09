@@ -15,7 +15,7 @@ Module Name:
 Abstract:
 
     This module contains the Windows Driver Framework Device object
-    handlers for the firefly filter driver.
+    handlers for the fireshock filter driver.
 
 Environment:
 
@@ -23,14 +23,14 @@ Environment:
 
 --*/
 
-#include "FireFly.h"
+#include "FireShock.h"
 
 #ifdef ALLOC_PRAGMA
-#pragma alloc_text(PAGE, FireFlyEvtDeviceAdd)
+#pragma alloc_text(PAGE, FireShockEvtDeviceAdd)
 #endif
 
 NTSTATUS
-FireFlyEvtDeviceAdd(
+FireShockEvtDeviceAdd(
     WDFDRIVER Driver,
     PWDFDEVICE_INIT DeviceInit
     )
@@ -73,7 +73,7 @@ Return Value:
 
     status = WdfDeviceCreate(&DeviceInit, &attributes, &device);
     if (!NT_SUCCESS(status)) {
-        KdPrint(("FireFly: WdfDeviceCreate, Error %x\n", status));
+        KdPrint(("FireShock: WdfDeviceCreate, Error %x\n", status));
         return status;
     }
 
@@ -87,7 +87,7 @@ Return Value:
     //
     status = WmiInitialize(device, pDeviceContext);
     if (!NT_SUCCESS(status)) {
-        KdPrint(("FireFly: Error initializing WMI 0x%x\n", status));
+        KdPrint(("FireShock: Error initializing WMI 0x%x\n", status));
         return status;
     }
 
@@ -111,7 +111,7 @@ Return Value:
                                     &memory);
 
     if (!NT_SUCCESS(status)) {
-        KdPrint(("FireFly: WdfDeviceAllocAndQueryProperty failed 0x%x\n", status));        
+        KdPrint(("FireShock: WdfDeviceAllocAndQueryProperty failed 0x%x\n", status));        
         return STATUS_UNSUCCESSFUL;
     }
 

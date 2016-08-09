@@ -110,8 +110,8 @@ STRINGTABLE DISCARDABLE
 BEGIN
     IDS_PROJNAME            "Sauron"
     IDS_EFFECTNAME          "Sauron"
-    IDS_BARSPRESETNAME      "Firefly Bars"
-    IDS_FLASHPRESETNAME     "Firefly Flash"
+    IDS_BARSPRESETNAME      "FireShock Bars"
+    IDS_FLASHPRESETNAME     "FireShock Flash"
 END
 
 #endif    // English (U.S.) resources

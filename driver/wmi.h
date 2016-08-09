@@ -15,7 +15,7 @@ Module Name:
 Abstract:
 
     This module contains the Windows Driver Framework WMI
-    handlers for the firefly filter driver.
+    handlers for the fireshock filter driver.
 
 Environment:
 
@@ -26,10 +26,10 @@ Environment:
 //
 // Where they are described.
 //
-#define MOFRESOURCENAME L"FireflyWMI"
+#define MOFRESOURCENAME L"FireShockWMI"
 
 //
-// Initialize the FireFly drivers WMI support
+// Initialize the FireShock drivers WMI support
 //
 NTSTATUS
 WmiInitialize(

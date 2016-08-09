@@ -21,41 +21,41 @@ ExcludeFromSelect = *
 ; Devices Section
 ; ---------------------------------------------------------
 [ShinyThingsMfg.NT$ARCH$]
-%HID\Vid_045E&Pid_001E.DeviceDesc%=Firefly_Inst, HID\Vid_045E&Pid_001E
-%HID\Vid_045E&Pid_0029.DeviceDesc%=Firefly_Inst, HID\Vid_045E&Pid_0029
-%HID\Vid_045E&Pid_0039.DeviceDesc%=Firefly_Inst, HID\Vid_045E&Pid_0039
-%HID\Vid_045E&Pid_0040.DeviceDesc%=Firefly_Inst, HID\Vid_045E&Pid_0040
-%HID\Vid_045E&Pid_0047.DeviceDesc%=Firefly_Inst, HID\Vid_045E&Pid_0047
+%HID\Vid_045E&Pid_001E.DeviceDesc%=FireShock_Inst, HID\Vid_045E&Pid_001E
+%HID\Vid_045E&Pid_0029.DeviceDesc%=FireShock_Inst, HID\Vid_045E&Pid_0029
+%HID\Vid_045E&Pid_0039.DeviceDesc%=FireShock_Inst, HID\Vid_045E&Pid_0039
+%HID\Vid_045E&Pid_0040.DeviceDesc%=FireShock_Inst, HID\Vid_045E&Pid_0040
+%HID\Vid_045E&Pid_0047.DeviceDesc%=FireShock_Inst, HID\Vid_045E&Pid_0047
 
 ; Install Section
 ; ---------------------------------------------------------
-[Firefly_Inst.NT]
-Include = MSMOUSE.INF
-Needs = HID_Mouse_Inst.NT
-CopyFiles = Firefly_Inst_CopyFiles.NT
+[FireShock_Inst.NT]
+Include = INPUT.INF
+Needs = HID_Inst.NT
+CopyFiles = FireShock_Inst_CopyFiles.NT
 
-[Firefly_Inst.NT.HW]
-Include = MSMOUSE.INF
-Needs = HID_Mouse_Inst.NT.Hw
-AddReg = Firefly_Inst_HWAddReg.NT
+[FireShock_Inst.NT.HW]
+Include = INPUT.INF
+Needs = HID_Inst.NT.Hw
+AddReg = FireShock_Inst_HWAddReg.NT
 
-[Firefly_Inst_HWAddReg.NT]
-HKR,,"UpperFilters",0x00010000,"Firefly"
+[FireShock_Inst_HWAddReg.NT]
+HKR,,"UpperFilters",0x00010000,"FireShock"
 
-[Firefly_Inst_CopyFiles.NT]
-Firefly.sys
+[FireShock_Inst_CopyFiles.NT]
+FireShock.sys
 
-[Firefly_Inst.NT.Services]
-Include = MSMOUSE.INF
-Needs = HID_Mouse_Inst.NT.Services
-AddService = Firefly, , Firefly_Service_Inst
+[FireShock_Inst.NT.Services]
+Include = INPUT.INF
+Needs = HID_Inst.NT.Services
+AddService = FireShock, , FireShock_Service_Inst
 
-[Firefly_Service_Inst]
-DisplayName    = %Firefly.SvcDesc%
+[FireShock_Service_Inst]
+DisplayName    = %FireShock.SvcDesc%
 ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
 StartType      = 3                  ; SERVICE_DEMAND_START
 ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %12%\Firefly.sys
+ServiceBinary  = %12%\FireShock.sys
 
 ; Source Media Section
 ; ---------------------------------------------------------
@@ -63,31 +63,31 @@ ServiceBinary  = %12%\Firefly.sys
 1 = %DiskName%
 
 [SourceDisksFiles]
-Firefly.sys = 1
+FireShock.sys = 1
 
 ;
-;--- Firefly_Inst WDF Coinstaller installation ------
+;--- FireShock_Inst WDF Coinstaller installation ------
 ;
 
 [DestinationDirs]
-Firefly_Inst_CoInstaller_CopyFiles = 11
+FireShock_Inst_CoInstaller_CopyFiles = 11
 
-[Firefly_Inst.NT.CoInstallers]
-AddReg=Firefly_Inst_CoInstaller_AddReg
-CopyFiles=Firefly_Inst_CoInstaller_CopyFiles
+[FireShock_Inst.NT.CoInstallers]
+AddReg=FireShock_Inst_CoInstaller_AddReg
+CopyFiles=FireShock_Inst_CoInstaller_CopyFiles
 
-[Firefly_Inst_CoInstaller_AddReg]
+[FireShock_Inst_CoInstaller_AddReg]
 HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
 
-[Firefly_Inst_CoInstaller_CopyFiles]
+[FireShock_Inst_CoInstaller_CopyFiles]
 WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
 
 [SourceDisksFiles]
 WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
 
-[Firefly_Inst.NT.Wdf]
-KmdfService = Firefly, Firefly_wdfsect
-[Firefly_wdfsect]
+[FireShock_Inst.NT.Wdf]
+KmdfService = FireShock, FireShock_wdfsect
+[FireShock_wdfsect]
 KmdfLibraryVersion = $KMDFVERSION$
 
 
@@ -101,17 +101,17 @@ Provider = "TODO-Set-Provider"
 ShinyThings = "Shiny Things"
 
 ; Service names
-Firefly.SvcDesc = "Firefly Service"
+FireShock.SvcDesc = "FireShock Service"
 
 ; Media names
-DiskName = "Firefly Driver Disk"
+DiskName = "FireShock Driver Disk"
 
 ; HID device IDs
-HID\VID_045E&PID_001E.DeviceDesc = "Shiny Things Firefly Mouse"
-HID\VID_045E&PID_0029.DeviceDesc = "Shiny Things Firefly Mouse"
-HID\VID_045E&PID_0039.DeviceDesc = "Shiny Things Firefly Mouse"
-HID\VID_045E&PID_0040.DeviceDesc = "Shiny Things Firefly Mouse"
-HID\VID_045E&PID_0047.DeviceDesc = "Shiny Things Firefly Mouse"
+HID\VID_045E&PID_001E.DeviceDesc = "Shiny Things FireShock Mouse"
+HID\VID_045E&PID_0029.DeviceDesc = "Shiny Things FireShock Mouse"
+HID\VID_045E&PID_0039.DeviceDesc = "Shiny Things FireShock Mouse"
+HID\VID_045E&PID_0040.DeviceDesc = "Shiny Things FireShock Mouse"
+HID\VID_045E&PID_0047.DeviceDesc = "Shiny Things FireShock Mouse"
 
 ; Standard defs
 SPSVCINST_TAGTOFRONT  = 0x00000001

@@ -2,10 +2,10 @@
 
 [Dynamic, Provider("WMIProv"),
  WMI,
- Description("Firefly driver information"),
+ Description("FireShock driver information"),
  guid("{AB27DB29-DB25-42E6-A3E7-28BD46BDB666}"),
  locale("MS\\0x409")]
-class FireflyDeviceInformation
+class FireShockDeviceInformation
 {
     [key, read]
      string InstanceName;

@@ -18,7 +18,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flicker", "app\flicker.vcxp
 		{B77AD939-7683-4EB8-A724-319959963AE2} = {B77AD939-7683-4EB8-A724-319959963AE2}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "firefly", "driver\firefly.vcxproj", "{72EF0AC2-AF89-4FAF-B50B-CFD1CBCFC1FA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fireshock", "driver\fireshock.vcxproj", "{72EF0AC2-AF89-4FAF-B50B-CFD1CBCFC1FA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SAURON", "sauron\SAURON.vcxproj", "{4CAAD2A0-0151-45F6-A742-0591E33070ED}"
 	ProjectSection(ProjectDependencies) = postProject

@@ -15,7 +15,7 @@ Module Name:
 Abstract:
 
     This module contains the Windows Driver Framework HID I/O Target
-    handlers for the firefly filter driver.
+    handlers for the fireshock filter driver.
 
 Environment:
 
@@ -27,7 +27,7 @@ Environment:
 #define _VFEATURE_H_
 
 NTSTATUS
-FireflySetFeature(
+FireShockSetFeature(
     IN  PDEVICE_CONTEXT DeviceContext,
     IN  UCHAR           PageId,
     IN  USHORT          FeatureId,

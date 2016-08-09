@@ -21,7 +21,7 @@ Environment:
 
 --*/
 
-#include "firefly.h"
+#include "fireshock.h"
 
 #pragma warning(disable:4201)  // nameless struct/union
 #pragma warning(disable:4214)  // bit field types other than int
@@ -33,11 +33,11 @@ Environment:
 #pragma warning(default:4214)
 
 #ifdef ALLOC_PRAGMA
-#pragma alloc_text(PAGE, FireflySetFeature)
+#pragma alloc_text(PAGE, FireShockSetFeature)
 #endif
 
 NTSTATUS
-FireflySetFeature(
+FireShockSetFeature(
     IN  PDEVICE_CONTEXT DeviceContext,
     IN  UCHAR           PageId,
     IN  USHORT          FeatureId,
@@ -92,7 +92,7 @@ Return Value:
                             WDF_NO_OBJECT_ATTRIBUTES, 
                             &hidTarget);    
     if (!NT_SUCCESS(status)) {
-        KdPrint(("FireFly: WdfIoTargetCreate failed 0x%x\n", status));        
+        KdPrint(("FireShock: WdfIoTargetCreate failed 0x%x\n", status));        
         return status;
     }
 
@@ -112,7 +112,7 @@ Return Value:
 
     status = WdfIoTargetOpen(hidTarget, &openParams);
     if (!NT_SUCCESS(status)) {
-        KdPrint(("FireFly: WdfIoTargetOpen failed 0x%x\n", status));                
+        KdPrint(("FireShock: WdfIoTargetOpen failed 0x%x\n", status));                
         goto ExitAndFree;
     }
     
@@ -133,7 +133,7 @@ Return Value:
                                   NULL);
 
     if (!NT_SUCCESS(status)) {
-        KdPrint(("FireFly: WdfIoTargetSendIoctlSynchronously failed 0x%x\n", status));                
+        KdPrint(("FireShock: WdfIoTargetSendIoctlSynchronously failed 0x%x\n", status));                
         goto ExitAndFree;
     }
 
@@ -158,7 +158,7 @@ Return Value:
                                   NULL);
 
     if (!NT_SUCCESS(status)) {
-        KdPrint(("FireFly: WdfIoTargetSendIoctlSynchronously failed 0x%x\n", status));                
+        KdPrint(("FireShock: WdfIoTargetSendIoctlSynchronously failed 0x%x\n", status));                
         goto ExitAndFree;
     }
 
@@ -210,7 +210,7 @@ Return Value:
             caps.FeatureReportByteLength
             );
         if (!NT_SUCCESS(status)) {
-            KdPrint(("FireFly: HidP_SetUsages failed 0x%x\n", status));                
+            KdPrint(("FireShock: HidP_SetUsages failed 0x%x\n", status));                
             goto ExitAndFree;
         }
     }
@@ -226,7 +226,7 @@ Return Value:
                                   NULL,
                                   NULL);
     if (!NT_SUCCESS(status)) {
-        KdPrint(("FireFly: WdfIoTargetSendIoctlSynchronously failed 0x%x\n", status));                
+        KdPrint(("FireShock: WdfIoTargetSendIoctlSynchronously failed 0x%x\n", status));                
         goto ExitAndFree;
     }
 

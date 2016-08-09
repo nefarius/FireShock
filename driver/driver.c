@@ -15,7 +15,7 @@ Module Name:
 Abstract:
 
     This modules contains the Windows Driver Framework Driver object
-    handlers for the firefly filter driver.
+    handlers for the fireshock filter driver.
 
 Environment:
 
@@ -23,7 +23,7 @@ Environment:
 
 --*/
 
-#include "FireFly.h"
+#include "FireShock.h"
 
 //
 // Main driver entry, initialize the framework, register
@@ -38,12 +38,12 @@ DriverEntry(
     WDF_DRIVER_CONFIG params;
     NTSTATUS  status;
 
-    KdPrint(("FireFly: DriverEntry - WDF version built on %s %s\n", 
+    KdPrint(("FireShock: DriverEntry - WDF version built on %s %s\n", 
                             __DATE__, __TIME__));
 
     WDF_DRIVER_CONFIG_INIT(
                         &params,
-                        FireFlyEvtDeviceAdd
+                        FireShockEvtDeviceAdd
                         );
 
     //
@@ -59,7 +59,7 @@ DriverEntry(
         //
         // Framework will automatically cleanup on error Status return
         //
-        KdPrint(("FireFly: Error Creating WDFDRIVER 0x%x\n", status));
+        KdPrint(("FireShock: Error Creating WDFDRIVER 0x%x\n", status));
     }
 
     return status;

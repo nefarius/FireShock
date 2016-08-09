@@ -10,12 +10,12 @@ Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Module Name:
 
-    FireFly.h
+    FireShock.h
 
 Abstract:
 
     This is the header for the Windows Driver Framework version
-    of the firefly filter driver.
+    of the fireshock filter driver.
 
 Environment:
 
@@ -31,10 +31,10 @@ Environment:
 #include <wdmguid.h>
 
 //
-// Our drivers generated include from firefly.mof
+// Our drivers generated include from fireshock.mof
 // See makefile.inc for wmi commands
 //
-#include "fireflymof.h"
+#include "fireshockmof.h"
 
 // Our drivers modules includes
 #include "device.h"
@@ -48,5 +48,5 @@ Environment:
 
 DRIVER_INITIALIZE DriverEntry;
 
-EVT_WDF_DRIVER_DEVICE_ADD FireFlyEvtDeviceAdd;
+EVT_WDF_DRIVER_DEVICE_ADD FireShockEvtDeviceAdd;
 

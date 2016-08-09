@@ -15,7 +15,7 @@ Module Name:
 Abstract:
 
     This modules contains the Windows Driver Framework WMI
-    handlers for the firefly filter driver.
+    handlers for the fireshock filter driver.
 
 Environment:
 
@@ -23,7 +23,7 @@ Environment:
 
 --*/
 
-#include "FireFly.h"
+#include "FireShock.h"
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, WmiInitialize)
@@ -33,7 +33,7 @@ Environment:
 #endif
 
 //
-// Register our GUID and Datablock generated from the Firefly.mof file.
+// Register our GUID and Datablock generated from the FireShock.mof file.
 //
 NTSTATUS
 WmiInitialize(
@@ -54,12 +54,12 @@ WmiInitialize(
 
     status = WdfDeviceAssignMofResourceName(Device, &mofRsrcName);
     if (!NT_SUCCESS(status)) {
-        KdPrint(("FireFly: Error in WdfDeviceAssignMofResourceName %x\n", status));
+        KdPrint(("FireShock: Error in WdfDeviceAssignMofResourceName %x\n", status));
         return status;
     }
 
-    WDF_WMI_PROVIDER_CONFIG_INIT(&providerConfig, &FireflyDeviceInformation_GUID);
-    providerConfig.MinInstanceBufferSize = sizeof(FireflyDeviceInformation);
+    WDF_WMI_PROVIDER_CONFIG_INIT(&providerConfig, &FireShockDeviceInformation_GUID);
+    providerConfig.MinInstanceBufferSize = sizeof(FireShockDeviceInformation);
 
     WDF_WMI_INSTANCE_CONFIG_INIT_PROVIDER_CONFIG(&instanceConfig, &providerConfig);
     instanceConfig.Register = TRUE;
@@ -67,7 +67,7 @@ WmiInitialize(
     instanceConfig.EvtWmiInstanceSetInstance = EvtWmiInstanceSetInstance;
     instanceConfig.EvtWmiInstanceSetItem = EvtWmiInstanceSetItem;
 
-    WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&woa, FireflyDeviceInformation);
+    WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&woa, FireShockDeviceInformation);
 
     //
     // No need to store the WDFWMIINSTANCE in the device context because it is
@@ -77,7 +77,7 @@ WmiInitialize(
     status = WdfWmiInstanceCreate(Device, &instanceConfig, &woa, &instance);
 
     if (NT_SUCCESS(status)) {
-        FireflyDeviceInformation* info;
+        FireShockDeviceInformation* info;
 
         info = InstanceGetInfo(instance);
         info->TailLit = TRUE;
@@ -94,7 +94,7 @@ EvtWmiInstanceQueryInstance(
     OUT PULONG BufferUsed
     )
 {
-    FireflyDeviceInformation* pInfo;
+    FireShockDeviceInformation* pInfo;
 
     PAGED_CODE();
 
@@ -120,7 +120,7 @@ EvtWmiInstanceSetInstance(
     IN  PVOID InBuffer
     )
 {
-    FireflyDeviceInformation* pInfo;
+    FireShockDeviceInformation* pInfo;
     ULONG length;
     NTSTATUS status;
 
@@ -141,7 +141,7 @@ EvtWmiInstanceSetInstance(
     //
     // Tell the HID device about the new tail light state
     //
-    status = FireflySetFeature(
+    status = FireShockSetFeature(
         WdfObjectGet_DEVICE_CONTEXT(WdfWmiInstanceGetDevice(WmiInstance)),
         TAILLIGHT_PAGE,
         TAILLIGHT_FEATURE,
@@ -160,14 +160,14 @@ EvtWmiInstanceSetItem(
     )
 {
     NTSTATUS status;
-    FireflyDeviceInformation* pInfo;
+    FireShockDeviceInformation* pInfo;
 
     PAGED_CODE();
 
     pInfo = InstanceGetInfo(WmiInstance);
 
     if (DataItemId == 1) {
-        if (InBufferSize < FireflyDeviceInformation_TailLit_SIZE) {
+        if (InBufferSize < FireShockDeviceInformation_TailLit_SIZE) {
             return STATUS_BUFFER_TOO_SMALL;
         }
 
@@ -176,7 +176,7 @@ EvtWmiInstanceSetItem(
         //
         // Tell the HID device about the new tail light state
         //
-        status = FireflySetFeature(
+        status = FireShockSetFeature(
             WdfObjectGet_DEVICE_CONTEXT(WdfWmiInstanceGetDevice(WmiInstance)),
             TAILLIGHT_PAGE,
             TAILLIGHT_FEATURE,

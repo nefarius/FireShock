@@ -14,7 +14,7 @@ Module Name:
 Abstract:
 
     This module contains the Windows Driver Framework Device object
-    handlers for the firefly filter driver.
+    handlers for the fireshock filter driver.
 
 Environment:
 
@@ -28,8 +28,8 @@ Environment:
 //
 typedef struct _DEVICE_CONTEXT
 {
-    // Our WMI data generated from firefly.mof
-    FireflyDeviceInformation WmiInstance;
+    // Our WMI data generated from fireshock.mof
+    FireShockDeviceInformation WmiInstance;
 
     UNICODE_STRING PdoName;
 
@@ -37,7 +37,7 @@ typedef struct _DEVICE_CONTEXT
 
 WDF_DECLARE_CONTEXT_TYPE(DEVICE_CONTEXT)
 
-WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(FireflyDeviceInformation, InstanceGetInfo)
+WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(FireShockDeviceInformation, InstanceGetInfo)
 
 EVT_WDF_DEVICE_CONTEXT_CLEANUP EvtDeviceContextCleanup;
 

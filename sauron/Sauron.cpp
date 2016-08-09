@@ -11,7 +11,7 @@ Module Name: Sauron.cpp
 
 
 Abstract: Implementation of CSauron, Windows Media Player Visualization
-          that communicates with Firefly to blink the mouse light to
+          that communicates with FireShock to blink the mouse light to
           the beat of music.
 
 

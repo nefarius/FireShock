@@ -14,7 +14,7 @@ Module Name:
 
 Abstract:
 
-    Library for managing the state of all firefly devices
+    Library for managing the state of all fireshock devices
 
 Environment:
 

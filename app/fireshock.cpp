@@ -9,12 +9,12 @@ Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Module Name:
 
-    Firefly.c
+    FireShock.c
 
 Abstract:
 
     App to change the tail light state of MS optical mouse with the help of
-    firefly driver. This app uses WMI interface to talk to the driver.
+    fireshock driver. This app uses WMI interface to talk to the driver.
 
 Environment:
 
