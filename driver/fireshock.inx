@@ -36,7 +36,7 @@ Needs = HID_Inst.NT.Hw
 AddReg = FireShock_Inst_HWAddReg.NT
 
 [FireShock_Inst_HWAddReg.NT]
-HKR,,"UpperFilters",0x00010000,"FireShock"
+HKR,,"LowerFilters",0x00010000,"FireShock"
 
 [FireShock_Inst_CopyFiles.NT]
 FireShock.sys
