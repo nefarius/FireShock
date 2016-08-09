@@ -50,39 +50,106 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     KdPrint(("FireShockEvtDeviceD0Entry called\n"));
 
     NTSTATUS status;
-    ULONG transferred;
-    WDF_MEMORY_DESCRIPTOR transferBuffer;
-    UCHAR buffer[64] = { 0 };
+    WDFMEMORY transferBuffer;
+    UCHAR hidCommandEnable[4] = { 0x42, 0x0C, 0x00, 0x00 };
+    WDF_OBJECT_ATTRIBUTES transferAttribs;
 
-    WDF_MEMORY_DESCRIPTOR_INIT_BUFFER(&transferBuffer, buffer, 64);
+    WDFREQUEST controlRequest;
+    status = WdfRequestCreate(
+        WDF_NO_OBJECT_ATTRIBUTES,
+        WdfDeviceGetIoTarget(Device),
+        &controlRequest);
+
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint(("WdfRequestCreate failed with status 0x%X\n", status));
+        return status;
+    }
+
+    WDF_OBJECT_ATTRIBUTES_INIT(&transferAttribs);
+
+    transferAttribs.ParentObject = controlRequest;
+
+    status = WdfMemoryCreate(
+        &transferAttribs,
+        NonPagedPool,
+        0,
+        4,
+        &transferBuffer,
+        NULL);
+
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint(("WdfMemoryCreate failed with status 0x%X\n", status));
+        return status;
+    }
+
+    status = WdfMemoryCopyFromBuffer(
+        transferBuffer, 
+        0, 
+        hidCommandEnable, 
+        4);
+
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint(("WdfMemoryCopyFromBuffer failed with status 0x%X\n", status));
+        return status;
+    }
 
     WDF_USB_CONTROL_SETUP_PACKET packet;
     WDF_USB_CONTROL_SETUP_PACKET_INIT_CLASS(
         &packet,
         BmRequestHostToDevice,
         BMREQUEST_TO_INTERFACE,
-        0x01,
-        0x03F2,
+        0x09,
+        0x03F4,
         0);
 
-    status = WdfUsbTargetDeviceSendControlTransferSynchronously(
+    status = WdfUsbTargetDeviceFormatRequestForControlTransfer(
         pDeviceContext->UsbDevice,
-        WDF_NO_HANDLE,
-        NULL,
+        controlRequest,
         &packet,
-        &transferBuffer,
-        &transferred);
+        transferBuffer,
+        NULL);
 
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("WdfUsbTargetDeviceSendControlTransferSynchronously failed with status 0x%X\n", status));
+        KdPrint(("WdfUsbTargetDeviceFormatRequestForControlTransfer failed with status 0x%X\n", status));
         return status;
     }
 
-    KdPrint(("(%02d) MAC: %02X:%02X:%02X:%02X:%02X\n",
-        transferred,
-        buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7]));
+    WdfRequestSetCompletionRoutine(
+        controlRequest,
+        CompletionRoutine,
+        NULL);
+
+    if (!WdfRequestSend(
+        controlRequest,
+        WdfUsbTargetDeviceGetIoTarget(pDeviceContext->UsbDevice),
+        NULL))
+    {
+        KdPrint(("WdfRequestSend failed\n"));
+    }
 
     return STATUS_SUCCESS;
+}
+
+void CompletionRoutine(
+    _In_ WDFREQUEST                     Request,
+    _In_ WDFIOTARGET                    Target,
+    _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
+    _In_ WDFCONTEXT                     Context
+)
+{
+    UNREFERENCED_PARAMETER(Request);
+    UNREFERENCED_PARAMETER(Target);
+    UNREFERENCED_PARAMETER(Params);
+    UNREFERENCED_PARAMETER(Context);
+
+    KdPrint(("CompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
+
+    
+
+    //KdPrint(("MAC: %02X:%02X:%02X:%02X:%02X\n", buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7]));
 }
 
