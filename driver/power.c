@@ -43,12 +43,45 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     _In_ WDF_POWER_DEVICE_STATE PreviousState
 )
 {
-    UNREFERENCED_PARAMETER(Device);
+    PDEVICE_CONTEXT pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(Device);
+
     UNREFERENCED_PARAMETER(PreviousState);
 
     KdPrint(("FireShockEvtDeviceD0Entry called\n"));
 
+    NTSTATUS status;
+    ULONG transferred;
+    WDF_MEMORY_DESCRIPTOR transferBuffer;
+    UCHAR buffer[64] = { 0 };
 
+    WDF_MEMORY_DESCRIPTOR_INIT_BUFFER(&transferBuffer, buffer, 64);
+
+    WDF_USB_CONTROL_SETUP_PACKET packet;
+    WDF_USB_CONTROL_SETUP_PACKET_INIT_CLASS(
+        &packet,
+        BmRequestHostToDevice,
+        BMREQUEST_TO_INTERFACE,
+        0x01,
+        0x03F2,
+        0);
+
+    status = WdfUsbTargetDeviceSendControlTransferSynchronously(
+        pDeviceContext->UsbDevice,
+        WDF_NO_HANDLE,
+        NULL,
+        &packet,
+        &transferBuffer,
+        &transferred);
+
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint(("WdfUsbTargetDeviceSendControlTransferSynchronously failed with status 0x%X\n", status));
+        return status;
+    }
+
+    KdPrint(("(%02d) MAC: %02X:%02X:%02X:%02X:%02X\n",
+        transferred,
+        buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7]));
 
     return STATUS_SUCCESS;
 }
