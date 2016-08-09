@@ -35,6 +35,8 @@ NTSTATUS FireShockEvtDeviceD0Entry(
 
     KdPrint(("FireShockEvtDeviceD0Entry called\n"));
 
+    FireShockSetFeature(WdfObjectGet_DEVICE_CONTEXT(Device), 0x00, 0x0000, FALSE);
+
     return STATUS_SUCCESS;
 }
 
