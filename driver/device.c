@@ -26,6 +26,7 @@ Environment:
 #include "FireShock.h"
 #include <usbioctl.h>
 #include <usb.h>
+#include <wdfusb.h>
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, FireShockEvtDeviceAdd)
@@ -167,19 +168,24 @@ VOID EvtIoInternalDeviceControl(
     UNREFERENCED_PARAMETER(OutputBufferLength);
     UNREFERENCED_PARAMETER(InputBufferLength);
 
-    NTSTATUS                        status = STATUS_SUCCESS;
+    NTSTATUS                        status;
     WDFDEVICE                       hDevice;
-    BOOLEAN                         ret = TRUE;
+    BOOLEAN                         ret;
     WDF_REQUEST_SEND_OPTIONS        options;
+    PIRP                            irp;
+    PURB                            urb;
+    WDFMEMORY                       transferBuffer;
+    UCHAR                           hidCommandEnable[4] = { 0x42, 0x0C, 0x00, 0x00 };
+    PDEVICE_CONTEXT                 pDeviceContext;
+    WDFREQUEST                      controlRequest;
+    WDF_USB_CONTROL_SETUP_PACKET    packet;
+    WDF_OBJECT_ATTRIBUTES           transferAttribs;
 
-    PIRP irp;
-    PURB urb;
-    
     hDevice = WdfIoQueueGetDevice(Queue);
-
     irp = WdfRequestWdmGetIrp(Request);
+    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(hDevice);
 
-    switch(IoControlCode)
+    switch (IoControlCode)
     {
     case IOCTL_INTERNAL_USB_SUBMIT_URB:
 
@@ -202,6 +208,81 @@ VOID EvtIoInternalDeviceControl(
         case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
 
             KdPrint((">> >> URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
+
+            status = WdfRequestCreate(
+                WDF_NO_OBJECT_ATTRIBUTES,
+                WdfDeviceGetIoTarget(hDevice),
+                &controlRequest);
+
+            if (!NT_SUCCESS(status))
+            {
+                KdPrint(("WdfRequestCreate failed with status 0x%X\n", status));
+                break;
+            }
+
+            WDF_OBJECT_ATTRIBUTES_INIT(&transferAttribs);
+
+            transferAttribs.ParentObject = controlRequest;
+
+            status = WdfMemoryCreate(
+                &transferAttribs,
+                NonPagedPool,
+                0,
+                4,
+                &transferBuffer,
+                NULL);
+
+            if (!NT_SUCCESS(status))
+            {
+                KdPrint(("WdfMemoryCreate failed with status 0x%X\n", status));
+                break;
+            }
+
+            status = WdfMemoryCopyFromBuffer(
+                transferBuffer,
+                0,
+                hidCommandEnable,
+                4);
+
+            if (!NT_SUCCESS(status))
+            {
+                KdPrint(("WdfMemoryCopyFromBuffer failed with status 0x%X\n", status));
+                break;
+            }
+
+            WDF_USB_CONTROL_SETUP_PACKET_INIT_CLASS(
+                &packet,
+                BmRequestHostToDevice,
+                BMREQUEST_TO_INTERFACE,
+                0x09,
+                0x03F4,
+                0);
+
+            status = WdfUsbTargetDeviceFormatRequestForControlTransfer(
+                pDeviceContext->UsbDevice,
+                controlRequest,
+                &packet,
+                transferBuffer,
+                NULL);
+
+            if (!NT_SUCCESS(status))
+            {
+                KdPrint(("WdfUsbTargetDeviceFormatRequestForControlTransfer failed with status 0x%X\n", status));
+                break;
+            }
+
+            WdfRequestSetCompletionRoutine(
+                controlRequest,
+                ControlRequestCompletionRoutine,
+                NULL);
+
+            if (!WdfRequestSend(
+                controlRequest,
+                WdfUsbTargetDeviceGetIoTarget(pDeviceContext->UsbDevice),
+                NULL))
+            {
+                KdPrint(("WdfRequestSend failed\n"));
+            }
 
             break;
 
@@ -293,8 +374,6 @@ VOID EvtIoInternalDeviceControl(
         break;
     }
 
-
-
     WDF_REQUEST_SEND_OPTIONS_INIT(&options,
         WDF_REQUEST_SEND_OPTION_SEND_AND_FORGET);
 
@@ -305,5 +384,20 @@ VOID EvtIoInternalDeviceControl(
         KdPrint(("WdfRequestSend failed: 0x%x\n", status));
         WdfRequestComplete(Request, status);
     }
+}
+
+void ControlRequestCompletionRoutine(
+    _In_ WDFREQUEST                     Request,
+    _In_ WDFIOTARGET                    Target,
+    _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
+    _In_ WDFCONTEXT                     Context
+)
+{
+    UNREFERENCED_PARAMETER(Request);
+    UNREFERENCED_PARAMETER(Target);
+    UNREFERENCED_PARAMETER(Params);
+    UNREFERENCED_PARAMETER(Context);
+
+    KdPrint(("CompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
 }
 

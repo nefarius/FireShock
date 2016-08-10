@@ -1,11 +1,36 @@
+/*
+MIT License
+
+Copyright (c) 2016 Benjamin "Nefarius" Höglinger
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+
 #include "fireshock.h"
 #include <wdf.h>
 #include <usb.h>
-#include <usbdlib.h>
 #include <wdfusb.h>
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, FireShockEvtDevicePrepareHardware)
+#pragma alloc_text(PAGE, FireShockEvtDeviceD0Entry)
 #endif
 
 NTSTATUS FireShockEvtDevicePrepareHardware(
@@ -43,117 +68,11 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     _In_ WDF_POWER_DEVICE_STATE PreviousState
 )
 {
-    PDEVICE_CONTEXT pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(Device);
-
+    UNREFERENCED_PARAMETER(Device);
     UNREFERENCED_PARAMETER(PreviousState);
 
     KdPrint(("FireShockEvtDeviceD0Entry called\n"));
 
-    if (TRUE)goto skipMe;
-
-    NTSTATUS status;
-    WDFMEMORY transferBuffer;
-    UCHAR hidCommandEnable[4] = { 0x42, 0x0C, 0x00, 0x00 };
-    WDF_OBJECT_ATTRIBUTES transferAttribs;
-
-    WDFREQUEST controlRequest;
-    status = WdfRequestCreate(
-        WDF_NO_OBJECT_ATTRIBUTES,
-        WdfDeviceGetIoTarget(Device),
-        &controlRequest);
-
-    if (!NT_SUCCESS(status))
-    {
-        KdPrint(("WdfRequestCreate failed with status 0x%X\n", status));
-        return status;
-    }
-
-    WDF_OBJECT_ATTRIBUTES_INIT(&transferAttribs);
-
-    transferAttribs.ParentObject = controlRequest;
-
-    status = WdfMemoryCreate(
-        &transferAttribs,
-        NonPagedPool,
-        0,
-        4,
-        &transferBuffer,
-        NULL);
-
-    if (!NT_SUCCESS(status))
-    {
-        KdPrint(("WdfMemoryCreate failed with status 0x%X\n", status));
-        return status;
-    }
-
-    status = WdfMemoryCopyFromBuffer(
-        transferBuffer,
-        0,
-        hidCommandEnable,
-        4);
-
-    if (!NT_SUCCESS(status))
-    {
-        KdPrint(("WdfMemoryCopyFromBuffer failed with status 0x%X\n", status));
-        return status;
-    }
-
-    WDF_USB_CONTROL_SETUP_PACKET packet;
-    WDF_USB_CONTROL_SETUP_PACKET_INIT_CLASS(
-        &packet,
-        BmRequestHostToDevice,
-        BMREQUEST_TO_INTERFACE,
-        0x09,
-        0x03F4,
-        0);
-
-    status = WdfUsbTargetDeviceFormatRequestForControlTransfer(
-        pDeviceContext->UsbDevice,
-        controlRequest,
-        &packet,
-        transferBuffer,
-        NULL);
-
-    if (!NT_SUCCESS(status))
-    {
-        KdPrint(("WdfUsbTargetDeviceFormatRequestForControlTransfer failed with status 0x%X\n", status));
-        return status;
-    }
-
-    WdfRequestSetCompletionRoutine(
-        controlRequest,
-        CompletionRoutine,
-        NULL);
-
-    if (!WdfRequestSend(
-        controlRequest,
-        WdfUsbTargetDeviceGetIoTarget(pDeviceContext->UsbDevice),
-        NULL))
-    {
-        KdPrint(("WdfRequestSend failed\n"));
-    }
-
-skipMe:
-
     return STATUS_SUCCESS;
-}
-
-void CompletionRoutine(
-    _In_ WDFREQUEST                     Request,
-    _In_ WDFIOTARGET                    Target,
-    _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
-    _In_ WDFCONTEXT                     Context
-)
-{
-    UNREFERENCED_PARAMETER(Request);
-    UNREFERENCED_PARAMETER(Target);
-    UNREFERENCED_PARAMETER(Params);
-    UNREFERENCED_PARAMETER(Context);
-
-    KdPrint(("CompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
-
-
-
-    //KdPrint(("MAC: %02X:%02X:%02X:%02X:%02X\n", buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7]));
 }
 
