@@ -174,12 +174,7 @@ VOID EvtIoInternalDeviceControl(
     WDF_REQUEST_SEND_OPTIONS        options;
     PIRP                            irp;
     PURB                            urb;
-    WDFMEMORY                       transferBuffer;
-    UCHAR                           hidCommandEnable[4] = { 0x42, 0x0C, 0x00, 0x00 };
     PDEVICE_CONTEXT                 pDeviceContext;
-    WDFREQUEST                      controlRequest;
-    WDF_USB_CONTROL_SETUP_PACKET    packet;
-    WDF_OBJECT_ATTRIBUTES           transferAttribs;
 
     hDevice = WdfIoQueueGetDevice(Queue);
     irp = WdfRequestWdmGetIrp(Request);
@@ -209,79 +204,13 @@ VOID EvtIoInternalDeviceControl(
 
             KdPrint((">> >> URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
 
-            status = WdfRequestCreate(
-                WDF_NO_OBJECT_ATTRIBUTES,
-                WdfDeviceGetIoTarget(hDevice),
-                &controlRequest);
-
-            if (!NT_SUCCESS(status))
+            if (!pDeviceContext->Enabled)
             {
-                KdPrint(("WdfRequestCreate failed with status 0x%X\n", status));
-                break;
-            }
-
-            WDF_OBJECT_ATTRIBUTES_INIT(&transferAttribs);
-
-            transferAttribs.ParentObject = controlRequest;
-
-            status = WdfMemoryCreate(
-                &transferAttribs,
-                NonPagedPool,
-                0,
-                4,
-                &transferBuffer,
-                NULL);
-
-            if (!NT_SUCCESS(status))
-            {
-                KdPrint(("WdfMemoryCreate failed with status 0x%X\n", status));
-                break;
-            }
-
-            status = WdfMemoryCopyFromBuffer(
-                transferBuffer,
-                0,
-                hidCommandEnable,
-                4);
-
-            if (!NT_SUCCESS(status))
-            {
-                KdPrint(("WdfMemoryCopyFromBuffer failed with status 0x%X\n", status));
-                break;
-            }
-
-            WDF_USB_CONTROL_SETUP_PACKET_INIT_CLASS(
-                &packet,
-                BmRequestHostToDevice,
-                BMREQUEST_TO_INTERFACE,
-                0x09,
-                0x03F4,
-                0);
-
-            status = WdfUsbTargetDeviceFormatRequestForControlTransfer(
-                pDeviceContext->UsbDevice,
-                controlRequest,
-                &packet,
-                transferBuffer,
-                NULL);
-
-            if (!NT_SUCCESS(status))
-            {
-                KdPrint(("WdfUsbTargetDeviceFormatRequestForControlTransfer failed with status 0x%X\n", status));
-                break;
-            }
-
-            WdfRequestSetCompletionRoutine(
-                controlRequest,
-                ControlRequestCompletionRoutine,
-                NULL);
-
-            if (!WdfRequestSend(
-                controlRequest,
-                WdfUsbTargetDeviceGetIoTarget(pDeviceContext->UsbDevice),
-                NULL))
-            {
-                KdPrint(("WdfRequestSend failed\n"));
+                status = DsInit(hDevice);
+                if (NT_SUCCESS(status))
+                {
+                    pDeviceContext->Enabled = TRUE;
+                }
             }
 
             break;
