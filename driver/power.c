@@ -49,6 +49,8 @@ NTSTATUS FireShockEvtDeviceD0Entry(
 
     KdPrint(("FireShockEvtDeviceD0Entry called\n"));
 
+    if (TRUE)goto skipMe;
+
     NTSTATUS status;
     WDFMEMORY transferBuffer;
     UCHAR hidCommandEnable[4] = { 0x42, 0x0C, 0x00, 0x00 };
@@ -85,9 +87,9 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     }
 
     status = WdfMemoryCopyFromBuffer(
-        transferBuffer, 
-        0, 
-        hidCommandEnable, 
+        transferBuffer,
+        0,
+        hidCommandEnable,
         4);
 
     if (!NT_SUCCESS(status))
@@ -131,6 +133,8 @@ NTSTATUS FireShockEvtDeviceD0Entry(
         KdPrint(("WdfRequestSend failed\n"));
     }
 
+skipMe:
+
     return STATUS_SUCCESS;
 }
 
@@ -148,7 +152,7 @@ void CompletionRoutine(
 
     KdPrint(("CompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
 
-    
+
 
     //KdPrint(("MAC: %02X:%02X:%02X:%02X:%02X\n", buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7]));
 }
