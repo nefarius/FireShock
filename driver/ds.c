@@ -142,8 +142,25 @@ VOID Ds3OutputEvtTimerFunc(
     _In_ WDFTIMER Timer
 )
 {
-    UNREFERENCED_PARAMETER(Timer);
+    WDFDEVICE           hDevice;
+    PDEVICE_CONTEXT     pDeviceContext;
+    NTSTATUS            status;
 
+    hDevice = WdfTimerGetParentObject(Timer);
+    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(hDevice);
 
+    status = SendControlRequest(
+        hDevice,
+        SetReport,
+        USB_SETUP_VALUE(Output, One),
+        0,
+        pDeviceContext->OutputReportBuffer,
+        DS_HID_OUTPUT_REPORT_SIZE
+    );
+
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint(("SendControlRequest failed with status 0x%X\n", status));
+    }
 }
 
