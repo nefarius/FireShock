@@ -117,3 +117,10 @@ NTSTATUS DsInit(WDFDEVICE hDevice)
     return status;
 }
 
+VOID Ds3OutputEvtTimerFunc(
+    _In_ WDFTIMER Timer
+)
+{
+    UNREFERENCED_PARAMETER(Timer);
+}
+

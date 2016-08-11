@@ -29,4 +29,7 @@ SOFTWARE.
 #define DS_HID_REQUEST_SET_REPORT       0x09
 #define DS_HID_SET_REPORT_INIT          0x03F4
 
+EVT_WDF_TIMER Ds3OutputEvtTimerFunc;
+
 NTSTATUS DsInit(WDFDEVICE hDevice);
+

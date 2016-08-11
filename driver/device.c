@@ -64,6 +64,7 @@ Return Value:
     size_t                          bufferLength;
     WDF_PNPPOWER_EVENT_CALLBACKS    pnpPowerCallbacks;
     WDF_IO_QUEUE_CONFIG             ioQueueConfig;
+    WDF_TIMER_CONFIG                outputTimerCfg;
 
     UNREFERENCED_PARAMETER(Driver);
 
@@ -109,6 +110,18 @@ Return Value:
     // Driver Framework always zero initializes an objects context memory
     //
     pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(device);
+
+
+    WDF_TIMER_CONFIG_INIT_PERIODIC(&outputTimerCfg, Ds3OutputEvtTimerFunc, 10);
+    WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
+
+    attributes.ParentObject = device;
+
+    status = WdfTimerCreate(&outputTimerCfg, &attributes, &pDeviceContext->OutputReportTimer);
+    if (!NT_SUCCESS(status)) {
+        KdPrint(("FireShock: Error creating output report timer 0x%x\n", status));
+        return status;
+    }
 
     //
     // Initialize our WMI support
