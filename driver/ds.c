@@ -27,21 +27,26 @@ SOFTWARE.
 #include <usb.h>
 #include <wdfusb.h>
 
-NTSTATUS DsInit(WDFDEVICE hDevice)
+NTSTATUS SendControlRequest(
+    WDFDEVICE Device,
+    BYTE Request,
+    USHORT Value,
+    USHORT Index,
+    PVOID Buffer,
+    size_t BufferLength)
 {
     NTSTATUS                        status;
     WDFMEMORY                       transferBuffer;
-    UCHAR                           hidCommandEnable[DS_HID_COMMAND_ENABLE_SIZE] = { 0x42, 0x0C, 0x00, 0x00 };
     PDEVICE_CONTEXT                 pDeviceContext;
     WDFREQUEST                      controlRequest;
     WDF_USB_CONTROL_SETUP_PACKET    packet;
     WDF_OBJECT_ATTRIBUTES           transferAttribs;
 
-    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(hDevice);
+    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(Device);
 
     status = WdfRequestCreate(
         WDF_NO_OBJECT_ATTRIBUTES,
-        WdfDeviceGetIoTarget(hDevice),
+        WdfDeviceGetIoTarget(Device),
         &controlRequest);
 
     if (!NT_SUCCESS(status))
@@ -58,7 +63,7 @@ NTSTATUS DsInit(WDFDEVICE hDevice)
         &transferAttribs,
         NonPagedPool,
         0,
-        DS_HID_COMMAND_ENABLE_SIZE,
+        BufferLength,
         &transferBuffer,
         NULL);
 
@@ -71,8 +76,8 @@ NTSTATUS DsInit(WDFDEVICE hDevice)
     status = WdfMemoryCopyFromBuffer(
         transferBuffer,
         0,
-        hidCommandEnable,
-        DS_HID_COMMAND_ENABLE_SIZE);
+        Buffer,
+        BufferLength);
 
     if (!NT_SUCCESS(status))
     {
@@ -84,9 +89,9 @@ NTSTATUS DsInit(WDFDEVICE hDevice)
         &packet,
         BmRequestHostToDevice,
         BMREQUEST_TO_INTERFACE,
-        DS_HID_REQUEST_SET_REPORT,
-        DS_HID_SET_REPORT_INIT,
-        0);
+        Request,
+        Value,
+        Index);
 
     status = WdfUsbTargetDeviceFormatRequestForControlTransfer(
         pDeviceContext->UsbDevice,
@@ -117,10 +122,28 @@ NTSTATUS DsInit(WDFDEVICE hDevice)
     return status;
 }
 
+NTSTATUS DsInit(WDFDEVICE hDevice)
+{
+    UCHAR hidCommandEnable[DS_HID_COMMAND_ENABLE_SIZE] =
+    {
+        0x42, 0x0C, 0x00, 0x00
+    };
+
+    return SendControlRequest(
+        hDevice,
+        SetReport,
+        DS_HID_SET_REPORT_INIT,
+        0,
+        hidCommandEnable,
+        DS_HID_COMMAND_ENABLE_SIZE);
+}
+
 VOID Ds3OutputEvtTimerFunc(
     _In_ WDFTIMER Timer
 )
 {
     UNREFERENCED_PARAMETER(Timer);
+
+
 }
 

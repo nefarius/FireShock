@@ -28,8 +28,50 @@ SOFTWARE.
 #define DS_HID_COMMAND_ENABLE_SIZE      0x04
 #define DS_HID_REQUEST_SET_REPORT       0x09
 #define DS_HID_SET_REPORT_INIT          0x03F4
+#define DS_HID_OUTPUT_REPORT_SIZE       0x30
+
+typedef enum _USB_HID_REQUEST
+{
+    // Class-Specific Requests
+    GetReport = 0x01,
+    GetIdle = 0x02,
+    GetProtocol = 0x03,
+    SetReport = 0x09,
+    SetIdle = 0x0A,
+    SetProtocol = 0x0B,
+    // Standard Requests
+    GetDescriptor = 0x06,
+    SetDescriptor = 0x07
+} USB_HID_REQUEST;
+
+typedef enum _USB_HID_REPORT_REQUEST_TYPE
+{
+    Input = 0x01,
+    Output = 0x02,
+    Feature = 0x03
+} USB_HID_REPORT_REQUEST_TYPE;
+
+typedef enum _USB_HID_REPORT_REQUEST_ID
+{
+    One = 0x01
+} USB_HID_REPORT_REQUEST_ID;
+
+typedef enum _USB_HID_CLASS_DESCRIPTOR_TYPE
+{
+    Hid = 0x21,
+    Report = 0x22,
+    PhysicalDescriptor = 0x23
+} USB_HID_CLASS_DESCRIPTOR_TYPE;
 
 EVT_WDF_TIMER Ds3OutputEvtTimerFunc;
+
+NTSTATUS SendControlRequest(
+    WDFDEVICE Device,
+    BYTE Request,
+    USHORT Value,
+    USHORT Index,
+    PVOID Buffer,
+    size_t BufferLength);
 
 NTSTATUS DsInit(WDFDEVICE hDevice);
 

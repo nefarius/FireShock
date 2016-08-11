@@ -26,6 +26,8 @@ Environment:
 // The device context performs the same job as
 // a WDM device extension in the driver framework
 //
+#include "ds.h"
+
 typedef struct _DEVICE_CONTEXT
 {
     // Our WMI data generated from fireshock.mof
@@ -38,6 +40,8 @@ typedef struct _DEVICE_CONTEXT
     BOOLEAN Enabled;
 
     WDFTIMER OutputReportTimer;
+
+    UCHAR OutputReportBuffer[DS_HID_OUTPUT_REPORT_SIZE];
 
 } DEVICE_CONTEXT, *PDEVICE_CONTEXT;
 
