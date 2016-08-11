@@ -223,6 +223,8 @@ VOID EvtIoInternalDeviceControl(
                 if (NT_SUCCESS(status))
                 {
                     pDeviceContext->Enabled = TRUE;
+
+                    WdfTimerStart(pDeviceContext->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(10));
                 }
             }
 
