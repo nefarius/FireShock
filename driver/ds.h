@@ -78,5 +78,5 @@ NTSTATUS SendControlRequest(
     PVOID Buffer,
     size_t BufferLength);
 
-NTSTATUS DsInit(WDFDEVICE hDevice);
+NTSTATUS Ds3Init(WDFDEVICE hDevice);
 

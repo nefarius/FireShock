@@ -219,7 +219,7 @@ VOID EvtIoInternalDeviceControl(
 
             if (!pDeviceContext->Enabled)
             {
-                status = DsInit(hDevice);
+                status = Ds3Init(hDevice);
                 if (NT_SUCCESS(status))
                 {
                     pDeviceContext->Enabled = TRUE;

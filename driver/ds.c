@@ -122,7 +122,7 @@ NTSTATUS SendControlRequest(
     return status;
 }
 
-NTSTATUS DsInit(WDFDEVICE hDevice)
+NTSTATUS Ds3Init(WDFDEVICE hDevice)
 {
     UCHAR hidCommandEnable[DS_HID_COMMAND_ENABLE_SIZE] =
     {
