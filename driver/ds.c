@@ -132,7 +132,7 @@ NTSTATUS DsInit(WDFDEVICE hDevice)
     return SendControlRequest(
         hDevice,
         SetReport,
-        DS_HID_SET_REPORT_INIT,
+        Ds3StartDevice,
         0,
         hidCommandEnable,
         DS_HID_COMMAND_ENABLE_SIZE);

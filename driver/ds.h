@@ -26,8 +26,6 @@ SOFTWARE.
 #pragma once
 
 #define DS_HID_COMMAND_ENABLE_SIZE      0x04
-#define DS_HID_REQUEST_SET_REPORT       0x09
-#define DS_HID_SET_REPORT_INIT          0x03F4
 #define DS_HID_OUTPUT_REPORT_SIZE       0x30
 
 typedef enum _USB_HID_REQUEST
@@ -62,6 +60,13 @@ typedef enum _USB_HID_CLASS_DESCRIPTOR_TYPE
     Report = 0x22,
     PhysicalDescriptor = 0x23
 } USB_HID_CLASS_DESCRIPTOR_TYPE;
+
+typedef enum _DS3_FEATURE_VALUE
+{
+    Ds3GetDeviceAddress = 0x03F2,
+    Ds3StartDevice = 0x03F4,
+    Ds3SetHostAddress = 0x03F5,
+} DS3_FEATURE_VALUE;
 
 EVT_WDF_TIMER Ds3OutputEvtTimerFunc;
 
