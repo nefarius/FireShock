@@ -64,7 +64,7 @@ Return Value:
     size_t                          bufferLength;
     WDF_PNPPOWER_EVENT_CALLBACKS    pnpPowerCallbacks;
     WDF_IO_QUEUE_CONFIG             ioQueueConfig;
-    WDF_TIMER_CONFIG                outputTimerCfg;
+
 
     UNREFERENCED_PARAMETER(Driver);
 
@@ -111,17 +111,6 @@ Return Value:
     //
     pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(device);
 
-
-    WDF_TIMER_CONFIG_INIT_PERIODIC(&outputTimerCfg, Ds3OutputEvtTimerFunc, 10);
-    WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
-
-    attributes.ParentObject = device;
-
-    status = WdfTimerCreate(&outputTimerCfg, &attributes, &pDeviceContext->OutputReportTimer);
-    if (!NT_SUCCESS(status)) {
-        KdPrint(("FireShock: Error creating output report timer 0x%x\n", status));
-        return status;
-    }
 
     //
     // Initialize our WMI support
@@ -188,10 +177,12 @@ VOID EvtIoInternalDeviceControl(
     PIRP                            irp;
     PURB                            urb;
     PDEVICE_CONTEXT                 pDeviceContext;
+    PDS3_DEVICE_CONTEXT             pDs3Context;
 
     hDevice = WdfIoQueueGetDevice(Queue);
     irp = WdfRequestWdmGetIrp(Request);
     pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(hDevice);
+    pDs3Context = Ds3GetContext(hDevice);
 
     switch (IoControlCode)
     {
@@ -217,14 +208,14 @@ VOID EvtIoInternalDeviceControl(
 
             KdPrint((">> >> URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
 
-            if (!pDeviceContext->Enabled)
+            if (pDeviceContext->DeviceType == DualShock3 && !pDs3Context->Enabled)
             {
                 status = Ds3Init(hDevice);
                 if (NT_SUCCESS(status))
                 {
-                    pDeviceContext->Enabled = TRUE;
+                    pDs3Context->Enabled = TRUE;
 
-                    WdfTimerStart(pDeviceContext->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(10));
+                    WdfTimerStart(pDs3Context->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(10));
                 }
             }
 

@@ -149,18 +149,25 @@ VOID Ds3OutputEvtTimerFunc(
     hDevice = WdfTimerGetParentObject(Timer);
     pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(hDevice);
 
-    status = SendControlRequest(
-        hDevice,
-        SetReport,
-        USB_SETUP_VALUE(Output, One),
-        0,
-        pDeviceContext->OutputReportBuffer,
-        DS_HID_OUTPUT_REPORT_SIZE
-    );
-
-    if (!NT_SUCCESS(status))
+    switch (pDeviceContext->DeviceType)
     {
-        KdPrint(("SendControlRequest failed with status 0x%X\n", status));
+    case DualShock3:
+
+        status = SendControlRequest(
+            hDevice,
+            SetReport,
+            USB_SETUP_VALUE(Output, One),
+            0,
+            Ds3GetContext(hDevice)->OutputReportBuffer,
+            DS_HID_OUTPUT_REPORT_SIZE
+        );
+
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint(("SendControlRequest failed with status 0x%X\n", status));
+        }
+
+        break;
     }
 }
 

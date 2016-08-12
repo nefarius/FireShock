@@ -70,6 +70,11 @@ typedef enum _DS3_FEATURE_VALUE
 
 #define USB_SETUP_VALUE(_type_, _id_) (USHORT)((_type_ << 8) | _id_)
 
+typedef enum _DS_DEVICE_TYPE
+{
+	DualShock3,
+	DualShock4
+} DS_DEVICE_TYPE, *PDS_DEVICE_TYPE;
 
 EVT_WDF_TIMER Ds3OutputEvtTimerFunc;
 
