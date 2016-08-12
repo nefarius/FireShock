@@ -184,7 +184,13 @@
     <None Exclude="@(None)" Include="*.def;*.bat;*.hpj;*.asmx" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Exclude="@(ClInclude)" Include="*.h;*.hpp;*.hxx;*.hm;*.inl;*.xsd" />
+    <ClInclude Include="device.h" />
+    <ClInclude Include="ds.h" />
+    <ClInclude Include="fireshock.h" />
+    <ClInclude Include="magic.h" />
+    <ClInclude Include="power.h" />
+    <ClInclude Include="vfeature.h" />
+    <ClInclude Include="wmi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
