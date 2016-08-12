@@ -68,7 +68,7 @@ typedef enum _DS3_FEATURE_VALUE
     Ds3SetHostAddress = 0x03F5,
 } DS3_FEATURE_VALUE;
 
-#define USB_SETUP_VALUE(_type_, _id_) (USHORT)((_type_ << 8) & _id_)
+#define USB_SETUP_VALUE(_type_, _id_) (USHORT)((_type_ << 8) | _id_)
 
 
 EVT_WDF_TIMER Ds3OutputEvtTimerFunc;
