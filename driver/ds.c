@@ -109,7 +109,7 @@ NTSTATUS SendControlRequest(
     WdfRequestSetCompletionRoutine(
         controlRequest,
         ControlRequestCompletionRoutine,
-        NULL);
+        WDF_NO_SEND_OPTIONS);
 
     if (!WdfRequestSend(
         controlRequest,
