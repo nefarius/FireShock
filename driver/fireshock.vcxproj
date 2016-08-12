@@ -169,6 +169,7 @@
     <ClCompile Include="device.c" />
     <ClCompile Include="driver.c" />
     <ClCompile Include="ds.c" />
+    <ClCompile Include="dsusb.c" />
     <ClCompile Include="power.c" />
     <ClCompile Include="vfeature.c" />
     <ClCompile Include="wmi.c" />
@@ -186,6 +187,7 @@
   <ItemGroup>
     <ClInclude Include="device.h" />
     <ClInclude Include="ds.h" />
+    <ClInclude Include="dsusb.h" />
     <ClInclude Include="fireshock.h" />
     <ClInclude Include="magic.h" />
     <ClInclude Include="power.h" />

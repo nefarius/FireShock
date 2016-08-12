@@ -43,6 +43,7 @@ Environment:
 #include "magic.h"
 #include "power.h"
 #include "ds.h"
+#include "dsusb.h"
 
 #define DRIVERNAME "FireShock.sys: "
 

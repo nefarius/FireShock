@@ -170,12 +170,13 @@ VOID EvtIoInternalDeviceControl(
     UNREFERENCED_PARAMETER(OutputBufferLength);
     UNREFERENCED_PARAMETER(InputBufferLength);
 
-    NTSTATUS                        status;
+    NTSTATUS                        status = STATUS_INVALID_PARAMETER;
     WDFDEVICE                       hDevice;
     BOOLEAN                         ret;
     WDF_REQUEST_SEND_OPTIONS        options;
     PIRP                            irp;
     PURB                            urb;
+    BOOLEAN                         processed = FALSE;
     PDEVICE_CONTEXT                 pDeviceContext;
     PDS3_DEVICE_CONTEXT             pDs3Context;
 
@@ -195,12 +196,6 @@ VOID EvtIoInternalDeviceControl(
         case URB_FUNCTION_CONTROL_TRANSFER:
 
             KdPrint((">> >> URB_FUNCTION_CONTROL_TRANSFER\n"));
-
-            break;
-
-        case URB_FUNCTION_CONTROL_TRANSFER_EX:
-
-            KdPrint((">> >> URB_FUNCTION_CONTROL_TRANSFER_EX\n"));
 
             break;
 
@@ -248,6 +243,12 @@ VOID EvtIoInternalDeviceControl(
             case USB_CONFIGURATION_DESCRIPTOR_TYPE:
 
                 KdPrint((">> >> >> USB_CONFIGURATION_DESCRIPTOR_TYPE\n"));
+
+                if (pDeviceContext->DeviceType == DualShock3)
+                {
+                    status = GetConfigurationDescriptorType(urb, pDeviceContext);
+                    processed = TRUE;
+                }
 
                 break;
 
@@ -299,6 +300,12 @@ VOID EvtIoInternalDeviceControl(
 
             KdPrint((">> >> URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE\n"));
 
+            if (pDeviceContext->DeviceType == DualShock3)
+            {
+                status = GetDescriptorFromInterface(urb, pDeviceContext);
+                processed = TRUE;
+            }
+
             break;
 
         default:
@@ -307,6 +314,12 @@ VOID EvtIoInternalDeviceControl(
         }
 
         break;
+    }
+
+    if (processed)
+    {
+        WdfRequestComplete(Request, status);
+        return;
     }
 
     WDF_REQUEST_SEND_OPTIONS_INIT(&options,
