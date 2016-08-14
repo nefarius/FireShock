@@ -34,49 +34,49 @@ SOFTWARE.
 #endif
 
 NTSTATUS FireShockEvtDevicePrepareHardware(
-	_In_ WDFDEVICE Device,
-	_In_ WDFCMRESLIST ResourcesRaw,
-	_In_ WDFCMRESLIST ResourcesTranslated
+    _In_ WDFDEVICE Device,
+    _In_ WDFCMRESLIST ResourcesRaw,
+    _In_ WDFCMRESLIST ResourcesTranslated
 )
 {
-	NTSTATUS                        status = STATUS_SUCCESS;
-	PDEVICE_CONTEXT                 pDeviceContext = NULL;
-	USB_DEVICE_DESCRIPTOR           deviceDescriptor;
-	PDS3_DEVICE_CONTEXT             pDs3Context;
-	WDF_OBJECT_ATTRIBUTES           attributes;
+    NTSTATUS                        status = STATUS_SUCCESS;
+    PDEVICE_CONTEXT                 pDeviceContext = NULL;
+    USB_DEVICE_DESCRIPTOR           deviceDescriptor;
+    PDS3_DEVICE_CONTEXT             pDs3Context;
+    WDF_OBJECT_ATTRIBUTES           attributes;
     WDF_TIMER_CONFIG                outputTimerCfg;
 
-	UNREFERENCED_PARAMETER(ResourcesRaw);
-	UNREFERENCED_PARAMETER(ResourcesTranslated);
+    UNREFERENCED_PARAMETER(ResourcesRaw);
+    UNREFERENCED_PARAMETER(ResourcesTranslated);
 
-	KdPrint(("FireShockEvtDevicePrepareHardware called\n"));
+    KdPrint(("FireShockEvtDevicePrepareHardware called\n"));
 
-	pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(Device);
+    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(Device);
 
-	if (pDeviceContext->UsbDevice == NULL)
-	{
-		status = WdfUsbTargetDeviceCreate(Device, WDF_NO_OBJECT_ATTRIBUTES, &pDeviceContext->UsbDevice);
-		if (!NT_SUCCESS(status))
-		{
-			KdPrint(("WdfUsbTargetDeviceCreate failed with status 0x%X\n", status));
-			return status;
-		}
-	}
-    
-	WdfUsbTargetDeviceGetDeviceDescriptor(pDeviceContext->UsbDevice, &deviceDescriptor);
+    if (pDeviceContext->UsbDevice == NULL)
+    {
+        status = WdfUsbTargetDeviceCreate(Device, WDF_NO_OBJECT_ATTRIBUTES, &pDeviceContext->UsbDevice);
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint(("WdfUsbTargetDeviceCreate failed with status 0x%X\n", status));
+            return status;
+        }
+    }
 
-	if (deviceDescriptor.idVendor == 0x054C && deviceDescriptor.idProduct == 0x0268)
-	{
-		pDeviceContext->DeviceType = DualShock3;
+    WdfUsbTargetDeviceGetDeviceDescriptor(pDeviceContext->UsbDevice, &deviceDescriptor);
 
-		WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS3_DEVICE_CONTEXT);
+    if (deviceDescriptor.idVendor == 0x054C && deviceDescriptor.idProduct == 0x0268)
+    {
+        pDeviceContext->DeviceType = DualShock3;
 
-		status = WdfObjectAllocateContext(Device, &attributes, &pDs3Context);
-		if (!NT_SUCCESS(status))
-		{
-			KdPrint(("WdfObjectAllocateContext failed status 0x%x\n", status));
-			return status;
-		}
+        WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS3_DEVICE_CONTEXT);
+
+        status = WdfObjectAllocateContext(Device, &attributes, &pDs3Context);
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint(("WdfObjectAllocateContext failed status 0x%x\n", status));
+            return status;
+        }
 
         UCHAR DefaultOutputReport[DS_HID_OUTPUT_REPORT_SIZE] =
         {
@@ -100,26 +100,55 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
             KdPrint(("FireShock: Error creating output report timer 0x%x\n", status));
             return status;
         }
-	}
+    }
 
-	if (deviceDescriptor.idVendor == 0x054C && deviceDescriptor.idProduct == 0x05C4)
-	{
-		pDeviceContext->DeviceType = DualShock4;
-	}
+    if (deviceDescriptor.idVendor == 0x054C && deviceDescriptor.idProduct == 0x05C4)
+    {
+        pDeviceContext->DeviceType = DualShock4;
+    }
 
-	return status;
+    return status;
 }
 
 NTSTATUS FireShockEvtDeviceD0Entry(
-	_In_ WDFDEVICE              Device,
-	_In_ WDF_POWER_DEVICE_STATE PreviousState
+    _In_ WDFDEVICE              Device,
+    _In_ WDF_POWER_DEVICE_STATE PreviousState
 )
 {
-	UNREFERENCED_PARAMETER(Device);
-	UNREFERENCED_PARAMETER(PreviousState);
+    PDEVICE_CONTEXT                         pDeviceContext;
+    PDS3_DEVICE_CONTEXT                     pDs3Context;
+    WDF_USB_DEVICE_SELECT_CONFIG_PARAMS     configParams;
+    NTSTATUS                                status = STATUS_SUCCESS;
 
-	KdPrint(("FireShockEvtDeviceD0Entry called\n"));
+    UNREFERENCED_PARAMETER(PreviousState);
 
-	return STATUS_SUCCESS;
+    KdPrint(("FireShockEvtDeviceD0Entry called\n"));
+
+    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(Device);
+    pDs3Context = Ds3GetContext(Device);
+
+    switch (pDeviceContext->DeviceType)
+    {
+    case DualShock3:
+
+        WDF_USB_DEVICE_SELECT_CONFIG_PARAMS_INIT_SINGLE_INTERFACE(&configParams);
+
+        status = WdfUsbTargetDeviceSelectConfig(
+            pDeviceContext->UsbDevice,
+            WDF_NO_OBJECT_ATTRIBUTES,
+            &configParams
+        );
+
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint(("WdfUsbTargetDeviceSelectConfig failed with status 0x%X\n", status));
+        }
+
+        break;
+    default:
+        break;
+    }
+
+    return status;
 }
 
