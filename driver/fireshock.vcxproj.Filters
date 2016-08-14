@@ -61,10 +61,6 @@
     <ClInclude Include="device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fireshock.h" />
-    <ClInclude Include="magic.h" />
-    <ClInclude Include="vfeature.h" />
-    <ClInclude Include="wmi.h" />
     <ClInclude Include="device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -91,15 +87,6 @@
     </ClInclude>
     <ClInclude Include="fireshock.h" />
     <ClInclude Include="magic.h" />
-    <ClInclude Include="power.h" />
-    <ClInclude Include="vfeature.h" />
-    <ClInclude Include="wmi.h" />
-    <ClInclude Include="device.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="fireshock.h" />
-    <ClInclude Include="magic.h" />
-    <ClInclude Include="power.h" />
     <ClInclude Include="vfeature.h" />
     <ClInclude Include="wmi.h" />
     <ClInclude Include="device.h">
@@ -129,11 +116,17 @@
     <ClInclude Include="device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ds.h" />
     <ClInclude Include="fireshock.h" />
     <ClInclude Include="magic.h" />
     <ClInclude Include="power.h" />
-    <ClInclude Include="usb.h" />
+    <ClInclude Include="vfeature.h" />
+    <ClInclude Include="wmi.h" />
+    <ClInclude Include="device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fireshock.h" />
+    <ClInclude Include="magic.h" />
+    <ClInclude Include="power.h" />
     <ClInclude Include="vfeature.h" />
     <ClInclude Include="wmi.h" />
     <ClInclude Include="device.h">
@@ -212,6 +205,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dsusb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fireshock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="magic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="power.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vfeature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wmi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
