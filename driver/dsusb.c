@@ -44,7 +44,7 @@ NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon)
 NTSTATUS GetDescriptorFromInterface(PURB urb, PDEVICE_CONTEXT pCommon)
 {
     NTSTATUS status = STATUS_INVALID_PARAMETER;
-    UCHAR HidReportDescriptor[109] =
+    UCHAR HidReportDescriptor[DS3_HID_REPORT_DESCRIPTOR_SIZE] =
     {
         0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
         0x09, 0x05,        // Usage (Game Pad)
@@ -105,9 +105,9 @@ NTSTATUS GetDescriptorFromInterface(PURB urb, PDEVICE_CONTEXT pCommon)
     {
     case DualShock3:
 
-        if (pRequest->TransferBufferLength >= 109)
+        if (pRequest->TransferBufferLength >= DS3_HID_REPORT_DESCRIPTOR_SIZE)
         {
-            RtlCopyMemory(pRequest->TransferBuffer, HidReportDescriptor, 109);
+            RtlCopyMemory(pRequest->TransferBuffer, HidReportDescriptor, DS3_HID_REPORT_DESCRIPTOR_SIZE);
             status = STATUS_SUCCESS;
         }
 

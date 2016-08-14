@@ -27,6 +27,7 @@ SOFTWARE.
 #include <usb.h>
 #include <wdfusb.h>
 
+
 NTSTATUS SendControlRequest(
     WDFDEVICE Device,
     BYTE Request,
@@ -200,7 +201,7 @@ VOID Ds3GetConfigurationDescriptorType(PUCHAR Buffer, ULONG Length)
         0x00,        // bCountryCode
         0x01,        // bNumDescriptors
         0x22,        // bDescriptorType[0] (HID)
-        0x61, 0x00,  // wDescriptorLength[0] 97
+        DS3_HID_REPORT_DESCRIPTOR_SIZE, 0x00,  // wDescriptorLength[0]
 
         0x07,        // bLength
         0x05,        // bDescriptorType (Endpoint)

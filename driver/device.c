@@ -449,6 +449,8 @@ void InterruptReadRequestCompletionRoutine(
 
     transferBuffer = WdfMemoryGetBuffer(usbCompletionParams->Parameters.PipeRead.Buffer, &transferBufferLength);
 
+    KdPrint(("REQUEST LENGTH: %d\n", upperUrb->UrbBulkOrInterruptTransfer.TransferBufferLength));
+
     KdPrint(("INPUT: "));
 
     for (size_t i = 0; i < bytesRead; i++)
