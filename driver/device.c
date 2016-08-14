@@ -263,7 +263,7 @@ VOID EvtIoInternalDeviceControl(
             WdfRequestSetCompletionRoutine(
                 interruptRequest,
                 InterruptReadRequestCompletionRoutine,
-                WDF_NO_SEND_OPTIONS);
+                Request);
 
             if (!WdfRequestSend(
                 interruptRequest,
@@ -272,6 +272,12 @@ VOID EvtIoInternalDeviceControl(
             {
                 KdPrint(("WdfRequestSend failed\n"));
             }
+            else
+            {
+                status = STATUS_PENDING;
+            }
+
+            KdPrint(("UPPER BUFLEN: %d\n", urb->UrbBulkOrInterruptTransfer.TransferBufferLength));
 
             break;
         }
@@ -375,6 +381,11 @@ VOID EvtIoInternalDeviceControl(
         break;
     }
 
+    if (status == STATUS_PENDING)
+    {
+        return;
+    }
+
     if (processed)
     {
         WdfRequestComplete(Request, status);
@@ -417,30 +428,72 @@ void InterruptReadRequestCompletionRoutine(
 {
     UNREFERENCED_PARAMETER(Request);
     UNREFERENCED_PARAMETER(Target);
-    UNREFERENCED_PARAMETER(Params);
-    UNREFERENCED_PARAMETER(Context);
 
     KdPrint(("InterruptReadRequestCompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
 
-    NTSTATUS    status;
-    PWDF_USB_REQUEST_COMPLETION_PARAMS usbCompletionParams;
-    size_t      bytesRead = 0, buflen;
+    NTSTATUS                                status;
+    PWDF_USB_REQUEST_COMPLETION_PARAMS      usbCompletionParams;
+    size_t                                  bytesRead;
+    WDFREQUEST                              upperRequest = Context;
+    PUCHAR                                  transferBuffer;
+    size_t                                  transferBufferLength;
+    PURB                                    upperUrb;
+    PUCHAR                                  upperBuffer;
+
+    upperUrb = (PURB)URB_FROM_IRP(WdfRequestWdmGetIrp(upperRequest));
+    upperBuffer = (PUCHAR)upperUrb->UrbBulkOrInterruptTransfer.TransferBuffer;
 
     status = Params->IoStatus.Status;
-
     usbCompletionParams = Params->Parameters.Usb.Completion;
-
     bytesRead = usbCompletionParams->Parameters.PipeRead.Length;
 
-    PUCHAR Buffer = WdfMemoryGetBuffer(usbCompletionParams->Parameters.PipeRead.Buffer, &buflen);
+    transferBuffer = WdfMemoryGetBuffer(usbCompletionParams->Parameters.PipeRead.Buffer, &transferBufferLength);
 
     KdPrint(("INPUT: "));
 
     for (size_t i = 0; i < bytesRead; i++)
     {
-        KdPrint(("0x%02X ", Buffer[i]));
+        KdPrint(("0x%02X ", transferBuffer[i]));
     }
 
     KdPrint(("\n"));
+
+    upperBuffer[0] = transferBuffer[0]; // Report ID
+
+    upperBuffer[5] &= ~0xF; // Clear lower 4 bits
+
+    // Translate D-Pad to HAT format
+    switch (transferBuffer[2] & ~0xF)
+    {
+    case 0x10: // N
+        upperBuffer[5] |= 0 & 0xF;
+        break;
+    case 0x30: // NE
+        upperBuffer[5] |= 1 & 0xF;
+        break;
+    case 0x20: // E
+        upperBuffer[5] |= 2 & 0xF;
+        break;
+    case 0x60: // SE
+        upperBuffer[5] |= 3 & 0xF;
+        break;
+    case 0x40: // S
+        upperBuffer[5] |= 4 & 0xF;
+        break;
+    case 0xC0: // SW
+        upperBuffer[5] |= 5 & 0xF;
+        break;
+    case 0x80: // W
+        upperBuffer[5] |= 6 & 0xF;
+        break;
+    case 0x90: // NW
+        upperBuffer[5] |= 7 & 0xF;
+        break;
+    default: // Released
+        upperBuffer[5] |= 8 & 0xF;
+        break;
+    }
+
+    WdfRequestComplete(upperRequest, status);
 }
 

@@ -200,7 +200,7 @@ VOID Ds3GetConfigurationDescriptorType(PUCHAR Buffer, ULONG Length)
         0x00,        // bCountryCode
         0x01,        // bNumDescriptors
         0x22,        // bDescriptorType[0] (HID)
-        0x6D, 0x00,  // wDescriptorLength[0] 109
+        0x61, 0x00,  // wDescriptorLength[0] 97
 
         0x07,        // bLength
         0x05,        // bDescriptorType (Endpoint)
