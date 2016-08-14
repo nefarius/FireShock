@@ -494,6 +494,28 @@ void InterruptReadRequestCompletionRoutine(
         break;
     }
 
+    upperBuffer[5] &= ~0xF0; // Clear upper 4 bits
+    // Set face buttons
+    upperBuffer[5] |= transferBuffer[3] & 0xF0;
+
+    // Thumb axes
+    upperBuffer[1] = transferBuffer[6]; // LTX
+    upperBuffer[2] = transferBuffer[7]; // LTY
+    upperBuffer[3] = transferBuffer[8]; // RTX
+    upperBuffer[4] = transferBuffer[9]; // RTY
+
+    // Remaining buttons
+    upperBuffer[6] &= ~0xFF; // Clear all 8 bits
+    upperBuffer[6] |= transferBuffer[2] & 0xF;
+    upperBuffer[6] |= (transferBuffer[3] & 0xF) << 4;
+
+    // Trigger axes
+    upperBuffer[8] = transferBuffer[18];
+    upperBuffer[9] = transferBuffer[19];
+
+    // Ps button
+    upperBuffer[7] = transferBuffer[4];
+
     WdfRequestComplete(upperRequest, status);
 }
 
