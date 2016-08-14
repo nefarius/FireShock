@@ -346,6 +346,6 @@ void ControlRequestCompletionRoutine(
     UNREFERENCED_PARAMETER(Params);
     UNREFERENCED_PARAMETER(Context);
 
-    KdPrint(("CompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
+    KdPrint(("ControlRequestCompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
 }
 
