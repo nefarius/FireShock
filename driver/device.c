@@ -200,7 +200,7 @@ VOID EvtIoInternalDeviceControl(
             break;
 
         case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
-
+        {
             KdPrint((">> >> URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
 
             if (pDeviceContext->DeviceType == DualShock3 && !pDs3Context->Enabled)
@@ -214,8 +214,67 @@ VOID EvtIoInternalDeviceControl(
                 }
             }
 
-            break;
+            WDFMEMORY transferBuffer;
+            WDFREQUEST interruptRequest;
+            WDF_OBJECT_ATTRIBUTES transferAttribs;
 
+            status = WdfRequestCreate(
+                WDF_NO_OBJECT_ATTRIBUTES,
+                WdfDeviceGetIoTarget(hDevice),
+                &interruptRequest
+            );
+
+            if (!NT_SUCCESS(status))
+            {
+                KdPrint(("WdfRequestCreate failed with status 0x%X\n", status));
+                break;
+            }
+
+            WDF_OBJECT_ATTRIBUTES_INIT(&transferAttribs);
+
+            transferAttribs.ParentObject = interruptRequest;
+
+            status = WdfMemoryCreate(
+                &transferAttribs,
+                NonPagedPool,
+                0,
+                64,
+                &transferBuffer,
+                NULL);
+
+            if (!NT_SUCCESS(status))
+            {
+                KdPrint(("WdfMemoryCreate failed with status 0x%X\n", status));
+                break;
+            }
+
+            status = WdfUsbTargetPipeFormatRequestForRead(
+                pDs3Context->InterruptReadPipe,
+                interruptRequest,
+                transferBuffer,
+                NULL);
+
+            if (!NT_SUCCESS(status))
+            {
+                KdPrint(("WdfUsbTargetPipeFormatRequestForRead failed with status 0x%X\n", status));
+                break;
+            }
+
+            WdfRequestSetCompletionRoutine(
+                interruptRequest,
+                InterruptReadRequestCompletionRoutine,
+                WDF_NO_SEND_OPTIONS);
+
+            if (!WdfRequestSend(
+                interruptRequest,
+                WdfUsbTargetDeviceGetIoTarget(pDeviceContext->UsbDevice),
+                NULL))
+            {
+                KdPrint(("WdfRequestSend failed\n"));
+            }
+
+            break;
+        }
         case URB_FUNCTION_SELECT_CONFIGURATION:
 
             KdPrint((">> >> URB_FUNCTION_SELECT_CONFIGURATION\n"));
@@ -347,5 +406,41 @@ void ControlRequestCompletionRoutine(
     UNREFERENCED_PARAMETER(Context);
 
     KdPrint(("ControlRequestCompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
+}
+
+void InterruptReadRequestCompletionRoutine(
+    _In_ WDFREQUEST                     Request,
+    _In_ WDFIOTARGET                    Target,
+    _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
+    _In_ WDFCONTEXT                     Context
+)
+{
+    UNREFERENCED_PARAMETER(Request);
+    UNREFERENCED_PARAMETER(Target);
+    UNREFERENCED_PARAMETER(Params);
+    UNREFERENCED_PARAMETER(Context);
+
+    KdPrint(("InterruptReadRequestCompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
+
+    NTSTATUS    status;
+    PWDF_USB_REQUEST_COMPLETION_PARAMS usbCompletionParams;
+    size_t      bytesRead = 0, buflen;
+
+    status = Params->IoStatus.Status;
+
+    usbCompletionParams = Params->Parameters.Usb.Completion;
+
+    bytesRead = usbCompletionParams->Parameters.PipeRead.Length;
+
+    PUCHAR Buffer = WdfMemoryGetBuffer(usbCompletionParams->Parameters.PipeRead.Buffer, &buflen);
+
+    KdPrint(("INPUT: "));
+
+    for (size_t i = 0; i < bytesRead; i++)
+    {
+        KdPrint(("0x%02X ", Buffer[i]));
+    }
+
+    KdPrint(("\n"));
 }
 

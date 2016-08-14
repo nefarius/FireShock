@@ -144,6 +144,9 @@ NTSTATUS FireShockEvtDeviceD0Entry(
             KdPrint(("WdfUsbTargetDeviceSelectConfig failed with status 0x%X\n", status));
         }
 
+        pDs3Context->DefaultInterface = WdfUsbTargetDeviceGetInterface(pDeviceContext->UsbDevice, 0);
+        pDs3Context->InterruptReadPipe = WdfUsbInterfaceGetConfiguredPipe(pDs3Context->DefaultInterface, 1, NULL);
+
         break;
     default:
         break;
