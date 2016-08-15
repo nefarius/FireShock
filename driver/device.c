@@ -26,7 +26,6 @@ Environment:
 #include "FireShock.h"
 #include <usbioctl.h>
 #include <usb.h>
-#include <wdfusb.h>
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, FireShockEvtDeviceAdd)
@@ -58,10 +57,7 @@ Return Value:
 {
     WDF_OBJECT_ATTRIBUTES           attributes;
     NTSTATUS                        status;
-    PDEVICE_CONTEXT                 pDeviceContext;
     WDFDEVICE                       device;
-    WDFMEMORY                       memory;
-    size_t                          bufferLength;
     WDF_PNPPOWER_EVENT_CALLBACKS    pnpPowerCallbacks;
     WDF_IO_QUEUE_CONFIG             ioQueueConfig;
 
@@ -105,54 +101,6 @@ Return Value:
         KdPrint(("WdfIoQueueCreate failed 0x%x\n", status));
         return status;
     }
-
-    //
-    // Driver Framework always zero initializes an objects context memory
-    //
-    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(device);
-
-
-    //
-    // Initialize our WMI support
-    //
-    status = WmiInitialize(device, pDeviceContext);
-    if (!NT_SUCCESS(status)) {
-        KdPrint(("FireShock: Error initializing WMI 0x%x\n", status));
-        return status;
-    }
-
-    //
-    // In order to send ioctls to our PDO, we have open to open it
-    // by name so that we have a valid filehandle (fileobject).
-    // When we send ioctls using the IoTarget, framework automatically 
-    // sets the filobject in the stack location.
-    //
-    WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
-    //
-    // By parenting it to device, we don't have to worry about
-    // deleting explicitly. It will be deleted along witht the device.
-    //
-    attributes.ParentObject = device;
-
-    status = WdfDeviceAllocAndQueryProperty(device,
-        DevicePropertyPhysicalDeviceObjectName,
-        NonPagedPool,
-        &attributes,
-        &memory);
-
-    if (!NT_SUCCESS(status)) {
-        KdPrint(("FireShock: WdfDeviceAllocAndQueryProperty failed 0x%x\n", status));
-        return STATUS_UNSUCCESSFUL;
-    }
-
-    pDeviceContext->PdoName.Buffer = WdfMemoryGetBuffer(memory, &bufferLength);
-
-    if (pDeviceContext->PdoName.Buffer == NULL) {
-        return STATUS_UNSUCCESSFUL;
-    }
-
-    pDeviceContext->PdoName.MaximumLength = (USHORT)bufferLength;
-    pDeviceContext->PdoName.Length = (USHORT)bufferLength - sizeof(UNICODE_NULL);
 
     return status;
 }

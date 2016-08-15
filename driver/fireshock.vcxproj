@@ -111,9 +111,6 @@
       <SpecifyArchitecture>true</SpecifyArchitecture>
       <CopyOutput>.\$(IntDir)\fireshock.inf</CopyOutput>
     </Inf>
-    <MofComp Include="fireshock.mof">
-      <CreateBinaryMofFile>".\$(IntDir)\fireshock.bmf"</CreateBinaryMofFile>
-    </MofComp>
     <Wmimofck Include=".\$(IntDir)\fireshock.bmf" />
     <Wmimofck Include=".\$(IntDir)\fireshock.bmf">
       <HeaderOutputFile>.\$(IntDir)\fireshockmof.h</HeaderOutputFile>
@@ -239,8 +236,6 @@
     <ClCompile Include="ds.c" />
     <ClCompile Include="dsusb.c" />
     <ClCompile Include="power.c" />
-    <ClCompile Include="vfeature.c" />
-    <ClCompile Include="wmi.c" />
     <ResourceCompile Include="fireshock.rc" />
   </ItemGroup>
   <ItemGroup>
@@ -257,10 +252,7 @@
     <ClInclude Include="ds.h" />
     <ClInclude Include="dsusb.h" />
     <ClInclude Include="fireshock.h" />
-    <ClInclude Include="magic.h" />
     <ClInclude Include="power.h" />
-    <ClInclude Include="vfeature.h" />
-    <ClInclude Include="wmi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

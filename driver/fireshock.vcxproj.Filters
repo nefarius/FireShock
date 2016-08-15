@@ -22,21 +22,12 @@
     <Inf Include=".\fireshock.inx">
       <Filter>Driver Files</Filter>
     </Inf>
-    <MofComp Include="fireshock.mof">
-      <Filter>Driver Files</Filter>
-    </MofComp>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="device.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="driver.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="vfeature.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wmi.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="power.c">
@@ -213,16 +204,7 @@
     <ClInclude Include="fireshock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="magic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="power.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="vfeature.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wmi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

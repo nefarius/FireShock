@@ -38,9 +38,6 @@ Environment:
 
 // Our drivers modules includes
 #include "device.h"
-#include "wmi.h"
-#include "vfeature.h"
-#include "magic.h"
 #include "power.h"
 #include "ds.h"
 #include "dsusb.h"

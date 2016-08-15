@@ -30,11 +30,6 @@ Environment:
 
 typedef struct _DEVICE_CONTEXT
 {
-    // Our WMI data generated from fireshock.mof
-    FireShockDeviceInformation WmiInstance;
-
-    UNICODE_STRING PdoName;
-
     WDFUSBDEVICE UsbDevice;
 
 	DS_DEVICE_TYPE DeviceType;
