@@ -337,7 +337,7 @@ void InterruptReadRequestCompletionRoutine(
 
     upperBuffer[5] &= ~0xF; // Clear lower 4 bits
 
-                            // Translate D-Pad to HAT format
+    // Translate D-Pad to HAT format
     switch (transferBuffer[2] & ~0xF)
     {
     case 0x10: // N
@@ -370,7 +370,7 @@ void InterruptReadRequestCompletionRoutine(
     }
 
     upperBuffer[5] &= ~0xF0; // Clear upper 4 bits
-                             // Set face buttons
+    // Set face buttons
     upperBuffer[5] |= transferBuffer[3] & 0xF0;
 
     // Thumb axes
@@ -379,7 +379,7 @@ void InterruptReadRequestCompletionRoutine(
     upperBuffer[3] = transferBuffer[8]; // RTX
     upperBuffer[4] = transferBuffer[9]; // RTY
 
-                                        // Remaining buttons
+    // Remaining buttons
     upperBuffer[6] &= ~0xFF; // Clear all 8 bits
     upperBuffer[6] |= transferBuffer[2] & 0xF;
     upperBuffer[6] |= (transferBuffer[3] & 0xF) << 4;
