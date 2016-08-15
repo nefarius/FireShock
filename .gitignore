@@ -243,3 +243,6 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/driver/Debug(Windows7)/fireshock
+/driver/Debug(Windows7)/fireshock.tlog
+/driver/Debug(Windows7)
