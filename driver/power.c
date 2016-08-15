@@ -51,7 +51,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
 
     KdPrint(("FireShockEvtDevicePrepareHardware called\n"));
 
-    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(Device);
+    pDeviceContext = GetCommonContext(Device);
 
     if (pDeviceContext->UsbDevice == NULL)
     {
@@ -128,7 +128,7 @@ NTSTATUS FireShockEvtDeviceD0Entry(
 
     KdPrint(("FireShockEvtDeviceD0Entry called\n"));
 
-    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(Device);
+    pDeviceContext = GetCommonContext(Device);
     pDs3Context = Ds3GetContext(Device);
 
     switch (pDeviceContext->DeviceType)

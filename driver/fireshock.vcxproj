@@ -111,10 +111,6 @@
       <SpecifyArchitecture>true</SpecifyArchitecture>
       <CopyOutput>.\$(IntDir)\fireshock.inf</CopyOutput>
     </Inf>
-    <Wmimofck Include=".\$(IntDir)\fireshock.bmf" />
-    <Wmimofck Include=".\$(IntDir)\fireshock.bmf">
-      <HeaderOutputFile>.\$(IntDir)\fireshockmof.h</HeaderOutputFile>
-    </Wmimofck>
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>fireshock</TargetName>

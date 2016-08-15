@@ -41,7 +41,7 @@ NTSTATUS SendControlRequest(
     WDF_USB_CONTROL_SETUP_PACKET    packet;
     WDF_OBJECT_ATTRIBUTES           transferAttribs;
 
-    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(Device);
+    pDeviceContext = GetCommonContext(Device);
 
     status = WdfRequestCreate(
         WDF_NO_OBJECT_ATTRIBUTES,
@@ -134,7 +134,7 @@ NTSTATUS SendInterruptInRequest(
     PDS3_DEVICE_CONTEXT pDs3Context;
     WDFUSBPIPE inPipe;
 
-    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(Device);
+    pDeviceContext = GetCommonContext(Device);
 
     switch (pDeviceContext->DeviceType)
     {
@@ -299,10 +299,7 @@ void InterruptReadRequestCompletionRoutine(
     _In_ WDFCONTEXT                     Context
 )
 {
-    UNREFERENCED_PARAMETER(Request);
     UNREFERENCED_PARAMETER(Target);
-
-    KdPrint(("InterruptReadRequestCompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
 
     NTSTATUS                                status;
     PWDF_USB_REQUEST_COMPLETION_PARAMS      usbCompletionParams;
@@ -312,17 +309,35 @@ void InterruptReadRequestCompletionRoutine(
     size_t                                  transferBufferLength;
     PURB                                    upperUrb;
     PUCHAR                                  upperBuffer;
+    ULONG                                   upperBufferLength;
+
+    status = WdfRequestGetStatus(Request);
+
+    KdPrint(("InterruptReadRequestCompletionRoutine called with status 0x%X\n", status));
+
+    if (!NT_SUCCESS(status))
+    {
+        WdfRequestComplete(upperRequest, status);
+        return;
+    }
 
     upperUrb = (PURB)URB_FROM_IRP(WdfRequestWdmGetIrp(upperRequest));
-    
+
     status = Params->IoStatus.Status;
     usbCompletionParams = Params->Parameters.Usb.Completion;
     bytesRead = usbCompletionParams->Parameters.PipeRead.Length;
+    upperBufferLength = upperUrb->UrbBulkOrInterruptTransfer.TransferBufferLength;
 
     // Upper device buffer
     upperBuffer = (PUCHAR)upperUrb->UrbBulkOrInterruptTransfer.TransferBuffer;
     // Lower device buffer
     transferBuffer = WdfMemoryGetBuffer(usbCompletionParams->Parameters.PipeRead.Buffer, &transferBufferLength);
+
+    if (bytesRead > upperBufferLength)
+    {
+        WdfRequestComplete(upperRequest, STATUS_BUFFER_TOO_SMALL);
+        return;
+    }
 
     // Report ID
     upperBuffer[0] = transferBuffer[0];

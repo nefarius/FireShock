@@ -30,19 +30,12 @@ Environment:
 #include <initguid.h>
 #include <wdmguid.h>
 
-//
-// Our drivers generated include from fireshock.mof
-// See makefile.inc for wmi commands
-//
-#include "fireshockmof.h"
-
 // Our drivers modules includes
 #include "device.h"
 #include "power.h"
 #include "ds.h"
 #include "dsusb.h"
 
-#define DRIVERNAME "FireShock.sys: "
 
 //
 // WDFDRIVER Object Events

@@ -130,7 +130,7 @@ VOID EvtIoInternalDeviceControl(
 
     hDevice = WdfIoQueueGetDevice(Queue);
     irp = WdfRequestWdmGetIrp(Request);
-    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(hDevice);
+    pDeviceContext = GetCommonContext(hDevice);
     pDs3Context = Ds3GetContext(hDevice);
 
     switch (IoControlCode)

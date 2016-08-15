@@ -51,7 +51,7 @@ VOID Ds3OutputEvtTimerFunc(
     NTSTATUS            status;
 
     hDevice = WdfTimerGetParentObject(Timer);
-    pDeviceContext = WdfObjectGet_DEVICE_CONTEXT(hDevice);
+    pDeviceContext = GetCommonContext(hDevice);
 
     switch (pDeviceContext->DeviceType)
     {
