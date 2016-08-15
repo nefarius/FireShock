@@ -314,27 +314,20 @@ void InterruptReadRequestCompletionRoutine(
     PUCHAR                                  upperBuffer;
 
     upperUrb = (PURB)URB_FROM_IRP(WdfRequestWdmGetIrp(upperRequest));
-    upperBuffer = (PUCHAR)upperUrb->UrbBulkOrInterruptTransfer.TransferBuffer;
-
+    
     status = Params->IoStatus.Status;
     usbCompletionParams = Params->Parameters.Usb.Completion;
     bytesRead = usbCompletionParams->Parameters.PipeRead.Length;
 
+    // Uppder device buffer
+    upperBuffer = (PUCHAR)upperUrb->UrbBulkOrInterruptTransfer.TransferBuffer;
+    // Lower device buffer
     transferBuffer = WdfMemoryGetBuffer(usbCompletionParams->Parameters.PipeRead.Buffer, &transferBufferLength);
 
-    KdPrint(("REQUEST LENGTH: %d\n", upperUrb->UrbBulkOrInterruptTransfer.TransferBufferLength));
+    // Report ID
+    upperBuffer[0] = transferBuffer[0];
 
-    KdPrint(("INPUT: "));
-
-    for (size_t i = 0; i < bytesRead; i++)
-    {
-        KdPrint(("0x%02X ", transferBuffer[i]));
-    }
-
-    KdPrint(("\n"));
-
-    upperBuffer[0] = transferBuffer[0]; // Report ID
-
+    // Prepare D-Pad
     upperBuffer[5] &= ~0xF; // Clear lower 4 bits
 
     // Translate D-Pad to HAT format
@@ -369,6 +362,7 @@ void InterruptReadRequestCompletionRoutine(
         break;
     }
 
+    // Prepare face buttons
     upperBuffer[5] &= ~0xF0; // Clear upper 4 bits
     // Set face buttons
     upperBuffer[5] |= transferBuffer[3] & 0xF0;

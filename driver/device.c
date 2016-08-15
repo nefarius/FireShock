@@ -165,8 +165,6 @@ VOID EvtIoInternalDeviceControl(
             status = SendInterruptInRequest(hDevice, Request);
             status = NT_SUCCESS(status) ? STATUS_PENDING : status;
 
-            KdPrint(("UPPER BUFLEN: %d\n", urb->UrbBulkOrInterruptTransfer.TransferBufferLength));
-
             break;
         }
         case URB_FUNCTION_SELECT_CONFIGURATION:
