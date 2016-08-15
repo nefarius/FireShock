@@ -146,7 +146,6 @@ NTSTATUS SendInterruptInRequest(
         break;
     default:
         return STATUS_NOT_IMPLEMENTED;
-        break;
     }
 
     status = WdfRequestCreate(
