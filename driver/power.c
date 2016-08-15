@@ -65,6 +65,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
 
     WdfUsbTargetDeviceGetDeviceDescriptor(pDeviceContext->UsbDevice, &deviceDescriptor);
 
+    // Device is a DualShock 3
     if (deviceDescriptor.idVendor == 0x054C && deviceDescriptor.idProduct == 0x0268)
     {
         pDeviceContext->DeviceType = DualShock3;
@@ -90,7 +91,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
 
         RtlCopyBytes(pDs3Context->OutputReportBuffer, DefaultOutputReport, DS3_HID_OUTPUT_REPORT_SIZE);
 
-        WDF_TIMER_CONFIG_INIT_PERIODIC(&outputTimerCfg, Ds3OutputEvtTimerFunc, 10);
+        WDF_TIMER_CONFIG_INIT_PERIODIC(&outputTimerCfg, Ds3OutputEvtTimerFunc, DS3_OUTPUT_REPORT_SEND_DELAY);
         WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
 
         attributes.ParentObject = Device;
@@ -102,9 +103,12 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
         }
     }
 
+    // Device is a DualShock 4
     if (deviceDescriptor.idVendor == 0x054C && deviceDescriptor.idProduct == 0x05C4)
     {
         pDeviceContext->DeviceType = DualShock4;
+
+        // TODO: implement
     }
 
     return status;

@@ -210,7 +210,7 @@ VOID EvtIoInternalDeviceControl(
                 {
                     pDs3Context->Enabled = TRUE;
 
-                    WdfTimerStart(pDs3Context->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(10));
+                    WdfTimerStart(pDs3Context->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(DS3_OUTPUT_REPORT_SEND_DELAY));
                 }
             }
 

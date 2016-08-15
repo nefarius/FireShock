@@ -26,8 +26,9 @@ SOFTWARE.
 #pragma once
 
 #define DS3_CONFIGURATION_DESCRIPTOR_SIZE       0x29
+#define DS3_OUTPUT_REPORT_SEND_DELAY            0x0A
 #define DS3_HID_COMMAND_ENABLE_SIZE             0x04
-#define DS3_HID_OUTPUT_REPORT_SIZE               0x30
+#define DS3_HID_OUTPUT_REPORT_SIZE              0x30
 #define DS3_HID_REPORT_DESCRIPTOR_SIZE          0x8B
 
 typedef enum _USB_HID_REQUEST

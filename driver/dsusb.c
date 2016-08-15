@@ -28,9 +28,9 @@ NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon)
     {
     case DualShock3:
 
-        if (length >= 41)
+        if (length >= DS3_CONFIGURATION_DESCRIPTOR_SIZE)
         {
-            Ds3GetConfigurationDescriptorType(Buffer, 41);
+            Ds3GetConfigurationDescriptorType(Buffer, DS3_CONFIGURATION_DESCRIPTOR_SIZE);
         }
 
         break;
