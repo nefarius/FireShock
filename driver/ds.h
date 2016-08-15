@@ -81,13 +81,6 @@ typedef enum _DS_DEVICE_TYPE
 
 EVT_WDF_TIMER Ds3OutputEvtTimerFunc;
 
-NTSTATUS SendControlRequest(
-    WDFDEVICE Device,
-    BYTE Request,
-    USHORT Value,
-    USHORT Index,
-    PVOID Buffer,
-    size_t BufferLength);
 
 NTSTATUS Ds3Init(WDFDEVICE hDevice);
 
