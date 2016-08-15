@@ -283,12 +283,18 @@ void ControlRequestCompletionRoutine(
     _In_ WDFCONTEXT                     Context
 )
 {
-    UNREFERENCED_PARAMETER(Request);
+    NTSTATUS status;
+
     UNREFERENCED_PARAMETER(Target);
     UNREFERENCED_PARAMETER(Params);
     UNREFERENCED_PARAMETER(Context);
 
-    KdPrint(("ControlRequestCompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
+    status = WdfRequestGetStatus(Request);
+
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint(("ControlRequestCompletionRoutine failed with status 0x%X\n", status));
+    }
 }
 
 void InterruptReadRequestCompletionRoutine(
@@ -312,10 +318,9 @@ void InterruptReadRequestCompletionRoutine(
 
     status = WdfRequestGetStatus(Request);
 
-    KdPrint(("InterruptReadRequestCompletionRoutine called with status 0x%X\n", status));
-
     if (!NT_SUCCESS(status))
     {
+        KdPrint(("InterruptReadRequestCompletionRoutine failed with status 0x%X\n", status));
         WdfRequestComplete(upperRequest, status);
         return;
     }
