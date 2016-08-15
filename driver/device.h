@@ -51,7 +51,7 @@ typedef struct _DS3_DEVICE_CONTEXT
 
 	WDFTIMER OutputReportTimer;
 
-	UCHAR OutputReportBuffer[DS_HID_OUTPUT_REPORT_SIZE];
+	UCHAR OutputReportBuffer[DS3_HID_OUTPUT_REPORT_SIZE];
 
     WDFUSBINTERFACE DefaultInterface;
 

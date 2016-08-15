@@ -25,9 +25,10 @@ SOFTWARE.
 
 #pragma once
 
-#define DS_HID_COMMAND_ENABLE_SIZE      0x04
-#define DS_HID_OUTPUT_REPORT_SIZE       0x30
-#define DS3_HID_REPORT_DESCRIPTOR_SIZE  0x8B
+#define DS3_CONFIGURATION_DESCRIPTOR_SIZE       0x29
+#define DS3_HID_COMMAND_ENABLE_SIZE             0x04
+#define DS3_HID_OUTPUT_REPORT_SIZE               0x30
+#define DS3_HID_REPORT_DESCRIPTOR_SIZE          0x8B
 
 typedef enum _USB_HID_REQUEST
 {
@@ -91,3 +92,4 @@ NTSTATUS Ds3Init(WDFDEVICE hDevice);
 
 VOID Ds3GetConfigurationDescriptorType(PUCHAR Buffer, ULONG Length);
 
+VOID Ds3GetDescriptorFromInterface(PUCHAR Buffer);

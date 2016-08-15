@@ -78,7 +78,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
             return status;
         }
 
-        UCHAR DefaultOutputReport[DS_HID_OUTPUT_REPORT_SIZE] =
+        UCHAR DefaultOutputReport[DS3_HID_OUTPUT_REPORT_SIZE] =
         {
             0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0xFF, 0x27, 0x10, 0x00, 0x32, 0xFF,
@@ -88,7 +88,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         };
 
-        RtlCopyBytes(pDs3Context->OutputReportBuffer, DefaultOutputReport, DS_HID_OUTPUT_REPORT_SIZE);
+        RtlCopyBytes(pDs3Context->OutputReportBuffer, DefaultOutputReport, DS3_HID_OUTPUT_REPORT_SIZE);
 
         WDF_TIMER_CONFIG_INIT_PERIODIC(&outputTimerCfg, Ds3OutputEvtTimerFunc, 10);
         WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
