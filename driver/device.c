@@ -214,68 +214,8 @@ VOID EvtIoInternalDeviceControl(
                 }
             }
 
-            WDFMEMORY transferBuffer;
-            WDFREQUEST interruptRequest;
-            WDF_OBJECT_ATTRIBUTES transferAttribs;
-
-            status = WdfRequestCreate(
-                WDF_NO_OBJECT_ATTRIBUTES,
-                WdfDeviceGetIoTarget(hDevice),
-                &interruptRequest
-            );
-
-            if (!NT_SUCCESS(status))
-            {
-                KdPrint(("WdfRequestCreate failed with status 0x%X\n", status));
-                break;
-            }
-
-            WDF_OBJECT_ATTRIBUTES_INIT(&transferAttribs);
-
-            transferAttribs.ParentObject = interruptRequest;
-
-            status = WdfMemoryCreate(
-                &transferAttribs,
-                NonPagedPool,
-                0,
-                64,
-                &transferBuffer,
-                NULL);
-
-            if (!NT_SUCCESS(status))
-            {
-                KdPrint(("WdfMemoryCreate failed with status 0x%X\n", status));
-                break;
-            }
-
-            status = WdfUsbTargetPipeFormatRequestForRead(
-                pDs3Context->InterruptReadPipe,
-                interruptRequest,
-                transferBuffer,
-                NULL);
-
-            if (!NT_SUCCESS(status))
-            {
-                KdPrint(("WdfUsbTargetPipeFormatRequestForRead failed with status 0x%X\n", status));
-                break;
-            }
-
-            WdfRequestSetCompletionRoutine(
-                interruptRequest,
-                InterruptReadRequestCompletionRoutine,
-                Request);
-
-            if (!WdfRequestSend(
-                interruptRequest,
-                WdfUsbTargetDeviceGetIoTarget(pDeviceContext->UsbDevice),
-                NULL))
-            {
-                KdPrint(("WdfRequestSend failed\n"));
-            }
-            else
-            {
-                status = STATUS_PENDING;
-            }
+            status = SendInterruptInRequest(hDevice, Request);
+            status = NT_SUCCESS(status) ? STATUS_PENDING : status;
 
             KdPrint(("UPPER BUFLEN: %d\n", urb->UrbBulkOrInterruptTransfer.TransferBufferLength));
 
@@ -309,6 +249,7 @@ VOID EvtIoInternalDeviceControl(
 
                 KdPrint((">> >> >> USB_CONFIGURATION_DESCRIPTOR_TYPE\n"));
 
+                // Intercept and write back custom configuration descriptor
                 if (pDeviceContext->DeviceType == DualShock3)
                 {
                     status = GetConfigurationDescriptorType(urb, pDeviceContext);
@@ -353,6 +294,11 @@ VOID EvtIoInternalDeviceControl(
 
             KdPrint((">> >> URB_FUNCTION_ABORT_PIPE\n"));
 
+            if (pDeviceContext->DeviceType == DualShock3)
+            {
+                WdfTimerStop(pDs3Context->OutputReportTimer, FALSE);
+            }
+
             break;
 
         case URB_FUNCTION_CLASS_INTERFACE:
@@ -365,6 +311,7 @@ VOID EvtIoInternalDeviceControl(
 
             KdPrint((">> >> URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE\n"));
 
+            // Intercept and write back custom HID report descriptor
             if (pDeviceContext->DeviceType == DualShock3)
             {
                 status = GetDescriptorFromInterface(urb, pDeviceContext);
@@ -381,17 +328,20 @@ VOID EvtIoInternalDeviceControl(
         break;
     }
 
+    // The upper request is pending and gets completed later
     if (status == STATUS_PENDING)
     {
         return;
     }
 
+    // The upper request was handled by the filter
     if (processed)
     {
         WdfRequestComplete(Request, status);
         return;
     }
 
+    // The upper request gets forwarded to the lower driver
     WDF_REQUEST_SEND_OPTIONS_INIT(&options,
         WDF_REQUEST_SEND_OPTION_SEND_AND_FORGET);
 
@@ -402,138 +352,5 @@ VOID EvtIoInternalDeviceControl(
         KdPrint(("WdfRequestSend failed: 0x%x\n", status));
         WdfRequestComplete(Request, status);
     }
-}
-
-void ControlRequestCompletionRoutine(
-    _In_ WDFREQUEST                     Request,
-    _In_ WDFIOTARGET                    Target,
-    _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
-    _In_ WDFCONTEXT                     Context
-)
-{
-    UNREFERENCED_PARAMETER(Request);
-    UNREFERENCED_PARAMETER(Target);
-    UNREFERENCED_PARAMETER(Params);
-    UNREFERENCED_PARAMETER(Context);
-
-    KdPrint(("ControlRequestCompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
-}
-
-void InterruptReadRequestCompletionRoutine(
-    _In_ WDFREQUEST                     Request,
-    _In_ WDFIOTARGET                    Target,
-    _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
-    _In_ WDFCONTEXT                     Context
-)
-{
-    UNREFERENCED_PARAMETER(Request);
-    UNREFERENCED_PARAMETER(Target);
-
-    KdPrint(("InterruptReadRequestCompletionRoutine called with status 0x%X\n", WdfRequestGetStatus(Request)));
-
-    NTSTATUS                                status;
-    PWDF_USB_REQUEST_COMPLETION_PARAMS      usbCompletionParams;
-    size_t                                  bytesRead;
-    WDFREQUEST                              upperRequest = Context;
-    PUCHAR                                  transferBuffer;
-    size_t                                  transferBufferLength;
-    PURB                                    upperUrb;
-    PUCHAR                                  upperBuffer;
-
-    upperUrb = (PURB)URB_FROM_IRP(WdfRequestWdmGetIrp(upperRequest));
-    upperBuffer = (PUCHAR)upperUrb->UrbBulkOrInterruptTransfer.TransferBuffer;
-
-    status = Params->IoStatus.Status;
-    usbCompletionParams = Params->Parameters.Usb.Completion;
-    bytesRead = usbCompletionParams->Parameters.PipeRead.Length;
-
-    transferBuffer = WdfMemoryGetBuffer(usbCompletionParams->Parameters.PipeRead.Buffer, &transferBufferLength);
-
-    KdPrint(("REQUEST LENGTH: %d\n", upperUrb->UrbBulkOrInterruptTransfer.TransferBufferLength));
-
-    KdPrint(("INPUT: "));
-
-    for (size_t i = 0; i < bytesRead; i++)
-    {
-        KdPrint(("0x%02X ", transferBuffer[i]));
-    }
-
-    KdPrint(("\n"));
-
-    upperBuffer[0] = transferBuffer[0]; // Report ID
-
-    upperBuffer[5] &= ~0xF; // Clear lower 4 bits
-
-    // Translate D-Pad to HAT format
-    switch (transferBuffer[2] & ~0xF)
-    {
-    case 0x10: // N
-        upperBuffer[5] |= 0 & 0xF;
-        break;
-    case 0x30: // NE
-        upperBuffer[5] |= 1 & 0xF;
-        break;
-    case 0x20: // E
-        upperBuffer[5] |= 2 & 0xF;
-        break;
-    case 0x60: // SE
-        upperBuffer[5] |= 3 & 0xF;
-        break;
-    case 0x40: // S
-        upperBuffer[5] |= 4 & 0xF;
-        break;
-    case 0xC0: // SW
-        upperBuffer[5] |= 5 & 0xF;
-        break;
-    case 0x80: // W
-        upperBuffer[5] |= 6 & 0xF;
-        break;
-    case 0x90: // NW
-        upperBuffer[5] |= 7 & 0xF;
-        break;
-    default: // Released
-        upperBuffer[5] |= 8 & 0xF;
-        break;
-    }
-
-    upperBuffer[5] &= ~0xF0; // Clear upper 4 bits
-    // Set face buttons
-    upperBuffer[5] |= transferBuffer[3] & 0xF0;
-
-    // Thumb axes
-    upperBuffer[1] = transferBuffer[6]; // LTX
-    upperBuffer[2] = transferBuffer[7]; // LTY
-    upperBuffer[3] = transferBuffer[8]; // RTX
-    upperBuffer[4] = transferBuffer[9]; // RTY
-
-    // Remaining buttons
-    upperBuffer[6] &= ~0xFF; // Clear all 8 bits
-    upperBuffer[6] |= transferBuffer[2] & 0xF;
-    upperBuffer[6] |= (transferBuffer[3] & 0xF) << 4;
-
-    // Trigger axes
-    upperBuffer[8] = transferBuffer[18];
-    upperBuffer[9] = transferBuffer[19];
-
-    // Ps button
-    upperBuffer[7] = transferBuffer[4];
-
-    // D-Pad (pressure)
-    upperBuffer[10] = transferBuffer[14];
-    upperBuffer[11] = transferBuffer[15];
-    upperBuffer[12] = transferBuffer[16];
-    upperBuffer[13] = transferBuffer[17];
-
-    // Shoulders (pressure)
-    upperBuffer[14] = transferBuffer[20];
-    upperBuffer[15] = transferBuffer[21];
-
-    // Face buttons (pressure)
-    upperBuffer[16] = transferBuffer[22];
-    upperBuffer[17] = transferBuffer[23];
-    upperBuffer[18] = transferBuffer[24];
-    upperBuffer[19] = transferBuffer[25];
-
-    WdfRequestComplete(upperRequest, status);
 }
 
