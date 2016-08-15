@@ -343,9 +343,12 @@ void InterruptReadRequestCompletionRoutine(
     // Lower device buffer
     transferBuffer = WdfMemoryGetBuffer(usbCompletionParams->Parameters.PipeRead.Buffer, &transferBufferLength);
 
-    if (bytesRead > upperBufferLength)
+    if (bytesRead < upperBufferLength)
     {
-        WdfRequestComplete(upperRequest, STATUS_BUFFER_TOO_SMALL);
+        KdPrint(("Transfer buffer (%d) too small for request buffer (%d)\n",
+            bytesRead,
+            upperBufferLength));
+        WdfRequestComplete(upperRequest, STATUS_INVALID_PARAMETER);
         return;
     }
 

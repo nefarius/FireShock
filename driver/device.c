@@ -151,6 +151,7 @@ VOID EvtIoInternalDeviceControl(
         {
             KdPrint((">> >> URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
 
+            // Send start command so interrupt requests keep coming
             if (pDeviceContext->DeviceType == DualShock3 && !pDs3Context->Enabled)
             {
                 status = Ds3Init(hDevice);
@@ -162,8 +163,12 @@ VOID EvtIoInternalDeviceControl(
                 }
             }
 
-            status = SendInterruptInRequest(hDevice, Request);
-            status = NT_SUCCESS(status) ? STATUS_PENDING : status;
+            // Intercept interrupt request and translate TransferBuffer
+            if (urb->UrbBulkOrInterruptTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN)
+            {
+                status = SendInterruptInRequest(hDevice, Request);
+                status = NT_SUCCESS(status) ? STATUS_PENDING : status;
+            }
 
             break;
         }
