@@ -126,13 +126,13 @@ NTSTATUS SendInterruptInRequest(
     WDFCONTEXT Context
 )
 {
-    NTSTATUS status;
-    WDFMEMORY transferBuffer;
-    WDFREQUEST interruptRequest;
-    WDF_OBJECT_ATTRIBUTES transferAttribs;
-    PDEVICE_CONTEXT pDeviceContext;
-    PDS3_DEVICE_CONTEXT pDs3Context;
-    WDFUSBPIPE inPipe;
+    NTSTATUS                    status;
+    WDFMEMORY                   transferBuffer;
+    WDFREQUEST                  interruptRequest;
+    WDF_OBJECT_ATTRIBUTES       transferAttribs;
+    PDEVICE_CONTEXT             pDeviceContext;
+    PDS3_DEVICE_CONTEXT         pDs3Context;
+    WDFUSBPIPE                  inPipe;
 
     pDeviceContext = GetCommonContext(Device);
 
@@ -140,6 +140,7 @@ NTSTATUS SendInterruptInRequest(
     {
     case DualShock3:
 
+        // Get default interrupt IN pipe
         pDs3Context = Ds3GetContext(Device);
         inPipe = pDs3Context->InterruptReadPipe;
 
@@ -148,6 +149,7 @@ NTSTATUS SendInterruptInRequest(
         return STATUS_NOT_IMPLEMENTED;
     }
 
+    // Create new request
     status = WdfRequestCreate(
         WDF_NO_OBJECT_ATTRIBUTES,
         WdfDeviceGetIoTarget(Device),
@@ -164,6 +166,7 @@ NTSTATUS SendInterruptInRequest(
 
     transferAttribs.ParentObject = interruptRequest;
 
+    // Create TransferBuffer
     status = WdfMemoryCreate(
         &transferAttribs,
         NonPagedPool,
@@ -178,6 +181,7 @@ NTSTATUS SendInterruptInRequest(
         return status;
     }
 
+    // Prepare read request
     status = WdfUsbTargetPipeFormatRequestForRead(
         inPipe,
         interruptRequest,
@@ -190,11 +194,13 @@ NTSTATUS SendInterruptInRequest(
         return status;
     }
 
+    // Completion routine handles returned data
     WdfRequestSetCompletionRoutine(
         interruptRequest,
         InterruptReadRequestCompletionRoutine,
         Context);
 
+    // Send request
     if (!WdfRequestSend(
         interruptRequest,
         WdfUsbTargetDeviceGetIoTarget(pDeviceContext->UsbDevice),
