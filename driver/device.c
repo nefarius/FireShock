@@ -518,6 +518,22 @@ void InterruptReadRequestCompletionRoutine(
     // Ps button
     upperBuffer[7] = transferBuffer[4];
 
+    // D-Pad (pressure)
+    upperBuffer[10] = transferBuffer[14];
+    upperBuffer[11] = transferBuffer[15];
+    upperBuffer[12] = transferBuffer[16];
+    upperBuffer[13] = transferBuffer[17];
+
+    // Shoulders (pressure)
+    upperBuffer[14] = transferBuffer[20];
+    upperBuffer[15] = transferBuffer[21];
+
+    // Face buttons (pressure)
+    upperBuffer[16] = transferBuffer[22];
+    upperBuffer[17] = transferBuffer[23];
+    upperBuffer[18] = transferBuffer[24];
+    upperBuffer[19] = transferBuffer[25];
+
     WdfRequestComplete(upperRequest, status);
 }
 
