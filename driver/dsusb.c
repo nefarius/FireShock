@@ -319,7 +319,7 @@ void InterruptReadRequestCompletionRoutine(
     usbCompletionParams = Params->Parameters.Usb.Completion;
     bytesRead = usbCompletionParams->Parameters.PipeRead.Length;
 
-    // Uppder device buffer
+    // Upper device buffer
     upperBuffer = (PUCHAR)upperUrb->UrbBulkOrInterruptTransfer.TransferBuffer;
     // Lower device buffer
     transferBuffer = WdfMemoryGetBuffer(usbCompletionParams->Parameters.PipeRead.Buffer, &transferBufferLength);
@@ -382,7 +382,7 @@ void InterruptReadRequestCompletionRoutine(
     upperBuffer[8] = transferBuffer[18];
     upperBuffer[9] = transferBuffer[19];
 
-    // Ps button
+    // PS button
     upperBuffer[7] = transferBuffer[4];
 
     // D-Pad (pressure)
