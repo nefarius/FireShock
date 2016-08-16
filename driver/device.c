@@ -110,6 +110,14 @@ Return Value:
         return status;
     }
 
+    status = WdfDeviceCreateDeviceInterface(device, &GUID_DEVINTERFACE_FIRESHOCK, NULL);
+
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint(("WdfDeviceCreateDeviceInterface failed status 0x%x\n", status));
+        return status;
+    }
+
     //
     // Add this device to the FilterDevice collection.
     //

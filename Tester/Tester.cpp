@@ -8,37 +8,56 @@
 
 int main()
 {
-    HANDLE hControlDevice = INVALID_HANDLE_VALUE;
+    HANDLE hDevice = INVALID_HANDLE_VALUE;
+    SP_DEVICE_INTERFACE_DATA deviceInterfaceData = { 0 };
+    deviceInterfaceData.cbSize = sizeof(deviceInterfaceData);
+    DWORD memberIndex = 0;
+    DWORD requiredSize = 0;
 
+    auto deviceInfoSet = SetupDiGetClassDevs(&GUID_DEVINTERFACE_FIRESHOCK, nullptr, nullptr, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
 
-    hControlDevice = CreateFile(TEXT("\\\\.\\FireShockFilter"),
-        GENERIC_READ, // Only read access
-        0, // FILE_SHARE_READ | FILE_SHARE_WRITE
-        NULL, // no SECURITY_ATTRIBUTES structure
-        OPEN_EXISTING, // No special create flags
-        0, // No special attributes
-        NULL); // No template file
+    while (SetupDiEnumDeviceInterfaces(deviceInfoSet, nullptr, &GUID_DEVINTERFACE_FIRESHOCK, memberIndex, &deviceInterfaceData))
+    {
+        // get required target buffer size
+        SetupDiGetDeviceInterfaceDetail(deviceInfoSet, &deviceInterfaceData, nullptr, 0, &requiredSize, nullptr);
 
-    if (hControlDevice != INVALID_HANDLE_VALUE)
-        printf("Found device! 0x%X\n", GetLastError());
-    else
-        printf("Device not found! 0x%X\n", GetLastError());
+        // allocate target buffer
+        auto detailDataBuffer = static_cast<PSP_DEVICE_INTERFACE_DETAIL_DATA>(malloc(requiredSize));
+        detailDataBuffer->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
 
-    getchar();
+        // get detail buffer
+        if (!SetupDiGetDeviceInterfaceDetail(deviceInfoSet, &deviceInterfaceData, detailDataBuffer, requiredSize, &requiredSize, nullptr))
+        {
+            SetupDiDestroyDeviceInfoList(deviceInfoSet);
+            free(detailDataBuffer);
+            continue;
+        }
 
-    UCHAR Buffer[10];
-    DWORD read = 0;
+        if (hDevice != INVALID_HANDLE_VALUE)
+        {
+            CloseHandle(hDevice);
+        }
 
-    printf("Read request...\n");
-    auto retval = ReadFile(hControlDevice, Buffer, 10, &read, nullptr);
-    printf("retval = %d, read = %d, error = 0x%X\n", retval, read, GetLastError());
+        hDevice = CreateFile(detailDataBuffer->DevicePath,
+            GENERIC_READ | GENERIC_WRITE,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            nullptr,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL,
+            nullptr);
 
-    getchar();
-    getchar();
+        free(detailDataBuffer);
 
-    printf("Closing...\n");
-    CloseHandle(hControlDevice);
+        printf("Found device!\n");
 
+        getchar();
+
+        CloseHandle(hDevice);
+
+        break;
+    }
+
+    SetupDiDestroyDeviceInfoList(deviceInfoSet);
 
     return 0;
 }
