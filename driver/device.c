@@ -398,32 +398,6 @@ VOID EvtIoInternalDeviceControl(
     }
 }
 
-VOID FilterEvtIoRead(
-    _In_ WDFQUEUE   Queue,
-    _In_ WDFREQUEST Request,
-    _In_ size_t     Length
-)
-{
-    UNREFERENCED_PARAMETER(Queue);
-    UNREFERENCED_PARAMETER(Length);
-
-    KdPrint(("FilterEvtIoRead called (Length: %d)\n", Length));
-
-    WdfRequestComplete(Request, STATUS_SUCCESS);
-}
-
-VOID FilterEvtIoWrite(
-    _In_ WDFQUEUE   Queue,
-    _In_ WDFREQUEST Request,
-    _In_ size_t     Length
-)
-{
-    UNREFERENCED_PARAMETER(Queue);
-    UNREFERENCED_PARAMETER(Length);
-
-    WdfRequestComplete(Request, STATUS_SUCCESS);
-}
-
 _Use_decl_annotations_
 NTSTATUS
 FilterCreateControlDevice(
@@ -523,8 +497,6 @@ FilterCreateControlDevice(
         WdfIoQueueDispatchSequential);
 
     ioQueueConfig.EvtIoDeviceControl = FilterEvtIoDeviceControl;
-    ioQueueConfig.EvtIoRead = FilterEvtIoRead;
-    ioQueueConfig.EvtIoWrite = FilterEvtIoWrite;
 
     //
     // Framework by default creates non-power managed queues for
