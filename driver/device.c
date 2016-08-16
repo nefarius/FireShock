@@ -197,12 +197,33 @@ VOID FilterEvtIoDeviceControl(
     _In_ ULONG      IoControlCode
 )
 {
+    ULONG               i;
+    ULONG               noItems;
+    WDFDEVICE           hFilterDevice;
+
     UNREFERENCED_PARAMETER(Queue);
     UNREFERENCED_PARAMETER(OutputBufferLength);
     UNREFERENCED_PARAMETER(InputBufferLength);
     UNREFERENCED_PARAMETER(IoControlCode);
 
-    WdfRequestComplete(Request, STATUS_SUCCESS);
+    PAGED_CODE();
+
+    KdPrint(("Ioctl received into filter control object.\n"));
+
+    WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
+
+    noItems = WdfCollectionGetCount(FilterDeviceCollection);
+
+    for (i = 0; i < noItems; i++) {
+
+        hFilterDevice = WdfCollectionGetItem(FilterDeviceCollection, i);
+
+        KdPrint(("Serial No: %d\n", i));
+    }
+
+    WdfWaitLockRelease(FilterDeviceCollectionLock);
+
+    WdfRequestCompleteWithInformation(Request, STATUS_SUCCESS, 0);
 }
 #pragma warning(pop) // enable 28118 again
 
