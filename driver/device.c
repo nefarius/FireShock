@@ -89,7 +89,10 @@ Return Value:
     WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(&ioQueueConfig,
         WdfIoQueueDispatchParallel);
 
+    ioQueueConfig.EvtIoDeviceControl = EvtIoDeviceControl;
     ioQueueConfig.EvtIoInternalDeviceControl = EvtIoInternalDeviceControl;
+    ioQueueConfig.EvtIoRead = EvtIoRead;
+    ioQueueConfig.EvtIoWrite = EvtIoWrite;
 
     status = WdfIoQueueCreate(device,
         &ioQueueConfig,
@@ -103,6 +106,22 @@ Return Value:
     }
 
     return status;
+}
+
+VOID EvtIoDeviceControl(
+    _In_ WDFQUEUE   Queue,
+    _In_ WDFREQUEST Request,
+    _In_ size_t     OutputBufferLength,
+    _In_ size_t     InputBufferLength,
+    _In_ ULONG      IoControlCode
+)
+{
+    UNREFERENCED_PARAMETER(Queue);
+    UNREFERENCED_PARAMETER(OutputBufferLength);
+    UNREFERENCED_PARAMETER(InputBufferLength);
+    UNREFERENCED_PARAMETER(IoControlCode);
+
+    WdfRequestComplete(Request, STATUS_SUCCESS);
 }
 
 VOID EvtIoInternalDeviceControl(
@@ -303,5 +322,29 @@ VOID EvtIoInternalDeviceControl(
         KdPrint(("WdfRequestSend failed: 0x%x\n", status));
         WdfRequestComplete(Request, status);
     }
+}
+
+VOID EvtIoRead(
+    _In_ WDFQUEUE   Queue,
+    _In_ WDFREQUEST Request,
+    _In_ size_t     Length
+)
+{
+    UNREFERENCED_PARAMETER(Queue);
+    UNREFERENCED_PARAMETER(Length);
+
+    WdfRequestComplete(Request, STATUS_SUCCESS);
+}
+
+VOID EvtIoWrite(
+    _In_ WDFQUEUE   Queue,
+    _In_ WDFREQUEST Request,
+    _In_ size_t     Length
+)
+{
+    UNREFERENCED_PARAMETER(Queue);
+    UNREFERENCED_PARAMETER(Length);
+
+    WdfRequestComplete(Request, STATUS_SUCCESS);
 }
 
