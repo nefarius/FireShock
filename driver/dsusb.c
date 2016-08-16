@@ -302,6 +302,9 @@ void ControlRequestCompletionRoutine(
     {
         KdPrint(("ControlRequestCompletionRoutine failed with status 0x%X\n", status));
     }
+
+    // Free buffer
+    WdfObjectDelete(Params->Parameters.Usb.Completion->Parameters.DeviceControlTransfer.Buffer);
 }
 
 void InterruptReadRequestCompletionRoutine(
@@ -350,6 +353,8 @@ void InterruptReadRequestCompletionRoutine(
             bytesRead,
             upperBufferLength));
         WdfRequestComplete(upperRequest, STATUS_INVALID_PARAMETER);
+        // Free buffer
+        WdfObjectDelete(usbCompletionParams->Parameters.PipeRead.Buffer);
         return;
     }
 
@@ -431,5 +436,7 @@ void InterruptReadRequestCompletionRoutine(
     upperBuffer[19] = transferBuffer[25];
 
     WdfRequestComplete(upperRequest, status);
+    // Free buffer
+    WdfObjectDelete(usbCompletionParams->Parameters.PipeRead.Buffer);
 }
 
