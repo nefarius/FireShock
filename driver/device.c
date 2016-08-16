@@ -35,6 +35,7 @@ WDFDEVICE       ControlDevice = NULL;
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, FireShockEvtDeviceAdd)
 #pragma alloc_text(PAGE, FilterCreateControlDevice)
+#pragma alloc_text(PAGE, FilterEvtIoDeviceControl)
 #endif
 
 NTSTATUS
@@ -197,14 +198,21 @@ VOID FilterEvtIoDeviceControl(
     _In_ ULONG      IoControlCode
 )
 {
-    ULONG               i;
-    ULONG               noItems;
-    WDFDEVICE           hFilterDevice;
+    NTSTATUS                    status = STATUS_INVALID_PARAMETER;
+    ULONG                       i;
+    ULONG                       noItems;
+    size_t                      length = 0;
+    WDFDEVICE                   hFilterDevice;
+    PFIRESHOCK_REQUEST_REPORT   pRequestReport = NULL;
 
     UNREFERENCED_PARAMETER(Queue);
     UNREFERENCED_PARAMETER(OutputBufferLength);
     UNREFERENCED_PARAMETER(InputBufferLength);
     UNREFERENCED_PARAMETER(IoControlCode);
+
+    UNREFERENCED_PARAMETER(status);
+    UNREFERENCED_PARAMETER(length);
+    UNREFERENCED_PARAMETER(pRequestReport);
 
     PAGED_CODE();
 
@@ -220,6 +228,21 @@ VOID FilterEvtIoDeviceControl(
 
         KdPrint(("Serial No: %d\n", i));
     }
+
+
+    switch (IoControlCode)
+    {
+    case IOCTL_FIRESHOCK_REQUEST_REPORT:
+
+        //status = WdfRequestRetrieveInputBuffer(Request, sizeof(FIRESHOCK_REQUEST_REPORT), (PVOID)&pRequestReport, &length);
+        //
+        //if (NT_SUCCESS(status)
+        //    && (sizeof(FIRESHOCK_REQUEST_REPORT) == pRequestReport->Size)
+        //    && (length == InputBufferLength))
+
+            break;
+    }
+
 
     WdfWaitLockRelease(FilterDeviceCollectionLock);
 
@@ -489,7 +512,7 @@ FilterCreateControlDevice(
     WdfDeviceInitSetExclusive(pInit, FALSE);
 
     status = WdfDeviceInitAssignName(pInit, &ntDeviceName);
-    
+
     if (!NT_SUCCESS(status)) {
         goto Error;
     }
@@ -512,7 +535,7 @@ FilterCreateControlDevice(
 
     status = WdfDeviceCreateSymbolicLink(controlDevice,
         &symbolicLinkName);
-    
+
     if (!NT_SUCCESS(status)) {
         goto Error;
     }
