@@ -114,21 +114,27 @@
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>fireshock</TargetName>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>fireshock</TargetName>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Windows 7)|x64'">
     <TargetName>fireshock</TargetName>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>fireshock</TargetName>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>fireshock</TargetName>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Windows 7)|Win32'">
     <TargetName>fireshock</TargetName>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
@@ -244,6 +250,7 @@
     <None Exclude="@(None)" Include="*.def;*.bat;*.hpj;*.asmx" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\public.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="ds.h" />
     <ClInclude Include="dsusb.h" />

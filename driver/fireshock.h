@@ -31,6 +31,7 @@ Environment:
 #include <wdmguid.h>
 
 // Our drivers modules includes
+#include "public.h"
 #include "device.h"
 #include "power.h"
 #include "ds.h"
