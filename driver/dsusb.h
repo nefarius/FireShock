@@ -40,7 +40,8 @@ NTSTATUS SendControlRequest(
 
 NTSTATUS SendInterruptInRequest(
     WDFDEVICE Device,
-    WDFCONTEXT Context
+    PFN_WDF_REQUEST_COMPLETION_ROUTINE CompletionRoutine,
+    WDFCONTEXT CompletionContext
 );
 
 NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon);

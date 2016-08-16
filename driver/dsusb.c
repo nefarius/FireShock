@@ -123,7 +123,8 @@ NTSTATUS SendControlRequest(
 
 NTSTATUS SendInterruptInRequest(
     WDFDEVICE Device,
-    WDFCONTEXT Context
+    PFN_WDF_REQUEST_COMPLETION_ROUTINE CompletionRoutine,
+    WDFCONTEXT CompletionContext
 )
 {
     NTSTATUS                    status;
@@ -197,8 +198,8 @@ NTSTATUS SendInterruptInRequest(
     // Completion routine handles returned data
     WdfRequestSetCompletionRoutine(
         interruptRequest,
-        InterruptReadRequestCompletionRoutine,
-        Context);
+        CompletionRoutine,
+        CompletionContext);
 
     // Send request
     if (!WdfRequestSend(

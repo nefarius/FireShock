@@ -259,7 +259,7 @@ VOID EvtIoInternalDeviceControl(
             // Intercept interrupt request and translate TransferBuffer
             if (urb->UrbBulkOrInterruptTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN)
             {
-                status = SendInterruptInRequest(hDevice, Request);
+                status = SendInterruptInRequest(hDevice, InterruptReadRequestCompletionRoutine, Request);
                 status = NT_SUCCESS(status) ? STATUS_PENDING : status;
             }
 
