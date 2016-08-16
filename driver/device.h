@@ -28,6 +28,8 @@ Environment:
 //
 #include "ds.h"
 
+#define NTDEVICE_NAME_STRING      L"\\Device\\FireShockFilter"
+#define SYMBOLIC_NAME_STRING      L"\\DosDevices\\FireShockFilter"
 
 typedef struct _DEVICE_CONTEXT
 {
@@ -57,7 +59,22 @@ WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DS3_DEVICE_CONTEXT, Ds3GetContext)
 
 EVT_WDF_DEVICE_CONTEXT_CLEANUP EvtDeviceContextCleanup;
 EVT_WDF_IO_QUEUE_IO_INTERNAL_DEVICE_CONTROL EvtIoInternalDeviceControl;
-EVT_WDF_IO_QUEUE_IO_DEVICE_CONTROL EvtIoDeviceControl;
-EVT_WDF_IO_QUEUE_IO_READ EvtIoRead;
-EVT_WDF_IO_QUEUE_IO_WRITE EvtIoWrite;
+EVT_WDF_IO_QUEUE_IO_DEVICE_CONTROL FilterEvtIoDeviceControl;
+EVT_WDF_IO_QUEUE_IO_READ FilterEvtIoRead;
+EVT_WDF_IO_QUEUE_IO_WRITE FilterEvtIoWrite;
+EVT_WDF_OBJECT_CONTEXT_CLEANUP EvtCleanupCallback;
+
+_Must_inspect_result_
+_Success_(return == STATUS_SUCCESS)
+_IRQL_requires_max_(PASSIVE_LEVEL)
+NTSTATUS
+FilterCreateControlDevice(
+    _In_ WDFDEVICE Device
+);
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+VOID
+FilterDeleteControlDevice(
+    _In_ WDFDEVICE Device
+);
 

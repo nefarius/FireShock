@@ -27,8 +27,14 @@ Environment:
 #include <usbioctl.h>
 #include <usb.h>
 
+
+WDFCOLLECTION   FilterDeviceCollection;
+WDFWAITLOCK     FilterDeviceCollectionLock;
+WDFDEVICE       ControlDevice = NULL;
+
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, FireShockEvtDeviceAdd)
+#pragma alloc_text(PAGE, FilterCreateControlDevice)
 #endif
 
 NTSTATUS
@@ -80,6 +86,8 @@ Return Value:
 
     WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DEVICE_CONTEXT);
 
+    attributes.EvtCleanupCallback = EvtCleanupCallback;
+
     status = WdfDeviceCreate(&DeviceInit, &attributes, &device);
     if (!NT_SUCCESS(status)) {
         KdPrint(("FireShock: WdfDeviceCreate, Error %x\n", status));
@@ -89,10 +97,7 @@ Return Value:
     WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(&ioQueueConfig,
         WdfIoQueueDispatchParallel);
 
-    ioQueueConfig.EvtIoDeviceControl = EvtIoDeviceControl;
     ioQueueConfig.EvtIoInternalDeviceControl = EvtIoInternalDeviceControl;
-    ioQueueConfig.EvtIoRead = EvtIoRead;
-    ioQueueConfig.EvtIoWrite = EvtIoWrite;
 
     status = WdfIoQueueCreate(device,
         &ioQueueConfig,
@@ -105,18 +110,78 @@ Return Value:
         return status;
     }
 
-    status = WdfDeviceCreateDeviceInterface(device, &GUID_DEVINTERFACE_FIRESHOCK, NULL);
+    //
+    // Add this device to the FilterDevice collection.
+    //
+    WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
+    //
+    // WdfCollectionAdd takes a reference on the item object and removes
+    // it when you call WdfCollectionRemove.
+    //
+    status = WdfCollectionAdd(FilterDeviceCollection, device);
+    if (!NT_SUCCESS(status)) {
+        KdPrint(("WdfCollectionAdd failed with status code 0x%x\n", status));
+    }
+    WdfWaitLockRelease(FilterDeviceCollectionLock);
 
-    if (!NT_SUCCESS(status))
-    {
-        KdPrint(("WdfDeviceCreateDeviceInterface failed status 0x%x\n", status));
-        return status;
+    //
+    // Create a control device
+    //
+    status = FilterCreateControlDevice(device);
+    if (!NT_SUCCESS(status)) {
+        KdPrint(("FilterCreateControlDevice failed with status 0x%x\n",
+            status));
+        //
+        // Let us not fail AddDevice just because we weren't able to create the
+        // control device.
+        //
+        status = STATUS_SUCCESS;
     }
 
     return status;
 }
 
-VOID EvtIoDeviceControl(
+#pragma warning(push)
+#pragma warning(disable:28118) // this callback will run at IRQL=PASSIVE_LEVEL
+_Use_decl_annotations_
+VOID EvtCleanupCallback(
+    _In_ WDFOBJECT Device
+)
+{
+    ULONG   count;
+
+    PAGED_CODE();
+
+    KdPrint(("Entered FilterEvtDeviceContextCleanup\n"));
+
+    WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
+
+    count = WdfCollectionGetCount(FilterDeviceCollection);
+
+    if (count == 1)
+    {
+        //
+        // We are the last instance. So let us delete the control-device
+        // so that driver can unload when the FilterDevice is deleted.
+        // We absolutely have to do the deletion of control device with
+        // the collection lock acquired because we implicitly use this
+        // lock to protect ControlDevice global variable. We need to make
+        // sure another thread doesn't attempt to create while we are
+        // deleting the device.
+        //
+        FilterDeleteControlDevice((WDFDEVICE)Device);
+    }
+
+    WdfCollectionRemove(FilterDeviceCollection, Device);
+
+    WdfWaitLockRelease(FilterDeviceCollectionLock);
+}
+#pragma warning(pop) // enable 28118 again
+
+#pragma warning(push)
+#pragma warning(disable:28118) // this callback will run at IRQL=PASSIVE_LEVEL
+_Use_decl_annotations_
+VOID FilterEvtIoDeviceControl(
     _In_ WDFQUEUE   Queue,
     _In_ WDFREQUEST Request,
     _In_ size_t     OutputBufferLength,
@@ -131,6 +196,7 @@ VOID EvtIoDeviceControl(
 
     WdfRequestComplete(Request, STATUS_SUCCESS);
 }
+#pragma warning(pop) // enable 28118 again
 
 VOID EvtIoInternalDeviceControl(
     _In_ WDFQUEUE   Queue,
@@ -332,7 +398,21 @@ VOID EvtIoInternalDeviceControl(
     }
 }
 
-VOID EvtIoRead(
+VOID FilterEvtIoRead(
+    _In_ WDFQUEUE   Queue,
+    _In_ WDFREQUEST Request,
+    _In_ size_t     Length
+)
+{
+    UNREFERENCED_PARAMETER(Queue);
+    UNREFERENCED_PARAMETER(Length);
+
+    KdPrint(("FilterEvtIoRead called (Length: %d)\n", Length));
+
+    WdfRequestComplete(Request, STATUS_SUCCESS);
+}
+
+VOID FilterEvtIoWrite(
     _In_ WDFQUEUE   Queue,
     _In_ WDFREQUEST Request,
     _In_ size_t     Length
@@ -344,15 +424,164 @@ VOID EvtIoRead(
     WdfRequestComplete(Request, STATUS_SUCCESS);
 }
 
-VOID EvtIoWrite(
-    _In_ WDFQUEUE   Queue,
-    _In_ WDFREQUEST Request,
-    _In_ size_t     Length
+_Use_decl_annotations_
+NTSTATUS
+FilterCreateControlDevice(
+    WDFDEVICE Device
 )
 {
-    UNREFERENCED_PARAMETER(Queue);
-    UNREFERENCED_PARAMETER(Length);
+    PWDFDEVICE_INIT             pInit = NULL;
+    WDFDEVICE                   controlDevice = NULL;
+    WDF_OBJECT_ATTRIBUTES       controlAttributes;
+    WDF_IO_QUEUE_CONFIG         ioQueueConfig;
+    BOOLEAN                     bCreate = FALSE;
+    NTSTATUS                    status;
+    WDFQUEUE                    queue;
+    DECLARE_CONST_UNICODE_STRING(ntDeviceName, NTDEVICE_NAME_STRING);
+    DECLARE_CONST_UNICODE_STRING(symbolicLinkName, SYMBOLIC_NAME_STRING);
 
-    WdfRequestComplete(Request, STATUS_SUCCESS);
+    PAGED_CODE();
+
+    //
+    // First find out whether any ControlDevice has been created. If the
+    // collection has more than one device then we know somebody has already
+    // created or in the process of creating the device.
+    //
+    WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
+
+    if (WdfCollectionGetCount(FilterDeviceCollection) == 1) {
+        bCreate = TRUE;
+    }
+
+    WdfWaitLockRelease(FilterDeviceCollectionLock);
+
+    if (!bCreate) {
+        //
+        // Control device is already created. So return success.
+        //
+        return STATUS_SUCCESS;
+    }
+
+    KdPrint(("Creating Control Device\n"));
+
+    //
+    //
+    // In order to create a control device, we first need to allocate a
+    // WDFDEVICE_INIT structure and set all properties.
+    //
+    pInit = WdfControlDeviceInitAllocate(
+        WdfDeviceGetDriver(Device),
+        &SDDL_DEVOBJ_SYS_ALL_ADM_RWX_WORLD_RW_RES_R
+    );
+
+    if (pInit == NULL) {
+        status = STATUS_INSUFFICIENT_RESOURCES;
+        goto Error;
+    }
+
+    //
+    // Set exclusive to false so that more than one app can talk to the
+    // control device simultaneously.
+    //
+    WdfDeviceInitSetExclusive(pInit, FALSE);
+
+    status = WdfDeviceInitAssignName(pInit, &ntDeviceName);
+    
+    if (!NT_SUCCESS(status)) {
+        goto Error;
+    }
+
+    //
+    // Specify the size of device context
+    //
+    WDF_OBJECT_ATTRIBUTES_INIT(&controlAttributes);
+    status = WdfDeviceCreate(&pInit,
+        &controlAttributes,
+        &controlDevice);
+    if (!NT_SUCCESS(status)) {
+        goto Error;
+    }
+
+    //
+    // Create a symbolic link for the control object so that usermode can open
+    // the device.
+    //
+
+    status = WdfDeviceCreateSymbolicLink(controlDevice,
+        &symbolicLinkName);
+    
+    if (!NT_SUCCESS(status)) {
+        goto Error;
+    }
+
+    //
+    // Configure the default queue associated with the control device object
+    // to be Serial so that request passed to EvtIoDeviceControl are serialized.
+    //
+
+    WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(&ioQueueConfig,
+        WdfIoQueueDispatchSequential);
+
+    ioQueueConfig.EvtIoDeviceControl = FilterEvtIoDeviceControl;
+    ioQueueConfig.EvtIoRead = FilterEvtIoRead;
+    ioQueueConfig.EvtIoWrite = FilterEvtIoWrite;
+
+    //
+    // Framework by default creates non-power managed queues for
+    // filter drivers.
+    //
+    status = WdfIoQueueCreate(controlDevice,
+        &ioQueueConfig,
+        WDF_NO_OBJECT_ATTRIBUTES,
+        &queue // pointer to default queue
+    );
+    if (!NT_SUCCESS(status)) {
+        goto Error;
+    }
+
+    //
+    // Control devices must notify WDF when they are done initializing.   I/O is
+    // rejected until this call is made.
+    //
+    WdfControlFinishInitializing(controlDevice);
+
+    ControlDevice = controlDevice;
+
+    return STATUS_SUCCESS;
+
+Error:
+
+    if (pInit != NULL) {
+        WdfDeviceInitFree(pInit);
+    }
+
+    if (controlDevice != NULL) {
+        //
+        // Release the reference on the newly created object, since
+        // we couldn't initialize it.
+        //
+        WdfObjectDelete(controlDevice);
+        controlDevice = NULL;
+    }
+
+    return status;
+}
+
+_Use_decl_annotations_
+VOID
+FilterDeleteControlDevice(
+    WDFDEVICE Device
+)
+{
+    UNREFERENCED_PARAMETER(Device);
+
+    PAGED_CODE();
+
+    KdPrint(("Deleting Control Device\n"));
+
+    if (ControlDevice) {
+        WdfObjectDelete(ControlDevice);
+        ControlDevice = NULL;
+    }
 }
 

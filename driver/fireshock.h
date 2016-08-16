@@ -29,6 +29,7 @@ Environment:
 #include <ntstrsafe.h>
 #include <initguid.h>
 #include <wdmguid.h>
+#include <wdmsec.h> // for SDDLs
 
 // Our drivers modules includes
 #include "public.h"
@@ -37,6 +38,10 @@ Environment:
 #include "ds.h"
 #include "dsusb.h"
 
+
+extern WDFCOLLECTION   FilterDeviceCollection;
+extern WDFWAITLOCK     FilterDeviceCollectionLock;
+extern WDFDEVICE       ControlDevice;
 
 //
 // WDFDRIVER Object Events

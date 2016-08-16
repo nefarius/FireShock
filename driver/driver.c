@@ -33,33 +33,53 @@ NTSTATUS
 DriverEntry(
     IN PDRIVER_OBJECT  DriverObject,
     IN PUNICODE_STRING RegistryPath
-    )
+)
 {
     WDF_DRIVER_CONFIG params;
     NTSTATUS  status;
 
-    KdPrint(("FireShock: DriverEntry - WDF version built on %s %s\n", 
-                            __DATE__, __TIME__));
+    KdPrint(("FireShock: DriverEntry - WDF version built on %s %s\n",
+        __DATE__, __TIME__));
 
     WDF_DRIVER_CONFIG_INIT(
-                        &params,
-                        FireShockEvtDeviceAdd
-                        );
+        &params,
+        FireShockEvtDeviceAdd
+    );
 
     //
     // Create the framework WDFDRIVER object, with the handle
     // to it returned in Driver.
     //
-    status = WdfDriverCreate(DriverObject, 
-                             RegistryPath, 
-                             WDF_NO_OBJECT_ATTRIBUTES, 
-                             &params, 
-                             WDF_NO_HANDLE);
+    status = WdfDriverCreate(DriverObject,
+        RegistryPath,
+        WDF_NO_OBJECT_ATTRIBUTES,
+        &params,
+        WDF_NO_HANDLE);
     if (!NT_SUCCESS(status)) {
         //
         // Framework will automatically cleanup on error Status return
         //
         KdPrint(("FireShock: Error Creating WDFDRIVER 0x%x\n", status));
+    }
+
+    status = WdfCollectionCreate(WDF_NO_OBJECT_ATTRIBUTES,
+        &FilterDeviceCollection);
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint(("WdfCollectionCreate failed with status 0x%x\n", status));
+        return status;
+    }
+
+    //
+    // The wait-lock object has the driver object as a default parent.
+    //
+
+    status = WdfWaitLockCreate(WDF_NO_OBJECT_ATTRIBUTES,
+        &FilterDeviceCollectionLock);
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint(("WdfWaitLockCreate failed with status 0x%x\n", status));
+        return status;
     }
 
     return status;
