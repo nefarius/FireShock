@@ -25,7 +25,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SAURON", "sauron\SAURON.vcx
 		{B77AD939-7683-4EB8-A724-319959963AE2} = {B77AD939-7683-4EB8-A724-319959963AE2}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tester", "Tester\Tester.vcxproj", "{A7E8A874-4D69-450E-AFE2-365DE627CCA8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tester", "app\Tester\Tester.vcxproj", "{A7E8A874-4D69-450E-AFE2-365DE627CCA8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -94,14 +94,17 @@ Global
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Debug (Windows 7)|Win32.Build.0 = Debug|Win32
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Debug (Windows 7)|x64.ActiveCfg = Debug|x64
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Debug (Windows 7)|x64.Build.0 = Debug|x64
+		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Debug (Windows 7)|x64.Deploy.0 = Debug|x64
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Debug|Win32.ActiveCfg = Debug|Win32
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Debug|Win32.Build.0 = Debug|Win32
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Debug|x64.ActiveCfg = Debug|x64
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Debug|x64.Build.0 = Debug|x64
+		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Debug|x64.Deploy.0 = Debug|x64
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Release|Win32.ActiveCfg = Release|Win32
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Release|Win32.Build.0 = Release|Win32
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Release|x64.ActiveCfg = Release|x64
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Release|x64.Build.0 = Release|x64
+		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Release|x64.Deploy.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
