@@ -172,7 +172,7 @@ NTSTATUS SendInterruptInRequest(
         &transferAttribs,
         NonPagedPool,
         0,
-        64,
+        DS3_INTERRUPT_IN_BUFFER_SIZE,
         &transferBuffer,
         NULL);
 
@@ -303,8 +303,9 @@ void ControlRequestCompletionRoutine(
         KdPrint(("ControlRequestCompletionRoutine failed with status 0x%X\n", status));
     }
 
-    // Free buffer
+    // Free memory
     WdfObjectDelete(Params->Parameters.Usb.Completion->Parameters.DeviceControlTransfer.Buffer);
+    WdfObjectDelete(Request);
 }
 
 void InterruptReadRequestCompletionRoutine(
@@ -353,8 +354,9 @@ void InterruptReadRequestCompletionRoutine(
             bytesRead,
             upperBufferLength));
         WdfRequestComplete(upperRequest, STATUS_INVALID_PARAMETER);
-        // Free buffer
+        // Free memory
         WdfObjectDelete(usbCompletionParams->Parameters.PipeRead.Buffer);
+        WdfObjectDelete(Request);
         return;
     }
 
@@ -436,7 +438,9 @@ void InterruptReadRequestCompletionRoutine(
     upperBuffer[19] = transferBuffer[25];
 
     WdfRequestComplete(upperRequest, status);
-    // Free buffer
+
+    // Free memory
     WdfObjectDelete(usbCompletionParams->Parameters.PipeRead.Buffer);
+    WdfObjectDelete(Request);
 }
 

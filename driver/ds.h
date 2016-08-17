@@ -30,6 +30,7 @@ SOFTWARE.
 #define DS3_HID_COMMAND_ENABLE_SIZE             0x04
 #define DS3_HID_OUTPUT_REPORT_SIZE              0x30
 #define DS3_HID_REPORT_DESCRIPTOR_SIZE          0x8B
+#define DS3_INTERRUPT_IN_BUFFER_SIZE            0x40
 
 #define DS3_OFFSET_LED_0                        0x02
 #define DS3_OFFSET_LED_1                        0x04
