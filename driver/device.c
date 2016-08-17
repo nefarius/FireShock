@@ -213,7 +213,7 @@ VOID FilterEvtIoDeviceControl(
     ULONG                       noItems;
     size_t                      length = 0;
     WDFDEVICE                   hFilterDevice;
-    PFIRESHOCK_REQUEST_REPORT   pRequestReport = NULL;
+    PFS3_REQUEST_REPORT         pFs3Report = NULL;
 
     UNREFERENCED_PARAMETER(Queue);
     UNREFERENCED_PARAMETER(OutputBufferLength);
@@ -222,7 +222,6 @@ VOID FilterEvtIoDeviceControl(
 
     UNREFERENCED_PARAMETER(status);
     UNREFERENCED_PARAMETER(length);
-    UNREFERENCED_PARAMETER(pRequestReport);
 
     PAGED_CODE();
 
@@ -242,13 +241,13 @@ VOID FilterEvtIoDeviceControl(
 
     switch (IoControlCode)
     {
-    case IOCTL_FIRESHOCK_REQUEST_REPORT:
+    case IOCTL_FIRESHOCK_FS3_REQUEST_REPORT:
 
-        //status = WdfRequestRetrieveInputBuffer(Request, sizeof(FIRESHOCK_REQUEST_REPORT), (PVOID)&pRequestReport, &length);
-        //
-        //if (NT_SUCCESS(status)
-        //    && (sizeof(FIRESHOCK_REQUEST_REPORT) == pRequestReport->Size)
-        //    && (length == InputBufferLength))
+        status = WdfRequestRetrieveInputBuffer(Request, sizeof(FS3_REQUEST_REPORT), (PVOID)&pFs3Report, &length);
+        
+        if (NT_SUCCESS(status)
+            && (sizeof(FS3_REQUEST_REPORT) == pFs3Report->Size)
+            && (length == InputBufferLength))
 
         break;
     }
