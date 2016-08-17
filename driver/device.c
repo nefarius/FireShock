@@ -36,6 +36,7 @@ WDFDEVICE       ControlDevice = NULL;
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, FireShockEvtDeviceAdd)
 #pragma alloc_text(PAGE, FilterCreateControlDevice)
+#pragma alloc_text(PAGE, FilterDeleteControlDevice)
 #pragma alloc_text(PAGE, FilterEvtIoDeviceControl)
 #pragma alloc_text(PAGE, FilterShutdown)
 #endif
