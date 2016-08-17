@@ -610,7 +610,6 @@ FilterDeleteControlDevice(
 
 void FilterShutdown(WDFDEVICE Device)
 {
-    NTSTATUS                        status = STATUS_SUCCESS;
     PDEVICE_CONTEXT                 pDeviceContext;
     PDS3_DEVICE_CONTEXT             pDs3Context;
 
@@ -622,12 +621,6 @@ void FilterShutdown(WDFDEVICE Device)
     if (pDeviceContext->DeviceType == DualShock3)
     {
         WdfTimerStop(pDs3Context->OutputReportTimer, TRUE);
-
-        status = WdfUsbTargetPipeAbortSynchronously(pDs3Context->InterruptReadPipe, NULL, NULL);
-
-        if (!NT_SUCCESS(status))
-        {
-            KdPrint(("WdfUsbTargetPipeAbortSynchronously failed with status 0x%X\n", status));
-        }
+        WdfIoTargetStop(WdfUsbTargetPipeGetIoTarget(pDs3Context->InterruptReadPipe), WdfIoTargetCancelSentIo);
     }
 }
