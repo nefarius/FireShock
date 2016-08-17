@@ -92,6 +92,23 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
 
         RtlCopyBytes(pDs3Context->OutputReportBuffer, DefaultOutputReport, DS3_HID_OUTPUT_REPORT_SIZE);
 
+        // Set initial LED index to device arrival index (max. 4 possible for DS3)
+        switch (pDeviceContext->DeviceIndex)
+        {
+        case 0:
+            pDs3Context->OutputReportBuffer[9] |= DS3_OFFSET_LED_0;
+            break;
+        case 1:
+            pDs3Context->OutputReportBuffer[9] |= DS3_OFFSET_LED_1;
+            break;
+        case 2:
+            pDs3Context->OutputReportBuffer[9] |= DS3_OFFSET_LED_2;
+            break;
+        case 3:
+            pDs3Context->OutputReportBuffer[9] |= DS3_OFFSET_LED_3;
+            break;
+        }
+
         WDF_TIMER_CONFIG_INIT_PERIODIC(&outputTimerCfg, Ds3OutputEvtTimerFunc, DS3_OUTPUT_REPORT_SEND_DELAY);
         WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
 

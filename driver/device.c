@@ -70,6 +70,7 @@ Return Value:
     WDFDEVICE                       device;
     WDF_PNPPOWER_EVENT_CALLBACKS    pnpPowerCallbacks;
     WDF_IO_QUEUE_CONFIG             ioQueueConfig;
+    PDEVICE_CONTEXT                 pDeviceContext;
 
 
     UNREFERENCED_PARAMETER(Driver);
@@ -97,6 +98,8 @@ Return Value:
         KdPrint(("FireShock: WdfDeviceCreate, Error %x\n", status));
         return status;
     }
+
+    pDeviceContext = GetCommonContext(device);
 
     WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(&ioQueueConfig,
         WdfIoQueueDispatchParallel);
@@ -126,6 +129,10 @@ Return Value:
     // Add this device to the FilterDevice collection.
     //
     WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
+
+    // Store index of ourself in the collection (zero-based) for later use
+    pDeviceContext->DeviceIndex = WdfCollectionGetCount(FilterDeviceCollection);
+
     //
     // WdfCollectionAdd takes a reference on the item object and removes
     // it when you call WdfCollectionRemove.
