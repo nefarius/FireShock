@@ -73,7 +73,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
 
         WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS3_DEVICE_CONTEXT);
 
-        status = WdfObjectAllocateContext(Device, &attributes, &pDs3Context);
+        status = WdfObjectAllocateContext(Device, &attributes, (PVOID)&pDs3Context);
         if (!NT_SUCCESS(status))
         {
             KdPrint(("WdfObjectAllocateContext failed status 0x%x\n", status));
