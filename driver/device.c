@@ -26,6 +26,7 @@ Environment:
 #include "FireShock.h"
 #include <usbioctl.h>
 #include <usb.h>
+#include <wdfusb.h>
 
 
 WDFCOLLECTION   FilterDeviceCollection;
@@ -36,6 +37,7 @@ WDFDEVICE       ControlDevice = NULL;
 #pragma alloc_text(PAGE, FireShockEvtDeviceAdd)
 #pragma alloc_text(PAGE, FilterCreateControlDevice)
 #pragma alloc_text(PAGE, FilterEvtIoDeviceControl)
+#pragma alloc_text(PAGE, FilterShutdown)
 #endif
 
 NTSTATUS
@@ -240,7 +242,7 @@ VOID FilterEvtIoDeviceControl(
         //    && (sizeof(FIRESHOCK_REQUEST_REPORT) == pRequestReport->Size)
         //    && (length == InputBufferLength))
 
-            break;
+        break;
     }
 
 
@@ -390,10 +392,7 @@ VOID EvtIoInternalDeviceControl(
 
             KdPrint((">> >> URB_FUNCTION_ABORT_PIPE\n"));
 
-            if (pDeviceContext->DeviceType == DualShock3)
-            {
-                WdfTimerStop(pDs3Context->OutputReportTimer, FALSE);
-            }
+            FilterShutdown(hDevice);
 
             break;
 
@@ -609,3 +608,26 @@ FilterDeleteControlDevice(
     }
 }
 
+void FilterShutdown(WDFDEVICE Device)
+{
+    NTSTATUS                        status = STATUS_SUCCESS;
+    PDEVICE_CONTEXT                 pDeviceContext;
+    PDS3_DEVICE_CONTEXT             pDs3Context;
+
+    PAGED_CODE();
+
+    pDeviceContext = GetCommonContext(Device);
+    pDs3Context = Ds3GetContext(Device);
+
+    if (pDeviceContext->DeviceType == DualShock3)
+    {
+        WdfTimerStop(pDs3Context->OutputReportTimer, TRUE);
+
+        status = WdfUsbTargetPipeAbortSynchronously(pDs3Context->InterruptReadPipe, NULL, NULL);
+
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint(("WdfUsbTargetPipeAbortSynchronously failed with status 0x%X\n", status));
+        }
+    }
+}

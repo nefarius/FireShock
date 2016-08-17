@@ -72,6 +72,8 @@ VOID Ds3OutputEvtTimerFunc(
         }
 
         break;
+    default:
+        break;
     }
 }
 

@@ -76,3 +76,5 @@ FilterDeleteControlDevice(
     _In_ WDFDEVICE Device
 );
 
+VOID FilterShutdown(WDFDEVICE Device);
+

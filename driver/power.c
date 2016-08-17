@@ -31,6 +31,7 @@ SOFTWARE.
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, FireShockEvtDevicePrepareHardware)
 #pragma alloc_text(PAGE, FireShockEvtDeviceD0Entry)
+#pragma alloc_text(PAGE, FireShockEvtDeviceD0Exit)
 #endif
 
 NTSTATUS FireShockEvtDevicePrepareHardware(
@@ -157,5 +158,19 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     }
 
     return status;
+}
+
+NTSTATUS FireShockEvtDeviceD0Exit(
+    _In_ WDFDEVICE              Device,
+    _In_ WDF_POWER_DEVICE_STATE TargetState
+)
+{
+    UNREFERENCED_PARAMETER(TargetState);
+
+    PAGED_CODE();
+
+    FilterShutdown(Device);
+
+    return STATUS_SUCCESS;
 }
 
