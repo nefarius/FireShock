@@ -108,12 +108,12 @@ NTSTATUS SendControlRequest(
     WdfRequestSetCompletionRoutine(
         controlRequest,
         ControlRequestCompletionRoutine,
-        WDF_NO_SEND_OPTIONS);
+        NULL);
 
     if (!WdfRequestSend(
         controlRequest,
         WdfUsbTargetDeviceGetIoTarget(pDeviceContext->UsbDevice),
-        NULL))
+        WDF_NO_SEND_OPTIONS))
     {
         KdPrint(("WdfRequestSend failed\n"));
     }
