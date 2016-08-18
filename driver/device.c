@@ -302,7 +302,7 @@ VOID EvtIoInternalDeviceControl(
             break;
 
         case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
-        {
+        
             KdPrint((">> >> URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
 
             // Send start command so interrupt requests keep coming
@@ -325,7 +325,7 @@ VOID EvtIoInternalDeviceControl(
             }
 
             break;
-        }
+        
         case URB_FUNCTION_SELECT_CONFIGURATION:
 
             KdPrint((">> >> URB_FUNCTION_SELECT_CONFIGURATION\n"));
