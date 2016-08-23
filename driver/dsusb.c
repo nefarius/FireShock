@@ -333,16 +333,19 @@ void BulkOrInterruptTransferCompleted(
         upperBuffer[18] = transferBuffer[24];
         upperBuffer[19] = transferBuffer[25];
 
-        // Cache gamepad state for sideband communication
-        RtlCopyBytes(&pDs3Context->InputState, upperBuffer, sizeof(FS3_GAMEPAD_STATE));
+        /* Cache gamepad state for sideband communication 
+         * Skip first byte since it's the report ID we don't need */
+        RtlCopyBytes(&pDs3Context->InputState, upperBuffer + 1, sizeof(FS3_GAMEPAD_STATE));
 
         break;
     default:
         break;
     }
 
+    // Copy back modified buffer to request buffer
     RtlCopyBytes(transferBuffer, upperBuffer, transferBufferLength);
 
+    // Complete upper request
     WdfRequestComplete(Request, status);
 }
 
