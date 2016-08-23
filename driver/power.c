@@ -30,7 +30,6 @@ SOFTWARE.
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, FireShockEvtDevicePrepareHardware)
-#pragma alloc_text(PAGE, FireShockEvtDeviceD0Entry)
 #pragma alloc_text(PAGE, FireShockEvtDeviceD0Exit)
 #endif
 
@@ -127,51 +126,6 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
         pDeviceContext->DeviceType = DualShock4;
 
         // TODO: implement
-    }
-
-    return status;
-}
-
-NTSTATUS FireShockEvtDeviceD0Entry(
-    _In_ WDFDEVICE              Device,
-    _In_ WDF_POWER_DEVICE_STATE PreviousState
-)
-{
-    PDEVICE_CONTEXT                         pDeviceContext;
-    PDS3_DEVICE_CONTEXT                     pDs3Context;
-    WDF_USB_DEVICE_SELECT_CONFIG_PARAMS     configParams;
-    NTSTATUS                                status = STATUS_SUCCESS;
-
-    UNREFERENCED_PARAMETER(PreviousState);
-
-    KdPrint(("FireShockEvtDeviceD0Entry called\n"));
-
-    pDeviceContext = GetCommonContext(Device);
-    pDs3Context = Ds3GetContext(Device);
-
-    switch (pDeviceContext->DeviceType)
-    {
-    case DualShock3:
-
-        WDF_USB_DEVICE_SELECT_CONFIG_PARAMS_INIT_SINGLE_INTERFACE(&configParams);
-
-        status = WdfUsbTargetDeviceSelectConfig(
-            pDeviceContext->UsbDevice,
-            WDF_NO_OBJECT_ATTRIBUTES,
-            &configParams
-        );
-
-        if (!NT_SUCCESS(status))
-        {
-            KdPrint(("WdfUsbTargetDeviceSelectConfig failed with status 0x%X\n", status));
-        }
-
-        pDs3Context->DefaultInterface = WdfUsbTargetDeviceGetInterface(pDeviceContext->UsbDevice, 0);
-        pDs3Context->InterruptReadPipe = WdfUsbInterfaceGetConfiguredPipe(pDs3Context->DefaultInterface, 1, NULL);
-
-        break;
-    default:
-        break;
     }
 
     return status;

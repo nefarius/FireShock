@@ -28,7 +28,7 @@ SOFTWARE.
 
 EVT_WDF_REQUEST_COMPLETION_ROUTINE ControlRequestCompletionRoutine;
 
-EVT_WDF_REQUEST_COMPLETION_ROUTINE InterruptReadRequestCompletionRoutine;
+EVT_WDF_REQUEST_COMPLETION_ROUTINE BulkOrInterruptTransferCompleted;
 
 NTSTATUS SendControlRequest(
     WDFDEVICE Device,

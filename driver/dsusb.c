@@ -121,101 +121,6 @@ NTSTATUS SendControlRequest(
     return status;
 }
 
-NTSTATUS SendInterruptInRequest(
-    WDFDEVICE Device,
-    PFN_WDF_REQUEST_COMPLETION_ROUTINE CompletionRoutine,
-    WDFCONTEXT CompletionContext
-)
-{
-    NTSTATUS                    status;
-    WDFMEMORY                   transferBuffer;
-    WDFREQUEST                  interruptRequest;
-    WDF_OBJECT_ATTRIBUTES       transferAttribs;
-    PDEVICE_CONTEXT             pDeviceContext;
-    PDS3_DEVICE_CONTEXT         pDs3Context;
-    WDFUSBPIPE                  inPipe;
-
-    pDeviceContext = GetCommonContext(Device);
-
-    switch (pDeviceContext->DeviceType)
-    {
-    case DualShock3:
-
-        // Get default interrupt IN pipe
-        pDs3Context = Ds3GetContext(Device);
-        inPipe = pDs3Context->InterruptReadPipe;
-
-        break;
-    default:
-        return STATUS_NOT_IMPLEMENTED;
-    }
-
-    // Create new request
-    status = WdfRequestCreate(
-        WDF_NO_OBJECT_ATTRIBUTES,
-        WdfDeviceGetIoTarget(Device),
-        &interruptRequest
-    );
-
-    if (!NT_SUCCESS(status))
-    {
-        KdPrint(("WdfRequestCreate failed with status 0x%X\n", status));
-        return status;
-    }
-
-    WDF_OBJECT_ATTRIBUTES_INIT(&transferAttribs);
-
-    transferAttribs.ParentObject = interruptRequest;
-
-    // Create TransferBuffer
-    status = WdfMemoryCreate(
-        &transferAttribs,
-        NonPagedPool,
-        0,
-        DS3_INTERRUPT_IN_BUFFER_SIZE,
-        &transferBuffer,
-        NULL);
-
-    if (!NT_SUCCESS(status))
-    {
-        KdPrint(("WdfMemoryCreate failed with status 0x%X\n", status));
-        return status;
-    }
-
-    // Prepare read request
-    status = WdfUsbTargetPipeFormatRequestForRead(
-        inPipe,
-        interruptRequest,
-        transferBuffer,
-        NULL);
-
-    if (!NT_SUCCESS(status))
-    {
-        KdPrint(("WdfUsbTargetPipeFormatRequestForRead failed with status 0x%X\n", status));
-        return status;
-    }
-
-    // Completion routine handles returned data
-    WdfRequestSetCompletionRoutine(
-        interruptRequest,
-        CompletionRoutine,
-        CompletionContext);
-
-    // Send request
-    if (!WdfRequestSend(
-        interruptRequest,
-        WdfUsbTargetDeviceGetIoTarget(pDeviceContext->UsbDevice),
-        NULL))
-    {
-        KdPrint(("WdfRequestSend failed\n"));
-
-        status = WdfRequestGetStatus(interruptRequest);
-        WdfRequestComplete(interruptRequest, status);
-    }
-
-    return status;
-}
-
 NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon)
 {
     PUCHAR Buffer = (PUCHAR)urb->UrbControlDescriptorRequest.TransferBuffer;
@@ -308,139 +213,136 @@ void ControlRequestCompletionRoutine(
     WdfObjectDelete(Request);
 }
 
-void InterruptReadRequestCompletionRoutine(
+void BulkOrInterruptTransferCompleted(
     _In_ WDFREQUEST                     Request,
     _In_ WDFIOTARGET                    Target,
     _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
     _In_ WDFCONTEXT                     Context
 )
 {
-    UNREFERENCED_PARAMETER(Target);
+    NTSTATUS                    status;
+    WDFDEVICE                   device = Context;
+    PURB                        urb;
+    PUCHAR                      transferBuffer;
+    ULONG                       transferBufferLength;
+    PDEVICE_CONTEXT             pDeviceContext;
+    PDS3_DEVICE_CONTEXT         pDs3Context;
 
-    NTSTATUS                                status;
-    PWDF_USB_REQUEST_COMPLETION_PARAMS      usbCompletionParams;
-    size_t                                  bytesRead;
-    WDFREQUEST                              upperRequest = Context;
-    PUCHAR                                  transferBuffer;
-    size_t                                  transferBufferLength;
-    PURB                                    upperUrb;
-    PUCHAR                                  upperBuffer;
-    ULONG                                   upperBufferLength;
+    UCHAR upperBuffer[DS3_ORIGINAL_HID_REPORT_SIZE];
+    RtlZeroMemory(upperBuffer, DS3_ORIGINAL_HID_REPORT_SIZE);
+
+    UNREFERENCED_PARAMETER(Target);
+    UNREFERENCED_PARAMETER(Params);
+    UNREFERENCED_PARAMETER(Context);
 
     status = WdfRequestGetStatus(Request);
 
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("InterruptReadRequestCompletionRoutine failed with status 0x%X\n", status));
-        WdfRequestComplete(upperRequest, status);
+        WdfRequestComplete(Request, status);
         return;
     }
 
-    upperUrb = (PURB)URB_FROM_IRP(WdfRequestWdmGetIrp(upperRequest));
+    KdPrint(("BulkOrInterruptTransferCompleted called with status 0x%X\n", status));
 
-    status = Params->IoStatus.Status;
-    usbCompletionParams = Params->Parameters.Usb.Completion;
-    bytesRead = usbCompletionParams->Parameters.PipeRead.Length;
-    upperBufferLength = upperUrb->UrbBulkOrInterruptTransfer.TransferBufferLength;
+    pDeviceContext = GetCommonContext(device);
+    urb = URB_FROM_IRP(WdfRequestWdmGetIrp(Request));
+    transferBuffer = (PUCHAR)urb->UrbBulkOrInterruptTransfer.TransferBuffer;
+    transferBufferLength = urb->UrbBulkOrInterruptTransfer.TransferBufferLength;
 
-    // Upper device buffer
-    upperBuffer = (PUCHAR)upperUrb->UrbBulkOrInterruptTransfer.TransferBuffer;
-    // Lower device buffer
-    transferBuffer = WdfMemoryGetBuffer(usbCompletionParams->Parameters.PipeRead.Buffer, &transferBufferLength);
-
-    if (bytesRead < upperBufferLength)
+    switch (pDeviceContext->DeviceType)
     {
-        KdPrint(("Transfer buffer (%d) too small for request buffer (%d)\n",
-            bytesRead,
-            upperBufferLength));
-        WdfRequestComplete(upperRequest, STATUS_INVALID_PARAMETER);
-        // Free memory
-        WdfObjectDelete(usbCompletionParams->Parameters.PipeRead.Buffer);
-        WdfObjectDelete(Request);
-        return;
+    case DualShock3:
+
+        pDs3Context = Ds3GetContext(device);
+
+        // Report ID
+        upperBuffer[0] = transferBuffer[0];
+
+        // Prepare D-Pad
+        upperBuffer[5] &= ~0xF; // Clear lower 4 bits
+
+        // Translate D-Pad to HAT format
+        switch (transferBuffer[2] & ~0xF)
+        {
+        case 0x10: // N
+            upperBuffer[5] |= 0 & 0xF;
+            break;
+        case 0x30: // NE
+            upperBuffer[5] |= 1 & 0xF;
+            break;
+        case 0x20: // E
+            upperBuffer[5] |= 2 & 0xF;
+            break;
+        case 0x60: // SE
+            upperBuffer[5] |= 3 & 0xF;
+            break;
+        case 0x40: // S
+            upperBuffer[5] |= 4 & 0xF;
+            break;
+        case 0xC0: // SW
+            upperBuffer[5] |= 5 & 0xF;
+            break;
+        case 0x80: // W
+            upperBuffer[5] |= 6 & 0xF;
+            break;
+        case 0x90: // NW
+            upperBuffer[5] |= 7 & 0xF;
+            break;
+        default: // Released
+            upperBuffer[5] |= 8 & 0xF;
+            break;
+        }
+
+        // Prepare face buttons
+        upperBuffer[5] &= ~0xF0; // Clear upper 4 bits
+        // Set face buttons
+        upperBuffer[5] |= transferBuffer[3] & 0xF0;
+
+        // Thumb axes
+        upperBuffer[1] = transferBuffer[6]; // LTX
+        upperBuffer[2] = transferBuffer[7]; // LTY
+        upperBuffer[3] = transferBuffer[8]; // RTX
+        upperBuffer[4] = transferBuffer[9]; // RTY
+
+        // Remaining buttons
+        upperBuffer[6] &= ~0xFF; // Clear all 8 bits
+        upperBuffer[6] |= transferBuffer[2] & 0xF;
+        upperBuffer[6] |= (transferBuffer[3] & 0xF) << 4;
+
+        // Trigger axes
+        upperBuffer[8] = transferBuffer[18];
+        upperBuffer[9] = transferBuffer[19];
+
+        // PS button
+        upperBuffer[7] = transferBuffer[4];
+
+        // D-Pad (pressure)
+        upperBuffer[10] = transferBuffer[14];
+        upperBuffer[11] = transferBuffer[15];
+        upperBuffer[12] = transferBuffer[16];
+        upperBuffer[13] = transferBuffer[17];
+
+        // Shoulders (pressure)
+        upperBuffer[14] = transferBuffer[20];
+        upperBuffer[15] = transferBuffer[21];
+
+        // Face buttons (pressure)
+        upperBuffer[16] = transferBuffer[22];
+        upperBuffer[17] = transferBuffer[23];
+        upperBuffer[18] = transferBuffer[24];
+        upperBuffer[19] = transferBuffer[25];
+
+        // Cache gamepad state for sideband communication
+        RtlCopyBytes(&pDs3Context->InputState, upperBuffer, sizeof(FS3_GAMEPAD_STATE));
+
+        break;
+    default:
+        break;
     }
 
-    // Report ID
-    upperBuffer[0] = transferBuffer[0];
+    RtlCopyBytes(transferBuffer, upperBuffer, transferBufferLength);
 
-    // Prepare D-Pad
-    upperBuffer[5] &= ~0xF; // Clear lower 4 bits
-
-    // Translate D-Pad to HAT format
-    switch (transferBuffer[2] & ~0xF)
-    {
-    case 0x10: // N
-        upperBuffer[5] |= 0 & 0xF;
-        break;
-    case 0x30: // NE
-        upperBuffer[5] |= 1 & 0xF;
-        break;
-    case 0x20: // E
-        upperBuffer[5] |= 2 & 0xF;
-        break;
-    case 0x60: // SE
-        upperBuffer[5] |= 3 & 0xF;
-        break;
-    case 0x40: // S
-        upperBuffer[5] |= 4 & 0xF;
-        break;
-    case 0xC0: // SW
-        upperBuffer[5] |= 5 & 0xF;
-        break;
-    case 0x80: // W
-        upperBuffer[5] |= 6 & 0xF;
-        break;
-    case 0x90: // NW
-        upperBuffer[5] |= 7 & 0xF;
-        break;
-    default: // Released
-        upperBuffer[5] |= 8 & 0xF;
-        break;
-    }
-
-    // Prepare face buttons
-    upperBuffer[5] &= ~0xF0; // Clear upper 4 bits
-    // Set face buttons
-    upperBuffer[5] |= transferBuffer[3] & 0xF0;
-
-    // Thumb axes
-    upperBuffer[1] = transferBuffer[6]; // LTX
-    upperBuffer[2] = transferBuffer[7]; // LTY
-    upperBuffer[3] = transferBuffer[8]; // RTX
-    upperBuffer[4] = transferBuffer[9]; // RTY
-
-    // Remaining buttons
-    upperBuffer[6] &= ~0xFF; // Clear all 8 bits
-    upperBuffer[6] |= transferBuffer[2] & 0xF;
-    upperBuffer[6] |= (transferBuffer[3] & 0xF) << 4;
-
-    // Trigger axes
-    upperBuffer[8] = transferBuffer[18];
-    upperBuffer[9] = transferBuffer[19];
-
-    // PS button
-    upperBuffer[7] = transferBuffer[4];
-
-    // D-Pad (pressure)
-    upperBuffer[10] = transferBuffer[14];
-    upperBuffer[11] = transferBuffer[15];
-    upperBuffer[12] = transferBuffer[16];
-    upperBuffer[13] = transferBuffer[17];
-
-    // Shoulders (pressure)
-    upperBuffer[14] = transferBuffer[20];
-    upperBuffer[15] = transferBuffer[21];
-
-    // Face buttons (pressure)
-    upperBuffer[16] = transferBuffer[22];
-    upperBuffer[17] = transferBuffer[23];
-    upperBuffer[18] = transferBuffer[24];
-    upperBuffer[19] = transferBuffer[25];
-
-    WdfRequestComplete(upperRequest, status);
-
-    // Free memory
-    WdfObjectDelete(usbCompletionParams->Parameters.PipeRead.Buffer);
-    WdfObjectDelete(Request);
+    WdfRequestComplete(Request, status);
 }
 

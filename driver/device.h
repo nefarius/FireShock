@@ -51,10 +51,6 @@ typedef struct _DS3_DEVICE_CONTEXT
 
 	UCHAR OutputReportBuffer[DS3_HID_OUTPUT_REPORT_SIZE];
 
-    WDFUSBINTERFACE DefaultInterface;
-
-    WDFUSBPIPE InterruptReadPipe;
-
     FS3_GAMEPAD_STATE InputState;
 
 } DS3_DEVICE_CONTEXT, *PDS3_DEVICE_CONTEXT;

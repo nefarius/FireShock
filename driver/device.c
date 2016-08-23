@@ -85,7 +85,7 @@ Return Value:
     WDF_PNPPOWER_EVENT_CALLBACKS_INIT(&pnpPowerCallbacks);
 
     pnpPowerCallbacks.EvtDevicePrepareHardware = FireShockEvtDevicePrepareHardware;
-    pnpPowerCallbacks.EvtDeviceD0Entry = FireShockEvtDeviceD0Entry;
+    pnpPowerCallbacks.EvtDeviceD0Exit = FireShockEvtDeviceD0Exit;
 
     WdfDeviceInitSetPnpPowerEventCallbacks(DeviceInit, &pnpPowerCallbacks);
 
@@ -317,12 +317,17 @@ VOID EvtIoInternalDeviceControl(
                 }
             }
 
-            // Intercept interrupt request and translate TransferBuffer
-            if (urb->UrbBulkOrInterruptTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN)
-            {
-                status = SendInterruptInRequest(hDevice, InterruptReadRequestCompletionRoutine, Request);
-                status = NT_SUCCESS(status) ? STATUS_PENDING : status;
+            WdfRequestFormatRequestUsingCurrentType(Request);
+            WdfRequestSetCompletionRoutine(Request, BulkOrInterruptTransferCompleted, hDevice);
+
+            ret = WdfRequestSend(Request, WdfDeviceGetIoTarget(hDevice), WDF_NO_SEND_OPTIONS);
+
+            if (ret == FALSE) {
+                status = WdfRequestGetStatus(Request);
+                KdPrint(("WdfRequestSend failed: 0x%x\n", status));
+                WdfRequestComplete(Request, status);
             }
+            else return;
 
             break;
         
@@ -628,6 +633,6 @@ void FilterShutdown(WDFDEVICE Device)
     if (pDeviceContext->DeviceType == DualShock3)
     {
         WdfTimerStop(pDs3Context->OutputReportTimer, TRUE);
-        WdfIoTargetStop(WdfUsbTargetPipeGetIoTarget(pDs3Context->InterruptReadPipe), WdfIoTargetCancelSentIo);
     }
 }
+
