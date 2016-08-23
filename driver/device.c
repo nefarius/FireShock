@@ -209,19 +209,12 @@ VOID FilterEvtIoDeviceControl(
 )
 {
     NTSTATUS                    status = STATUS_INVALID_PARAMETER;
-    ULONG                       i;
-    ULONG                       noItems;
     size_t                      length = 0;
     WDFDEVICE                   hFilterDevice;
     PFS3_REQUEST_REPORT         pFs3Report = NULL;
+    PDS3_DEVICE_CONTEXT         pDs3Context;
 
     UNREFERENCED_PARAMETER(Queue);
-    UNREFERENCED_PARAMETER(OutputBufferLength);
-    UNREFERENCED_PARAMETER(InputBufferLength);
-    UNREFERENCED_PARAMETER(IoControlCode);
-
-    UNREFERENCED_PARAMETER(status);
-    UNREFERENCED_PARAMETER(length);
 
     PAGED_CODE();
 
@@ -229,33 +222,43 @@ VOID FilterEvtIoDeviceControl(
 
     WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
 
-    noItems = WdfCollectionGetCount(FilterDeviceCollection);
-
-    for (i = 0; i < noItems; i++) {
-
-        hFilterDevice = WdfCollectionGetItem(FilterDeviceCollection, i);
-
-        KdPrint(("Serial No: %d\n", i));
-    }
-
-
     switch (IoControlCode)
     {
     case IOCTL_FIRESHOCK_FS3_REQUEST_REPORT:
 
         status = WdfRequestRetrieveInputBuffer(Request, sizeof(FS3_REQUEST_REPORT), (PVOID)&pFs3Report, &length);
         
-        if (NT_SUCCESS(status)
-            && (sizeof(FS3_REQUEST_REPORT) == pFs3Report->Size)
-            && (length == InputBufferLength))
+        // Validate input buffer size
+        if (!NT_SUCCESS(status)
+            || (sizeof(FS3_REQUEST_REPORT) != pFs3Report->Size)
+            || (length != InputBufferLength))
+        {
+            status = STATUS_INVALID_PARAMETER;
+            break;
+        }
+
+        hFilterDevice = WdfCollectionGetItem(FilterDeviceCollection, pFs3Report->SerialNo);
+        pDs3Context = Ds3GetContext(hFilterDevice);
+
+        status = WdfRequestRetrieveOutputBuffer(Request, sizeof(FS3_REQUEST_REPORT), (PVOID)&pFs3Report, &length);
+
+        // Validate output buffer size
+        if (!NT_SUCCESS(status)
+            || (sizeof(FS3_REQUEST_REPORT) != pFs3Report->Size)
+            || (length != OutputBufferLength))
+        {
+            status = STATUS_INVALID_PARAMETER;
+            break;
+        }
+
+        pFs3Report->State = pDs3Context->InputState;
 
         break;
     }
 
-
     WdfWaitLockRelease(FilterDeviceCollectionLock);
 
-    WdfRequestCompleteWithInformation(Request, STATUS_SUCCESS, 0);
+    WdfRequestCompleteWithInformation(Request, status, length);
 }
 #pragma warning(pop) // enable 28118 again
 

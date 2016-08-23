@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include <SetupAPI.h>
 #include <stdlib.h>
+#include <winioctl.h>
+#include <public.h>
 
 
 int main()
@@ -15,7 +17,7 @@ int main()
     DWORD bytes = 0;
 
     HANDLE hControlDevice = CreateFile(TEXT("\\\\.\\FireShockFilter"),
-        GENERIC_READ, // Only read access
+        GENERIC_READ|GENERIC_WRITE, // Only read access
         0, // FILE_SHARE_READ | FILE_SHARE_WRITE
         NULL, // no SECURITY_ATTRIBUTES structure
         OPEN_EXISTING, // No special create flags
@@ -30,18 +32,28 @@ int main()
 
     auto deviceInfoSet = SetupDiGetClassDevs(&GUID_DEVINTERFACE_FIRESHOCK, nullptr, nullptr, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
 
-    while (SetupDiEnumDeviceInterfaces(deviceInfoSet, nullptr, &GUID_DEVINTERFACE_FIRESHOCK, memberIndex++, &deviceInterfaceData))
+    while (SetupDiEnumDeviceInterfaces(deviceInfoSet, nullptr, &GUID_DEVINTERFACE_FIRESHOCK, memberIndex, &deviceInterfaceData))
     {
-        if (!DeviceIoControl(hControlDevice,
-            1,
-            NULL, 0,
-            NULL, 0,
-            &bytes, NULL)) {
-            printf("Ioctl to ToasterFilter device failed\n");
+        while (TRUE)
+        {
+            FS3_REQUEST_REPORT req;
+            FS3_REQUEST_REPORT_INIT(&req, memberIndex);
+
+            if (!DeviceIoControl(hControlDevice,
+                IOCTL_FIRESHOCK_FS3_REQUEST_REPORT,
+                &req, req.Size,
+                &req, req.Size,
+                &bytes, nullptr)) {
+                printf("Ioctl to ToasterFilter device failed: 0x%X\n", GetLastError());
+            }
+            else {
+                printf("Pressure Circle: %3d\r", req.State.Pressure.Circle);
+            }
+
+            Sleep(2);
         }
-        else {
-            printf("Ioctl to ToasterFilter device succeeded\n");
-        }
+
+        memberIndex++;
     }
 
     SetupDiDestroyDeviceInfoList(deviceInfoSet);
