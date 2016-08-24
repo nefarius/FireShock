@@ -37,6 +37,7 @@ WDFDEVICE       ControlDevice = NULL;
 #pragma alloc_text(PAGE, FilterDeleteControlDevice)
 #pragma alloc_text(PAGE, FilterEvtIoDeviceControl)
 #pragma alloc_text(PAGE, FilterShutdown)
+#pragma alloc_text(PAGE, EvtCleanupCallback)
 #endif
 
 NTSTATUS
