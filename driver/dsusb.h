@@ -24,7 +24,7 @@ SOFTWARE.
 
 
 #pragma once
-#include <usb.h>
+
 
 EVT_WDF_REQUEST_COMPLETION_ROUTINE ControlRequestCompletionRoutine;
 
@@ -37,12 +37,6 @@ NTSTATUS SendControlRequest(
     USHORT Index,
     PVOID Buffer,
     size_t BufferLength);
-
-NTSTATUS SendInterruptInRequest(
-    WDFDEVICE Device,
-    PFN_WDF_REQUEST_COMPLETION_ROUTINE CompletionRoutine,
-    WDFCONTEXT CompletionContext
-);
 
 NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon);
 

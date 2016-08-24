@@ -25,8 +25,7 @@ SOFTWARE.
 
 #include "fireshock.h"
 #include <wdf.h>
-#include <usb.h>
-#include <wdfusb.h>
+
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, FireShockEvtDevicePrepareHardware)

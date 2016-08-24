@@ -25,8 +25,6 @@ Environment:
 
 #include "FireShock.h"
 #include <usbioctl.h>
-#include <usb.h>
-#include <wdfusb.h>
 
 
 WDFCOLLECTION   FilterDeviceCollection;

@@ -24,7 +24,7 @@ SOFTWARE.
 
 
 #include "fireshock.h"
-#include <wdfusb.h>
+
 
 NTSTATUS SendControlRequest(
     WDFDEVICE Device,

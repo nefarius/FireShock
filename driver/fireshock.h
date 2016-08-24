@@ -30,6 +30,8 @@ Environment:
 #include <initguid.h>
 #include <wdmguid.h>
 #include <wdmsec.h> // for SDDLs
+#include <usb.h>
+#include <wdfusb.h>
 
 // Our drivers modules includes
 #include "public.h"

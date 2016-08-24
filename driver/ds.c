@@ -218,3 +218,4 @@ VOID Ds3GetDescriptorFromInterface(PUCHAR Buffer)
 
     RtlCopyBytes(Buffer, HidReportDescriptor, DS3_HID_REPORT_DESCRIPTOR_SIZE);
 }
+
