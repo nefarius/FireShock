@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fireshock", "driver\firesho
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tester", "app\Tester\Tester.vcxproj", "{A7E8A874-4D69-450E-AFE2-365DE627CCA8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "incendium", "lib\incendium\incendium.vcxproj", "{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug (Windows 7)|Win32 = Debug (Windows 7)|Win32
@@ -67,6 +69,21 @@ Global
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Release|x64.ActiveCfg = Release|x64
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Release|x64.Build.0 = Release|x64
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8}.Release|x64.Deploy.0 = Release|x64
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Debug (Windows 7)|Win32.ActiveCfg = Debug|Win32
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Debug (Windows 7)|Win32.Build.0 = Debug|Win32
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Debug (Windows 7)|x64.ActiveCfg = Debug|x64
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Debug (Windows 7)|x64.Build.0 = Debug|x64
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Debug (Windows 7)|x64.Deploy.0 = Debug|x64
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Debug|Win32.Build.0 = Debug|Win32
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Debug|x64.ActiveCfg = Debug|x64
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Debug|x64.Build.0 = Debug|x64
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Debug|x64.Deploy.0 = Debug|x64
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Release|Win32.ActiveCfg = Release|Win32
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Release|Win32.Build.0 = Release|Win32
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Release|x64.ActiveCfg = Release|x64
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Release|x64.Build.0 = Release|x64
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3}.Release|x64.Deploy.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -75,5 +92,6 @@ Global
 		{BC8A0B60-3D51-403C-838F-DBDB7FDB2154} = {E194EF42-DCCA-45F0-8C95-BCA0BF229BEB}
 		{72EF0AC2-AF89-4FAF-B50B-CFD1CBCFC1FA} = {C86EDC2A-0353-4B65-9429-5A7161C37728}
 		{A7E8A874-4D69-450E-AFE2-365DE627CCA8} = {E194EF42-DCCA-45F0-8C95-BCA0BF229BEB}
+		{DC5D0C89-8BD2-4A27-8768-C03BB703C2C3} = {4F25A8F2-2B4F-49C5-AA10-51610C5E6F1D}
 	EndGlobalSection
 EndGlobal
