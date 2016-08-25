@@ -307,7 +307,7 @@ void BulkOrInterruptTransferCompleted(
 
         // Remaining buttons
         upperBuffer[6] &= ~0xFF; // Clear all 8 bits
-        upperBuffer[6] |= transferBuffer[2] & 0xF;
+        upperBuffer[6] |= (transferBuffer[2] & 0xF);
         upperBuffer[6] |= (transferBuffer[3] & 0xF) << 4;
 
         // Trigger axes
