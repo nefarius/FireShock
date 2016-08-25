@@ -224,6 +224,7 @@ VOID FilterEvtIoDeviceControl(
     size_t                      length = 0;
     WDFDEVICE                   hFilterDevice;
     PFS3_REQUEST_REPORT         pFs3Report = NULL;
+    PDEVICE_CONTEXT             pDeviceContext;
     PDS3_DEVICE_CONTEXT         pDs3Context;
 
     UNREFERENCED_PARAMETER(Queue);
@@ -238,7 +239,7 @@ VOID FilterEvtIoDeviceControl(
     if (WdfCollectionGetCount(FilterDeviceCollection) == 0)
     {
         WdfWaitLockRelease(FilterDeviceCollectionLock);
-        WdfRequestCompleteWithInformation(Request, STATUS_UNSUCCESSFUL, 0);
+        WdfRequestCompleteWithInformation(Request, STATUS_NO_SUCH_DEVICE, 0);
         return;
     }
 
@@ -258,7 +259,21 @@ VOID FilterEvtIoDeviceControl(
         }
 
         hFilterDevice = WdfCollectionGetItem(FilterDeviceCollection, pFs3Report->SerialNo);
+        pDeviceContext = GetCommonContext(hFilterDevice);
         pDs3Context = Ds3GetContext(hFilterDevice);
+
+        if (!pDeviceContext || pDeviceContext->DeviceType != DualShock3)
+        {
+            status = STATUS_INVALID_PARAMETER;
+            break;
+        }
+
+        if (!pDs3Context)
+        {
+            // Context unavailable, 
+            status = STATUS_DEVICE_NOT_READY;
+            break;
+        }
 
         status = WdfRequestRetrieveOutputBuffer(Request, sizeof(FS3_REQUEST_REPORT), (PVOID)&pFs3Report, &length);
 
