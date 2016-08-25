@@ -26,6 +26,9 @@ SOFTWARE.
 #include "fireshock.h"
 
 
+//
+// Sends a custom buffer to the device's control endpoint.
+// 
 NTSTATUS SendControlRequest(
     WDFDEVICE Device,
     BYTE Request,
@@ -213,6 +216,10 @@ void ControlRequestCompletionRoutine(
     WdfObjectDelete(Request);
 }
 
+//
+// Gets called when the lower driver completed a bulk or interrupt request.
+// The translation of the input report occurs here.
+// 
 void BulkOrInterruptTransferCompleted(
     _In_ WDFREQUEST                     Request,
     _In_ WDFIOTARGET                    Target,
@@ -228,23 +235,25 @@ void BulkOrInterruptTransferCompleted(
     PDEVICE_CONTEXT             pDeviceContext;
     PDS3_DEVICE_CONTEXT         pDs3Context;
 
+    // Temporary copy of the transfer buffer
     UCHAR upperBuffer[DS3_ORIGINAL_HID_REPORT_SIZE];
     RtlZeroMemory(upperBuffer, DS3_ORIGINAL_HID_REPORT_SIZE);
 
     UNREFERENCED_PARAMETER(Target);
     UNREFERENCED_PARAMETER(Params);
-    UNREFERENCED_PARAMETER(Context);
 
     status = WdfRequestGetStatus(Request);
 
+    KdPrint(("BulkOrInterruptTransferCompleted called with status 0x%X\n", status));
+
+    // Nothing to do if the lower driver failed, complete end exit
     if (!NT_SUCCESS(status))
     {
         WdfRequestComplete(Request, status);
         return;
     }
 
-    KdPrint(("BulkOrInterruptTransferCompleted called with status 0x%X\n", status));
-
+    // Get context, URB and buffers
     pDeviceContext = GetCommonContext(device);
     urb = URB_FROM_IRP(WdfRequestWdmGetIrp(Request));
     transferBuffer = (PUCHAR)urb->UrbBulkOrInterruptTransfer.TransferBuffer;

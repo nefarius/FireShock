@@ -116,10 +116,17 @@ Return Value:
         return status;
     }
 
+    // 
+    // Expose custom interface to simplify device enumeration
+    // 
+    // Note: we can't directly use this interface but exposing 
+    // it on every instance allows us to conveniently enumerate
+    // all filter instances from any user-mode application.
+    // 
+    // Actual filter manipulation is achieved via the control device.
+    // 
     status = WdfDeviceCreateDeviceInterface(device, &GUID_DEVINTERFACE_FIRESHOCK, NULL);
-
-    if (!NT_SUCCESS(status))
-    {
+    if (!NT_SUCCESS(status)) {
         KdPrint(("WdfDeviceCreateDeviceInterface failed status 0x%x\n", status));
         return status;
     }
@@ -159,6 +166,9 @@ Return Value:
     return status;
 }
 
+//
+// Called on filter unload.
+// 
 #pragma warning(push)
 #pragma warning(disable:28118) // this callback will run at IRQL=PASSIVE_LEVEL
 _Use_decl_annotations_
@@ -196,6 +206,9 @@ VOID EvtCleanupCallback(
 }
 #pragma warning(pop) // enable 28118 again
 
+//
+// Handles requests sent to the sideband control device.
+// 
 #pragma warning(push)
 #pragma warning(disable:28118) // this callback will run at IRQL=PASSIVE_LEVEL
 _Use_decl_annotations_
@@ -261,6 +274,9 @@ VOID FilterEvtIoDeviceControl(
 }
 #pragma warning(pop) // enable 28118 again
 
+//
+// Intercepts communication between HIDUSB.SYS and the USB PDO.
+// 
 VOID EvtIoInternalDeviceControl(
     _In_ WDFQUEUE   Queue,
     _In_ WDFREQUEST Request,
@@ -269,8 +285,6 @@ VOID EvtIoInternalDeviceControl(
     _In_ ULONG      IoControlCode
 )
 {
-    UNREFERENCED_PARAMETER(Queue);
-    UNREFERENCED_PARAMETER(Request);
     UNREFERENCED_PARAMETER(OutputBufferLength);
     UNREFERENCED_PARAMETER(InputBufferLength);
 
@@ -282,12 +296,10 @@ VOID EvtIoInternalDeviceControl(
     PURB                            urb;
     BOOLEAN                         processed = FALSE;
     PDEVICE_CONTEXT                 pDeviceContext;
-    PDS3_DEVICE_CONTEXT             pDs3Context;
 
     hDevice = WdfIoQueueGetDevice(Queue);
     irp = WdfRequestWdmGetIrp(Request);
     pDeviceContext = GetCommonContext(hDevice);
-    pDs3Context = Ds3GetContext(hDevice);
 
     switch (IoControlCode)
     {
@@ -445,6 +457,9 @@ VOID EvtIoInternalDeviceControl(
     }
 }
 
+//
+// Creates the control device for sideband communication.
+// 
 _Use_decl_annotations_
 NTSTATUS
 FilterCreateControlDevice(
@@ -586,6 +601,9 @@ Error:
     return status;
 }
 
+//
+// Deletes the control device.
+// 
 _Use_decl_annotations_
 VOID
 FilterDeleteControlDevice(

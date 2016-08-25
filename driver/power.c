@@ -32,6 +32,9 @@ SOFTWARE.
 #pragma alloc_text(PAGE, FireShockEvtDeviceD0Exit)
 #endif
 
+//
+// Initializes the device contexts.
+// 
 NTSTATUS FireShockEvtDevicePrepareHardware(
     _In_ WDFDEVICE Device,
     _In_ WDFCMRESLIST ResourcesRaw,
@@ -52,6 +55,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
 
     pDeviceContext = GetCommonContext(Device);
 
+    // Create USB framework object
     if (pDeviceContext->UsbDevice == NULL)
     {
         status = WdfUsbTargetDeviceCreate(Device, WDF_NO_OBJECT_ATTRIBUTES, &pDeviceContext->UsbDevice);
@@ -62,6 +66,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
         }
     }
 
+    // Use device descriptor to identify the device
     WdfUsbTargetDeviceGetDeviceDescriptor(pDeviceContext->UsbDevice, &deviceDescriptor);
 
     // Device is a DualShock 3
@@ -69,6 +74,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
     {
         pDeviceContext->DeviceType = DualShock3;
 
+        // Add DS3-specific context to device object
         WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS3_DEVICE_CONTEXT);
 
         status = WdfObjectAllocateContext(Device, &attributes, (PVOID)&pDs3Context);
@@ -78,6 +84,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
             return status;
         }
 
+        // Initial output state (rumble & LEDs off)
         UCHAR DefaultOutputReport[DS3_HID_OUTPUT_REPORT_SIZE] =
         {
             0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00,
@@ -105,6 +112,9 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
         case 3:
             pDs3Context->OutputReportBuffer[9] |= DS3_OFFSET_LED_3;
             break;
+        default:
+            // TODO: what do we do in this case? Light animation?
+            break;
         }
 
         // Initialize output report timer
@@ -119,7 +129,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
             return status;
         }
 
-        // Initialize output report timer
+        // Initialize input enable timer
         WDF_TIMER_CONFIG_INIT_PERIODIC(&timerCfg, Ds3EnableEvtTimerFunc, DS3_INPUT_ENABLE_SEND_DELAY);
         WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
 
@@ -131,6 +141,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
             return status;
         }
 
+        // We can start the timer here since the callback is called again on failure
         WdfTimerStart(pDs3Context->InputEnableTimer, WDF_REL_TIMEOUT_IN_MS(DS3_INPUT_ENABLE_SEND_DELAY));
     }
 
@@ -154,6 +165,7 @@ NTSTATUS FireShockEvtDeviceD0Exit(
 
     PAGED_CODE();
 
+    // Perform clean-up tasks
     FilterShutdown(Device);
 
     return STATUS_SUCCESS;

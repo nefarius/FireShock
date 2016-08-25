@@ -26,8 +26,12 @@ SOFTWARE.
 #include "fireshock.h"
 
 
+//
+// Sends the "magic packet" to the DS3 so it starts its interrupt endpoint.
+// 
 NTSTATUS Ds3Init(WDFDEVICE hDevice)
 {
+    // "Magic packet"
     UCHAR hidCommandEnable[DS3_HID_COMMAND_ENABLE_SIZE] =
     {
         0x42, 0x0C, 0x00, 0x00
@@ -42,14 +46,17 @@ NTSTATUS Ds3Init(WDFDEVICE hDevice)
         DS3_HID_COMMAND_ENABLE_SIZE);
 }
 
+//
+// Periodically sends the DS3 enable control request until successful.
+// 
 VOID Ds3EnableEvtTimerFunc(
     _In_ WDFTIMER Timer
 )
 {
-    NTSTATUS status;
-    WDFDEVICE hDevice;
-    PDEVICE_CONTEXT pDeviceContext;
-    PDS3_DEVICE_CONTEXT pDs3Context;
+    NTSTATUS                status;
+    WDFDEVICE               hDevice;
+    PDEVICE_CONTEXT         pDeviceContext;
+    PDS3_DEVICE_CONTEXT     pDs3Context;
 
     hDevice = WdfTimerGetParentObject(Timer);
     pDeviceContext = GetCommonContext(hDevice);
@@ -61,9 +68,13 @@ VOID Ds3EnableEvtTimerFunc(
         pDs3Context = Ds3GetContext(hDevice);
 
         status = Ds3Init(hDevice);
+
+        // On successful delivery...
         if (NT_SUCCESS(status))
         {
+            // ...we can stop sending the enable packet...
             WdfTimerStop(pDs3Context->InputEnableTimer, FALSE);
+            // ...and start sending the output report (mainly rumble & LED states)
             WdfTimerStart(pDs3Context->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(DS3_OUTPUT_REPORT_SEND_DELAY));
         }
 
@@ -74,6 +85,9 @@ VOID Ds3EnableEvtTimerFunc(
     }
 }
 
+//
+// Sends output report updates to the DS3 via control endpoint.
+// 
 VOID Ds3OutputEvtTimerFunc(
     _In_ WDFTIMER Timer
 )
@@ -109,6 +123,9 @@ VOID Ds3OutputEvtTimerFunc(
     }
 }
 
+//
+// Returns customized configuration descriptor.
+// 
 VOID Ds3GetConfigurationDescriptorType(PUCHAR Buffer, ULONG Length)
 {
     UCHAR ConfigurationDescriptor[DS3_CONFIGURATION_DESCRIPTOR_SIZE] =
@@ -162,6 +179,9 @@ VOID Ds3GetConfigurationDescriptorType(PUCHAR Buffer, ULONG Length)
     RtlCopyBytes(Buffer, ConfigurationDescriptor, Length);
 }
 
+//
+// Returns customized HID report descriptor.
+// 
 VOID Ds3GetDescriptorFromInterface(PUCHAR Buffer)
 {
     UCHAR HidReportDescriptor[DS3_HID_REPORT_DESCRIPTOR_SIZE] =
