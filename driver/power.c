@@ -39,11 +39,11 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
 )
 {
     NTSTATUS                        status = STATUS_SUCCESS;
-    PDEVICE_CONTEXT                 pDeviceContext = NULL;
+    PDEVICE_CONTEXT                 pDeviceContext;
     USB_DEVICE_DESCRIPTOR           deviceDescriptor;
     PDS3_DEVICE_CONTEXT             pDs3Context;
     WDF_OBJECT_ATTRIBUTES           attributes;
-    WDF_TIMER_CONFIG                outputTimerCfg;
+    WDF_TIMER_CONFIG                timerCfg;
 
     UNREFERENCED_PARAMETER(ResourcesRaw);
     UNREFERENCED_PARAMETER(ResourcesTranslated);
@@ -107,16 +107,31 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
             break;
         }
 
-        WDF_TIMER_CONFIG_INIT_PERIODIC(&outputTimerCfg, Ds3OutputEvtTimerFunc, DS3_OUTPUT_REPORT_SEND_DELAY);
+        // Initialize output report timer
+        WDF_TIMER_CONFIG_INIT_PERIODIC(&timerCfg, Ds3OutputEvtTimerFunc, DS3_OUTPUT_REPORT_SEND_DELAY);
         WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
 
         attributes.ParentObject = Device;
 
-        status = WdfTimerCreate(&outputTimerCfg, &attributes, &pDs3Context->OutputReportTimer);
+        status = WdfTimerCreate(&timerCfg, &attributes, &pDs3Context->OutputReportTimer);
         if (!NT_SUCCESS(status)) {
             KdPrint(("FireShock: Error creating output report timer 0x%x\n", status));
             return status;
         }
+
+        // Initialize output report timer
+        WDF_TIMER_CONFIG_INIT_PERIODIC(&timerCfg, Ds3EnableEvtTimerFunc, DS3_INPUT_ENABLE_SEND_DELAY);
+        WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
+
+        attributes.ParentObject = Device;
+
+        status = WdfTimerCreate(&timerCfg, &attributes, &pDs3Context->InputEnableTimer);
+        if (!NT_SUCCESS(status)) {
+            KdPrint(("FireShock: Error creating input enable timer 0x%x\n", status));
+            return status;
+        }
+
+        WdfTimerStart(pDs3Context->InputEnableTimer, WDF_REL_TIMEOUT_IN_MS(DS3_INPUT_ENABLE_SEND_DELAY));
     }
 
     // Device is a DualShock 4

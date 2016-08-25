@@ -10,13 +10,16 @@
 #define INCENDIUM_API __declspec(dllimport)
 #endif
 
-// This class is exported from the incendium.dll
-class INCENDIUM_API Cincendium {
-public:
-	Cincendium(void);
-	// TODO: add your methods here.
-};
 
-extern INCENDIUM_API int nincendium;
+#ifdef __cplusplus
+extern "C"
+{ // only need to export C interface if
+  // used by C++ source code
+#endif
 
-INCENDIUM_API int fnincendium(void);
+    INCENDIUM_API DWORD Fs3GetControllerCount();
+
+#ifdef __cplusplus
+}
+#endif
+

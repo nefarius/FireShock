@@ -35,7 +35,7 @@ typedef struct _DEVICE_CONTEXT
 {
     WDFUSBDEVICE UsbDevice;
 
-	DS_DEVICE_TYPE DeviceType;
+    DS_DEVICE_TYPE DeviceType;
 
     ULONG DeviceIndex;
 
@@ -45,11 +45,11 @@ WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DEVICE_CONTEXT, GetCommonContext)
 
 typedef struct _DS3_DEVICE_CONTEXT
 {
-	BOOLEAN Enabled;
+    WDFTIMER OutputReportTimer;
 
-	WDFTIMER OutputReportTimer;
+    WDFTIMER InputEnableTimer;
 
-	UCHAR OutputReportBuffer[DS3_HID_OUTPUT_REPORT_SIZE];
+    UCHAR OutputReportBuffer[DS3_HID_OUTPUT_REPORT_SIZE];
 
     FS3_GAMEPAD_STATE InputState;
 

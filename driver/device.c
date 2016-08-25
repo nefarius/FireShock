@@ -226,7 +226,7 @@ VOID FilterEvtIoDeviceControl(
     case IOCTL_FIRESHOCK_FS3_REQUEST_REPORT:
 
         status = WdfRequestRetrieveInputBuffer(Request, sizeof(FS3_REQUEST_REPORT), (PVOID)&pFs3Report, &length);
-        
+
         // Validate input buffer size
         if (!NT_SUCCESS(status)
             || (sizeof(FS3_REQUEST_REPORT) != pFs3Report->Size)
@@ -304,20 +304,8 @@ VOID EvtIoInternalDeviceControl(
             break;
 
         case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
-        
+
             KdPrint((">> >> URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
-
-            // Send start command so interrupt requests keep coming
-            if (pDeviceContext->DeviceType == DualShock3 && !pDs3Context->Enabled)
-            {
-                status = Ds3Init(hDevice);
-                if (NT_SUCCESS(status))
-                {
-                    pDs3Context->Enabled = TRUE;
-
-                    WdfTimerStart(pDs3Context->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(DS3_OUTPUT_REPORT_SEND_DELAY));
-                }
-            }
 
             WdfRequestFormatRequestUsingCurrentType(Request);
             WdfRequestSetCompletionRoutine(Request, BulkOrInterruptTransferCompleted, hDevice);
@@ -327,12 +315,12 @@ VOID EvtIoInternalDeviceControl(
             if (ret == FALSE) {
                 status = WdfRequestGetStatus(Request);
                 KdPrint(("WdfRequestSend failed: 0x%x\n", status));
-                WdfRequestComplete(Request, status);
+                processed = TRUE;
             }
             else return;
 
             break;
-        
+
         case URB_FUNCTION_SELECT_CONFIGURATION:
 
             KdPrint((">> >> URB_FUNCTION_SELECT_CONFIGURATION\n"));
@@ -435,12 +423,6 @@ VOID EvtIoInternalDeviceControl(
         }
 
         break;
-    }
-
-    // The upper request is pending and gets completed later
-    if (status == STATUS_PENDING)
-    {
-        return;
     }
 
     // The upper request was handled by the filter
@@ -622,6 +604,9 @@ FilterDeleteControlDevice(
     }
 }
 
+//
+// Performs clean-up tasks.
+// 
 void FilterShutdown(WDFDEVICE Device)
 {
     PDEVICE_CONTEXT                 pDeviceContext;
@@ -630,11 +615,13 @@ void FilterShutdown(WDFDEVICE Device)
     PAGED_CODE();
 
     pDeviceContext = GetCommonContext(Device);
-    pDs3Context = Ds3GetContext(Device);
 
     if (pDeviceContext->DeviceType == DualShock3)
     {
+        pDs3Context = Ds3GetContext(Device);
+
         WdfTimerStop(pDs3Context->OutputReportTimer, TRUE);
+        WdfTimerStop(pDs3Context->InputEnableTimer, FALSE);
     }
 }
 

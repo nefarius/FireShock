@@ -42,6 +42,38 @@ NTSTATUS Ds3Init(WDFDEVICE hDevice)
         DS3_HID_COMMAND_ENABLE_SIZE);
 }
 
+VOID Ds3EnableEvtTimerFunc(
+    _In_ WDFTIMER Timer
+)
+{
+    NTSTATUS status;
+    WDFDEVICE hDevice;
+    PDEVICE_CONTEXT pDeviceContext;
+    PDS3_DEVICE_CONTEXT pDs3Context;
+
+    hDevice = WdfTimerGetParentObject(Timer);
+    pDeviceContext = GetCommonContext(hDevice);
+
+    switch(pDeviceContext->DeviceType)
+    {
+    case DualShock3:
+
+        pDs3Context = Ds3GetContext(hDevice);
+
+        status = Ds3Init(hDevice);
+        if (NT_SUCCESS(status))
+        {
+            WdfTimerStop(pDs3Context->InputEnableTimer, FALSE);
+            WdfTimerStart(pDs3Context->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(DS3_OUTPUT_REPORT_SEND_DELAY));
+        }
+
+        break;
+
+    default:
+        break;
+    }
+}
+
 VOID Ds3OutputEvtTimerFunc(
     _In_ WDFTIMER Timer
 )

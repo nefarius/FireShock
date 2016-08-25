@@ -3,20 +3,40 @@
 
 #include "stdafx.h"
 #include "incendium.h"
+#include <SetupAPI.h>
+// ReSharper disable once CppUnusedIncludeDirective
+#include <initguid.h>
+#include <public.h>
 
 
-// This is an example of an exported variable
-INCENDIUM_API int nincendium=0;
-
-// This is an example of an exported function.
-INCENDIUM_API int fnincendium(void)
+INCENDIUM_API DWORD Fs3GetControllerCount()
 {
-    return 42;
+    SP_DEVICE_INTERFACE_DATA deviceInterfaceData = { 0 };
+    deviceInterfaceData.cbSize = sizeof(deviceInterfaceData);
+    DWORD memberIndex = 0;
+
+    auto hControlDevice = CreateFile(TEXT("\\\\.\\FireShockFilter"),
+        GENERIC_READ, // Only read access
+        0, // FILE_SHARE_READ | FILE_SHARE_WRITE
+        nullptr, // no SECURITY_ATTRIBUTES structure
+        OPEN_EXISTING, // No special create flags
+        0, // No special attributes
+        nullptr); // No template file
+
+    // No FireShock device found
+    if (hControlDevice == INVALID_HANDLE_VALUE) {
+        return memberIndex;
+    }
+
+    auto deviceInfoSet = SetupDiGetClassDevs(&GUID_DEVINTERFACE_FIRESHOCK, nullptr, nullptr, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+
+    // Count interface instances
+    while (SetupDiEnumDeviceInterfaces(deviceInfoSet, nullptr, &GUID_DEVINTERFACE_FIRESHOCK, memberIndex, &deviceInterfaceData)) {
+        memberIndex++;
+    }
+
+    SetupDiDestroyDeviceInfoList(deviceInfoSet);
+
+    return memberIndex;
 }
 
-// This is the constructor of a class that has been exported.
-// see incendium.h for the class definition
-Cincendium::Cincendium()
-{
-    return;
-}
