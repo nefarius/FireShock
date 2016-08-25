@@ -15,6 +15,13 @@ HIDUSB filter driver for Sony DualShock controllers
 | [08]       | Left Trigger (L2, 0 = released)  |
 | [09]       | Right Trigger (R2, 0 = released) |
 
+### Buttons
+| byte index |      bit 7     |     bit 6     |     bit 5     |     bit 4    | bit 3 |    bit 2    |    bit 1   |  bit 0 |
+|------------|:--------------:|:-------------:|:-------------:|:------------:|:-----:|:-----------:|:----------:|:------:|
+| [05]       |     Square     |     Cross     |     Circle    |   Triangle   | D-Pad |    D-Pad    |    D-Pad   |  D-Pad |
+| [06]       | Right Shoulder | Left Shoulder | Right Trigger | Left Trigger | Start | Right Thumb | Left Thumb | Select |
+| [07]       |                |               |               |              |       |             |            |   PS   |
+
 ### Pressure sensitive buttons/axes
 | byte index | pressure value      |
 |------------|---------------------|
