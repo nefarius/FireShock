@@ -234,6 +234,14 @@ VOID FilterEvtIoDeviceControl(
 
     WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
 
+    // Our control device is gone, abandon ship!
+    if (WdfCollectionGetCount(FilterDeviceCollection) == 0)
+    {
+        WdfWaitLockRelease(FilterDeviceCollectionLock);
+        WdfRequestCompleteWithInformation(Request, STATUS_UNSUCCESSFUL, 0);
+        return;
+    }
+
     switch (IoControlCode)
     {
     case IOCTL_FIRESHOCK_FS3_REQUEST_REPORT:
