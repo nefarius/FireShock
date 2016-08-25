@@ -12,8 +12,8 @@ HIDUSB filter driver for Sony DualShock controllers
 | [02]       | Left Thumb Y (0 = up)             |
 | [03]       | Right Thumb X (0 = left)          |
 | [04]       | Right Thumb Y (0 = up)            |
-| [08]       | Left Trigger [L2] (0 = released)  |
-| [09]       | Right Trigger [R2] (0 = released) |
+| [08]       | Left Trigger (L2, 0 = released)  |
+| [09]       | Right Trigger (R2, 0 = released) |
 
 ### Pressure sensitive buttons/axes
 | byte index | pressure value      |
