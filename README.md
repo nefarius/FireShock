@@ -121,3 +121,10 @@ HIDUSB filter driver for Sony DualShock controllers
 | [16]       | Circle              |
 | [17]       | Cross               |
 | [18]       | Square              |
+
+## Sources
+ * http://eleccelerator.com/wiki/index.php?title=DualShock_3
+ * https://github.com/felis/USB_Host_Shield_2.0/wiki/PS3-Information
+ * https://github.com/Microsoft/Windows-driver-samples/tree/master/hid/firefly/driver
+ * https://github.com/Microsoft/Windows-driver-samples/tree/master/general/toaster/toastDrv/kmdf/filter/sideband
+ * https://msdn.microsoft.com/en-us/library/windows/hardware/dn265671(v=vs.85).aspx
