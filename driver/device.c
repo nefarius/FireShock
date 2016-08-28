@@ -342,17 +342,20 @@ VOID EvtIoInternalDeviceControl(
 
             KdPrint((">> >> URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
 
-            WdfRequestFormatRequestUsingCurrentType(Request);
-            WdfRequestSetCompletionRoutine(Request, BulkOrInterruptTransferCompleted, hDevice);
+            if (urb->UrbBulkOrInterruptTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN)
+            {
+                WdfRequestFormatRequestUsingCurrentType(Request);
+                WdfRequestSetCompletionRoutine(Request, BulkOrInterruptTransferCompleted, hDevice);
 
-            ret = WdfRequestSend(Request, WdfDeviceGetIoTarget(hDevice), WDF_NO_SEND_OPTIONS);
+                ret = WdfRequestSend(Request, WdfDeviceGetIoTarget(hDevice), WDF_NO_SEND_OPTIONS);
 
-            if (ret == FALSE) {
-                status = WdfRequestGetStatus(Request);
-                KdPrint(("WdfRequestSend failed: 0x%x\n", status));
-                processed = TRUE;
+                if (ret == FALSE) {
+                    status = WdfRequestGetStatus(Request);
+                    KdPrint(("WdfRequestSend failed: 0x%x\n", status));
+                    processed = TRUE;
+                }
+                else return;
             }
-            else return;
 
             break;
 
