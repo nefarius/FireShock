@@ -26,7 +26,9 @@ SOFTWARE.
 #pragma once
 
 
-EVT_WDF_REQUEST_COMPLETION_ROUTINE ControlRequestCompletionRoutine;
+EVT_WDF_REQUEST_COMPLETION_ROUTINE Ds3EnableRequestCompleted;
+
+EVT_WDF_REQUEST_COMPLETION_ROUTINE Ds3OutputRequestCompleted;
 
 EVT_WDF_REQUEST_COMPLETION_ROUTINE BulkOrInterruptTransferCompleted;
 
@@ -36,7 +38,9 @@ NTSTATUS SendControlRequest(
     USHORT Value,
     USHORT Index,
     PVOID Buffer,
-    size_t BufferLength);
+    size_t BufferLength,
+    PFN_WDF_REQUEST_COMPLETION_ROUTINE CompletionRoutine,
+    WDFCONTEXT CompletionContext);
 
 NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon);
 

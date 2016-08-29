@@ -43,7 +43,9 @@ NTSTATUS Ds3Init(WDFDEVICE hDevice)
         Ds3StartDevice,
         0,
         hidCommandEnable,
-        DS3_HID_COMMAND_ENABLE_SIZE);
+        DS3_HID_COMMAND_ENABLE_SIZE,
+        Ds3EnableRequestCompleted,
+        hDevice);
 }
 
 //
@@ -53,35 +55,17 @@ VOID Ds3EnableEvtTimerFunc(
     _In_ WDFTIMER Timer
 )
 {
-    NTSTATUS                status;
-    WDFDEVICE               hDevice;
-    PDEVICE_CONTEXT         pDeviceContext;
-    PDS3_DEVICE_CONTEXT     pDs3Context;
+    NTSTATUS    status;
+    WDFDEVICE   hDevice;
 
     hDevice = WdfTimerGetParentObject(Timer);
-    pDeviceContext = GetCommonContext(hDevice);
 
-    switch(pDeviceContext->DeviceType)
+    status = Ds3Init(hDevice);
+
+    // On successful delivery...
+    if (!NT_SUCCESS(status))
     {
-    case DualShock3:
-
-        pDs3Context = Ds3GetContext(hDevice);
-
-        status = Ds3Init(hDevice);
-
-        // On successful delivery...
-        if (NT_SUCCESS(status))
-        {
-            // ...we can stop sending the enable packet...
-            WdfTimerStop(pDs3Context->InputEnableTimer, FALSE);
-            // ...and start sending the output report (mainly rumble & LED states)
-            WdfTimerStart(pDs3Context->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(DS3_OUTPUT_REPORT_SEND_DELAY));
-        }
-
-        break;
-
-    default:
-        break;
+        KdPrint(("Ds3Init failed with status 0x%X", status));
     }
 }
 
@@ -93,33 +77,24 @@ VOID Ds3OutputEvtTimerFunc(
 )
 {
     WDFDEVICE           hDevice;
-    PDEVICE_CONTEXT     pDeviceContext;
     NTSTATUS            status;
 
     hDevice = WdfTimerGetParentObject(Timer);
-    pDeviceContext = GetCommonContext(hDevice);
 
-    switch (pDeviceContext->DeviceType)
+    status = SendControlRequest(
+        hDevice,
+        SetReport,
+        USB_SETUP_VALUE(Output, One),
+        0,
+        Ds3GetContext(hDevice)->OutputReportBuffer,
+        DS3_HID_OUTPUT_REPORT_SIZE,
+        Ds3OutputRequestCompleted,
+        NULL
+    );
+
+    if (!NT_SUCCESS(status))
     {
-    case DualShock3:
-
-        status = SendControlRequest(
-            hDevice,
-            SetReport,
-            USB_SETUP_VALUE(Output, One),
-            0,
-            Ds3GetContext(hDevice)->OutputReportBuffer,
-            DS3_HID_OUTPUT_REPORT_SIZE
-        );
-
-        if (!NT_SUCCESS(status))
-        {
-            KdPrint(("SendControlRequest failed with status 0x%X\n", status));
-        }
-
-        break;
-    default:
-        break;
+        KdPrint(("SendControlRequest failed with status 0x%X\n", status));
     }
 }
 

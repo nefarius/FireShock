@@ -35,7 +35,9 @@ NTSTATUS SendControlRequest(
     USHORT Value,
     USHORT Index,
     PVOID Buffer,
-    size_t BufferLength)
+    size_t BufferLength,
+    PFN_WDF_REQUEST_COMPLETION_ROUTINE CompletionRoutine,
+    WDFCONTEXT CompletionContext)
 {
     NTSTATUS                        status;
     WDFMEMORY                       transferBuffer;
@@ -110,8 +112,8 @@ NTSTATUS SendControlRequest(
 
     WdfRequestSetCompletionRoutine(
         controlRequest,
-        ControlRequestCompletionRoutine,
-        NULL);
+        CompletionRoutine,
+        CompletionContext);
 
     if (!WdfRequestSend(
         controlRequest,
@@ -191,7 +193,44 @@ NTSTATUS GetDescriptorFromInterface(PURB urb, PDEVICE_CONTEXT pCommon)
     return status;
 }
 
-void ControlRequestCompletionRoutine(
+void Ds3EnableRequestCompleted(
+    _In_ WDFREQUEST                     Request,
+    _In_ WDFIOTARGET                    Target,
+    _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
+    _In_ WDFCONTEXT                     Context
+)
+{
+    NTSTATUS                status;
+    WDFDEVICE               hDevice = Context;
+    PDS3_DEVICE_CONTEXT     pDs3Context;
+
+    UNREFERENCED_PARAMETER(Target);
+    UNREFERENCED_PARAMETER(Params);
+    UNREFERENCED_PARAMETER(Context);
+
+    status = WdfRequestGetStatus(Request);
+
+    // On successful delivery...
+    if (NT_SUCCESS(status))
+    {
+        pDs3Context = Ds3GetContext(hDevice);
+
+        // ...we can stop sending the enable packet...
+        WdfTimerStop(pDs3Context->InputEnableTimer, FALSE);
+        // ...and start sending the output report (mainly rumble & LED states)
+        WdfTimerStart(pDs3Context->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(DS3_OUTPUT_REPORT_SEND_DELAY));
+    }
+    else
+    {
+        KdPrint(("Ds3EnableRequestCompleted failed with status 0x%X\n", status));
+    }
+
+    // Free memory
+    WdfObjectDelete(Params->Parameters.Usb.Completion->Parameters.DeviceControlTransfer.Buffer);
+    WdfObjectDelete(Request);
+}
+
+void Ds3OutputRequestCompleted(
     _In_ WDFREQUEST                     Request,
     _In_ WDFIOTARGET                    Target,
     _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
@@ -208,13 +247,14 @@ void ControlRequestCompletionRoutine(
 
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("ControlRequestCompletionRoutine failed with status 0x%X\n", status));
+        KdPrint(("Ds3OutputRequestCompleted failed with status 0x%X\n", status));
     }
 
     // Free memory
     WdfObjectDelete(Params->Parameters.Usb.Completion->Parameters.DeviceControlTransfer.Buffer);
     WdfObjectDelete(Request);
 }
+
 
 //
 // Gets called when the lower driver completed a bulk or interrupt request.
@@ -342,7 +382,7 @@ void BulkOrInterruptTransferCompleted(
         upperBuffer[18] = transferBuffer[24];
         upperBuffer[19] = transferBuffer[25];
 
-        /* Cache gamepad state for sideband communication 
+        /* Cache gamepad state for sideband communication
          * Skip first byte since it's the report ID we don't need */
         RtlCopyBytes(&pDs3Context->InputState, upperBuffer + 1, sizeof(FS3_GAMEPAD_STATE));
 
