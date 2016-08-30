@@ -65,7 +65,7 @@ VOID Ds3EnableEvtTimerFunc(
     // On successful delivery...
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("Ds3Init failed with status 0x%X", status));
+        KdPrint((DRIVERNAME "Ds3Init failed with status 0x%X", status));
     }
 }
 
@@ -94,7 +94,7 @@ VOID Ds3OutputEvtTimerFunc(
 
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("SendControlRequest failed with status 0x%X\n", status));
+        KdPrint((DRIVERNAME "SendControlRequest failed with status 0x%X\n", status));
     }
 }
 

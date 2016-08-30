@@ -51,7 +51,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
     UNREFERENCED_PARAMETER(ResourcesRaw);
     UNREFERENCED_PARAMETER(ResourcesTranslated);
 
-    KdPrint(("FireShockEvtDevicePrepareHardware called\n"));
+    KdPrint((DRIVERNAME "FireShockEvtDevicePrepareHardware called\n"));
 
     pDeviceContext = GetCommonContext(Device);
 
@@ -61,7 +61,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
         status = WdfUsbTargetDeviceCreate(Device, WDF_NO_OBJECT_ATTRIBUTES, &pDeviceContext->UsbDevice);
         if (!NT_SUCCESS(status))
         {
-            KdPrint(("WdfUsbTargetDeviceCreate failed with status 0x%X\n", status));
+            KdPrint((DRIVERNAME "WdfUsbTargetDeviceCreate failed with status 0x%X\n", status));
             return status;
         }
     }
@@ -80,7 +80,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
         status = WdfObjectAllocateContext(Device, &attributes, (PVOID)&pDs3Context);
         if (!NT_SUCCESS(status))
         {
-            KdPrint(("WdfObjectAllocateContext failed status 0x%x\n", status));
+            KdPrint((DRIVERNAME "WdfObjectAllocateContext failed status 0x%x\n", status));
             return status;
         }
 
@@ -125,7 +125,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
 
         status = WdfTimerCreate(&timerCfg, &attributes, &pDs3Context->OutputReportTimer);
         if (!NT_SUCCESS(status)) {
-            KdPrint(("FireShock: Error creating output report timer 0x%x\n", status));
+            KdPrint((DRIVERNAME "FireShock: Error creating output report timer 0x%x\n", status));
             return status;
         }
 
@@ -137,7 +137,7 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
 
         status = WdfTimerCreate(&timerCfg, &attributes, &pDs3Context->InputEnableTimer);
         if (!NT_SUCCESS(status)) {
-            KdPrint(("FireShock: Error creating input enable timer 0x%x\n", status));
+            KdPrint((DRIVERNAME "FireShock: Error creating input enable timer 0x%x\n", status));
             return status;
         }
 

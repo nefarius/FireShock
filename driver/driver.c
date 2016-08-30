@@ -38,7 +38,7 @@ DriverEntry(
     WDF_DRIVER_CONFIG params;
     NTSTATUS  status;
 
-    KdPrint(("FireShock: DriverEntry - WDF version built on %s %s\n",
+    KdPrint((DRIVERNAME "FireShock: DriverEntry - WDF version built on %s %s\n",
         __DATE__, __TIME__));
 
     WDF_DRIVER_CONFIG_INIT(
@@ -59,14 +59,14 @@ DriverEntry(
         //
         // Framework will automatically cleanup on error Status return
         //
-        KdPrint(("FireShock: Error Creating WDFDRIVER 0x%x\n", status));
+        KdPrint((DRIVERNAME "FireShock: Error Creating WDFDRIVER 0x%x\n", status));
     }
 
     status = WdfCollectionCreate(WDF_NO_OBJECT_ATTRIBUTES,
         &FilterDeviceCollection);
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("WdfCollectionCreate failed with status 0x%x\n", status));
+        KdPrint((DRIVERNAME "WdfCollectionCreate failed with status 0x%x\n", status));
         return status;
     }
 
@@ -78,7 +78,7 @@ DriverEntry(
         &FilterDeviceCollectionLock);
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("WdfWaitLockCreate failed with status 0x%x\n", status));
+        KdPrint((DRIVERNAME "WdfWaitLockCreate failed with status 0x%x\n", status));
         return status;
     }
 

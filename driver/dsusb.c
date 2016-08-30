@@ -55,7 +55,7 @@ NTSTATUS SendControlRequest(
 
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("WdfRequestCreate failed with status 0x%X\n", status));
+        KdPrint((DRIVERNAME "WdfRequestCreate failed with status 0x%X\n", status));
         return status;
     }
 
@@ -73,7 +73,7 @@ NTSTATUS SendControlRequest(
 
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("WdfMemoryCreate failed with status 0x%X\n", status));
+        KdPrint((DRIVERNAME "WdfMemoryCreate failed with status 0x%X\n", status));
         return status;
     }
 
@@ -85,7 +85,7 @@ NTSTATUS SendControlRequest(
 
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("WdfMemoryCopyFromBuffer failed with status 0x%X\n", status));
+        KdPrint((DRIVERNAME "WdfMemoryCopyFromBuffer failed with status 0x%X\n", status));
         return status;
     }
 
@@ -106,7 +106,7 @@ NTSTATUS SendControlRequest(
 
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("WdfUsbTargetDeviceFormatRequestForControlTransfer failed with status 0x%X\n", status));
+        KdPrint((DRIVERNAME "WdfUsbTargetDeviceFormatRequestForControlTransfer failed with status 0x%X\n", status));
         return status;
     }
 
@@ -120,7 +120,7 @@ NTSTATUS SendControlRequest(
         WdfUsbTargetDeviceGetIoTarget(pDeviceContext->UsbDevice),
         WDF_NO_SEND_OPTIONS))
     {
-        KdPrint(("WdfRequestSend failed\n"));
+        KdPrint((DRIVERNAME "WdfRequestSend failed\n"));
     }
 
     return status;
@@ -173,7 +173,7 @@ NTSTATUS GetDescriptorFromInterface(PURB urb, PDEVICE_CONTEXT pCommon)
     struct _URB_CONTROL_DESCRIPTOR_REQUEST* pRequest = &urb->UrbControlDescriptorRequest;
     PUCHAR Buffer = (PUCHAR)pRequest->TransferBuffer;
 
-    KdPrint((">> >> >> _URB_CONTROL_DESCRIPTOR_REQUEST: Buffer Length %d\n", pRequest->TransferBufferLength));
+    KdPrint((DRIVERNAME ">> >> >> _URB_CONTROL_DESCRIPTOR_REQUEST: Buffer Length %d\n", pRequest->TransferBufferLength));
 
     switch (pCommon->DeviceType)
     {
@@ -222,7 +222,7 @@ void Ds3EnableRequestCompleted(
     }
     else
     {
-        KdPrint(("Ds3EnableRequestCompleted failed with status 0x%X\n", status));
+        KdPrint((DRIVERNAME "Ds3EnableRequestCompleted failed with status 0x%X\n", status));
     }
 
     // Free memory
@@ -247,7 +247,7 @@ void Ds3OutputRequestCompleted(
 
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("Ds3OutputRequestCompleted failed with status 0x%X\n", status));
+        KdPrint((DRIVERNAME "Ds3OutputRequestCompleted failed with status 0x%X\n", status));
     }
 
     // Free memory
@@ -284,7 +284,7 @@ void BulkOrInterruptTransferCompleted(
 
     status = WdfRequestGetStatus(Request);
 
-    KdPrint(("BulkOrInterruptTransferCompleted called with status 0x%X\n", status));
+    KdPrint((DRIVERNAME "BulkOrInterruptTransferCompleted called with status 0x%X\n", status));
 
     // Nothing to do if the lower driver failed, complete end exit
     if (!NT_SUCCESS(status))

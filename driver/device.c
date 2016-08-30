@@ -94,7 +94,7 @@ Return Value:
 
     status = WdfDeviceCreate(&DeviceInit, &attributes, &device);
     if (!NT_SUCCESS(status)) {
-        KdPrint(("FireShock: WdfDeviceCreate, Error %x\n", status));
+        KdPrint((DRIVERNAME "FireShock: WdfDeviceCreate, Error %x\n", status));
         return status;
     }
 
@@ -112,7 +112,7 @@ Return Value:
     );
     if (!NT_SUCCESS(status))
     {
-        KdPrint(("WdfIoQueueCreate failed 0x%x\n", status));
+        KdPrint((DRIVERNAME "WdfIoQueueCreate failed 0x%x\n", status));
         return status;
     }
 
@@ -127,7 +127,7 @@ Return Value:
     // 
     status = WdfDeviceCreateDeviceInterface(device, &GUID_DEVINTERFACE_FIRESHOCK, NULL);
     if (!NT_SUCCESS(status)) {
-        KdPrint(("WdfDeviceCreateDeviceInterface failed status 0x%x\n", status));
+        KdPrint((DRIVERNAME "WdfDeviceCreateDeviceInterface failed status 0x%x\n", status));
         return status;
     }
 
@@ -145,7 +145,7 @@ Return Value:
     //
     status = WdfCollectionAdd(FilterDeviceCollection, device);
     if (!NT_SUCCESS(status)) {
-        KdPrint(("WdfCollectionAdd failed with status code 0x%x\n", status));
+        KdPrint((DRIVERNAME "WdfCollectionAdd failed with status code 0x%x\n", status));
     }
     WdfWaitLockRelease(FilterDeviceCollectionLock);
 
@@ -154,7 +154,7 @@ Return Value:
     //
     status = FilterCreateControlDevice(device);
     if (!NT_SUCCESS(status)) {
-        KdPrint(("FilterCreateControlDevice failed with status 0x%x\n",
+        KdPrint((DRIVERNAME "FilterCreateControlDevice failed with status 0x%x\n",
             status));
         //
         // Let us not fail AddDevice just because we weren't able to create the
@@ -180,7 +180,7 @@ VOID EvtCleanupCallback(
 
     PAGED_CODE();
 
-    KdPrint(("Entered FilterEvtDeviceContextCleanup\n"));
+    KdPrint((DRIVERNAME "Entered FilterEvtDeviceContextCleanup\n"));
 
     WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
 
@@ -231,7 +231,7 @@ VOID FilterEvtIoDeviceControl(
 
     PAGED_CODE();
 
-    KdPrint(("Ioctl received into filter control object.\n"));
+    KdPrint((DRIVERNAME "Ioctl received into filter control object.\n"));
 
     WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
 
@@ -334,13 +334,13 @@ VOID EvtIoInternalDeviceControl(
         {
         case URB_FUNCTION_CONTROL_TRANSFER:
 
-            KdPrint((">> >> URB_FUNCTION_CONTROL_TRANSFER\n"));
+            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_CONTROL_TRANSFER\n"));
 
             break;
 
         case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
 
-            KdPrint((">> >> URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
+            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
 
             if (urb->UrbBulkOrInterruptTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN)
             {
@@ -351,7 +351,7 @@ VOID EvtIoInternalDeviceControl(
 
                 if (ret == FALSE) {
                     status = WdfRequestGetStatus(Request);
-                    KdPrint(("WdfRequestSend failed: 0x%x\n", status));
+                    KdPrint((DRIVERNAME "WdfRequestSend failed: 0x%x\n", status));
                     processed = TRUE;
                 }
                 else return;
@@ -361,31 +361,31 @@ VOID EvtIoInternalDeviceControl(
 
         case URB_FUNCTION_SELECT_CONFIGURATION:
 
-            KdPrint((">> >> URB_FUNCTION_SELECT_CONFIGURATION\n"));
+            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_SELECT_CONFIGURATION\n"));
 
             break;
 
         case URB_FUNCTION_SELECT_INTERFACE:
 
-            KdPrint((">> >> URB_FUNCTION_SELECT_INTERFACE\n"));
+            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_SELECT_INTERFACE\n"));
 
             break;
 
         case URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE:
 
-            KdPrint((">> >> URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE\n"));
+            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE\n"));
 
             switch (urb->UrbControlDescriptorRequest.DescriptorType)
             {
             case USB_DEVICE_DESCRIPTOR_TYPE:
 
-                KdPrint((">> >> >> USB_DEVICE_DESCRIPTOR_TYPE\n"));
+                KdPrint((DRIVERNAME ">> >> >> USB_DEVICE_DESCRIPTOR_TYPE\n"));
 
                 break;
 
             case USB_CONFIGURATION_DESCRIPTOR_TYPE:
 
-                KdPrint((">> >> >> USB_CONFIGURATION_DESCRIPTOR_TYPE\n"));
+                KdPrint((DRIVERNAME ">> >> >> USB_CONFIGURATION_DESCRIPTOR_TYPE\n"));
 
                 // Intercept and write back custom configuration descriptor
                 if (pDeviceContext->DeviceType == DualShock3)
@@ -398,39 +398,39 @@ VOID EvtIoInternalDeviceControl(
 
             case USB_STRING_DESCRIPTOR_TYPE:
 
-                KdPrint((">> >> >> USB_STRING_DESCRIPTOR_TYPE\n"));
+                KdPrint((DRIVERNAME ">> >> >> USB_STRING_DESCRIPTOR_TYPE\n"));
 
                 break;
             case USB_INTERFACE_DESCRIPTOR_TYPE:
 
-                KdPrint((">> >> >> USB_INTERFACE_DESCRIPTOR_TYPE\n"));
+                KdPrint((DRIVERNAME ">> >> >> USB_INTERFACE_DESCRIPTOR_TYPE\n"));
 
                 break;
 
             case USB_ENDPOINT_DESCRIPTOR_TYPE:
 
-                KdPrint((">> >> >> USB_ENDPOINT_DESCRIPTOR_TYPE\n"));
+                KdPrint((DRIVERNAME ">> >> >> USB_ENDPOINT_DESCRIPTOR_TYPE\n"));
 
                 break;
 
             default:
-                KdPrint((">> >> >> Unknown descriptor type\n"));
+                KdPrint((DRIVERNAME ">> >> >> Unknown descriptor type\n"));
                 break;
             }
 
-            KdPrint(("<< <<\n"));
+            KdPrint((DRIVERNAME "<< <<\n"));
 
             break;
 
         case URB_FUNCTION_GET_STATUS_FROM_DEVICE:
 
-            KdPrint((">> >> URB_FUNCTION_GET_STATUS_FROM_DEVICE\n"));
+            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_GET_STATUS_FROM_DEVICE\n"));
 
             break;
 
         case URB_FUNCTION_ABORT_PIPE:
 
-            KdPrint((">> >> URB_FUNCTION_ABORT_PIPE\n"));
+            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_ABORT_PIPE\n"));
 
             FilterShutdown(hDevice);
 
@@ -438,13 +438,13 @@ VOID EvtIoInternalDeviceControl(
 
         case URB_FUNCTION_CLASS_INTERFACE:
 
-            KdPrint((">> >> URB_FUNCTION_CLASS_INTERFACE\n"));
+            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_CLASS_INTERFACE\n"));
 
             break;
 
         case URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE:
 
-            KdPrint((">> >> URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE\n"));
+            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE\n"));
 
             // Intercept and write back custom HID report descriptor
             if (pDeviceContext->DeviceType == DualShock3)
@@ -456,9 +456,27 @@ VOID EvtIoInternalDeviceControl(
             break;
 
         default:
-            KdPrint((">> >> Unknown function: 0x%X\n", urb->UrbHeader.Function));
+            KdPrint((DRIVERNAME ">> >> Unknown function: 0x%X\n", urb->UrbHeader.Function));
             break;
         }
+
+        break;
+
+    case IOCTL_INTERNAL_USB_GET_PORT_STATUS:
+
+        KdPrint((DRIVERNAME ">> IOCTL_INTERNAL_USB_GET_PORT_STATUS\n"));
+
+        break;
+
+    case IOCTL_INTERNAL_USB_RESET_PORT:
+
+        KdPrint((DRIVERNAME ">> IOCTL_INTERNAL_USB_RESET_PORT\n"));
+
+        break;
+
+    case IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION:
+
+        KdPrint((DRIVERNAME ">> IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION\n"));
 
         break;
     }
@@ -478,7 +496,7 @@ VOID EvtIoInternalDeviceControl(
 
     if (ret == FALSE) {
         status = WdfRequestGetStatus(Request);
-        KdPrint(("WdfRequestSend failed: 0x%x\n", status));
+        KdPrint((DRIVERNAME "WdfRequestSend failed: 0x%x\n", status));
         WdfRequestComplete(Request, status);
     }
 }
@@ -524,7 +542,7 @@ FilterCreateControlDevice(
         return STATUS_SUCCESS;
     }
 
-    KdPrint(("Creating Control Device\n"));
+    KdPrint((DRIVERNAME "Creating Control Device\n"));
 
     //
     //
@@ -640,7 +658,7 @@ FilterDeleteControlDevice(
 
     PAGED_CODE();
 
-    KdPrint(("Deleting Control Device\n"));
+    KdPrint((DRIVERNAME "Deleting Control Device\n"));
 
     if (ControlDevice) {
         WdfObjectDelete(ControlDevice);

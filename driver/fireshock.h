@@ -41,6 +41,8 @@ Environment:
 #include "dsusb.h"
 
 
+#define DRIVERNAME "FireShock: "
+
 extern WDFCOLLECTION   FilterDeviceCollection;
 extern WDFWAITLOCK     FilterDeviceCollectionLock;
 extern WDFDEVICE       ControlDevice;
