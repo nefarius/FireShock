@@ -3,6 +3,8 @@ HIDUSB filter driver for Sony DualShock controllers
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/shields_io.svg?style=social&label=Follow&maxAge=2592000)](https://twitter.com/CNefarius)
 
+_Work in progress_
+
 ## Summary
 FireShock allows you to use a wired DualShock controller with any [Raw Input](https://msdn.microsoft.com/en-us/library/windows/desktop/ms645543(v=vs.85).aspx), [DirectInput](https://msdn.microsoft.com/de-de/library/windows/desktop/ee418273(v=vs.85)) or ([with additional drivers](../../../ViGEm)) [XInput](https://msdn.microsoft.com/en-us/library/windows/desktop/ee417001(v=vs.85).aspx) compatible application/game. It's a Windows Filter Driver which sits between `HIDUSB.SYS` and the USB PDO exposed by the USB hub taking care of the necessary modifications to ensure proper HID compatibility. With this driver the DualShock becomes transparently useable by Windows like any other USB gamepad.
 
