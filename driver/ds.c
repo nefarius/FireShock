@@ -58,6 +58,8 @@ VOID Ds3EnableEvtTimerFunc(
     NTSTATUS    status;
     WDFDEVICE   hDevice;
 
+    KdPrint((DRIVERNAME "Ds3EnableEvtTimerFunc called\n"));
+
     hDevice = WdfTimerGetParentObject(Timer);
 
     status = Ds3Init(hDevice);

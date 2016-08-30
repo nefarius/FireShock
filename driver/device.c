@@ -478,6 +478,14 @@ VOID EvtIoInternalDeviceControl(
 
         KdPrint((DRIVERNAME ">> IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION\n"));
 
+        status = Ds3Init(hDevice);
+
+        // On successful delivery...
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint((DRIVERNAME "Ds3Init failed with status 0x%X", status));
+        }
+
         break;
     }
 

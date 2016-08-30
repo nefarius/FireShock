@@ -210,6 +210,10 @@ void Ds3EnableRequestCompleted(
 
     status = WdfRequestGetStatus(Request);
 
+    KdPrint((DRIVERNAME "Ds3EnableRequestCompleted called with status 0x%X\n", status));
+
+    status = WdfRequestGetStatus(Request);
+
     // On successful delivery...
     if (NT_SUCCESS(status))
     {
