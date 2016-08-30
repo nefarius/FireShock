@@ -70,6 +70,7 @@ Return Value:
     WDF_PNPPOWER_EVENT_CALLBACKS    pnpPowerCallbacks;
     WDF_IO_QUEUE_CONFIG             ioQueueConfig;
     PDEVICE_CONTEXT                 pDeviceContext;
+    WDF_DEVICE_POWER_CAPABILITIES   powerCaps;
 
 
     UNREFERENCED_PARAMETER(Driver);
@@ -81,9 +82,13 @@ Return Value:
     //
     WdfFdoInitSetFilter(DeviceInit);
 
+    //
+    // Set PNP & power callbacks.
+    // 
     WDF_PNPPOWER_EVENT_CALLBACKS_INIT(&pnpPowerCallbacks);
 
     pnpPowerCallbacks.EvtDevicePrepareHardware = FireShockEvtDevicePrepareHardware;
+    pnpPowerCallbacks.EvtDeviceD0Entry = FireShockEvtDeviceD0Entry;
     pnpPowerCallbacks.EvtDeviceD0Exit = FireShockEvtDeviceD0Exit;
 
     WdfDeviceInitSetPnpPowerEventCallbacks(DeviceInit, &pnpPowerCallbacks);
@@ -100,6 +105,9 @@ Return Value:
 
     pDeviceContext = GetCommonContext(device);
 
+    //
+    // Create default queue.
+    // 
     WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(&ioQueueConfig,
         WdfIoQueueDispatchParallel);
 
@@ -148,6 +156,20 @@ Return Value:
         KdPrint((DRIVERNAME "WdfCollectionAdd failed with status code 0x%x\n", status));
     }
     WdfWaitLockRelease(FilterDeviceCollectionLock);
+
+    //
+    // Set power capabilities.
+    // 
+    WDF_DEVICE_POWER_CAPABILITIES_INIT(&powerCaps);
+
+    powerCaps.DeviceState[PowerSystemWorking] = PowerDeviceD0;
+    powerCaps.DeviceState[PowerSystemSleeping1] = PowerDeviceD3;
+    powerCaps.DeviceState[PowerSystemSleeping2] = PowerDeviceD3;
+    powerCaps.DeviceState[PowerSystemSleeping3] = PowerDeviceD3;
+    powerCaps.DeviceState[PowerSystemHibernate] = PowerDeviceD3;
+    powerCaps.DeviceState[PowerSystemShutdown] = PowerDeviceD3;
+
+    WdfDeviceSetPowerCapabilities(device, &powerCaps);
 
     //
     // Create a control device
@@ -477,14 +499,6 @@ VOID EvtIoInternalDeviceControl(
     case IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION:
 
         KdPrint((DRIVERNAME ">> IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION\n"));
-
-        status = Ds3Init(hDevice);
-
-        // On successful delivery...
-        if (!NT_SUCCESS(status))
-        {
-            KdPrint((DRIVERNAME "Ds3Init failed with status 0x%X", status));
-        }
 
         break;
     }
