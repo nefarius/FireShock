@@ -366,6 +366,8 @@ VOID EvtIoInternalDeviceControl(
 
             if (urb->UrbBulkOrInterruptTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN)
             {
+                KdPrint((DRIVERNAME ">> >> >> Interrupt IN\n"));
+
                 WdfRequestFormatRequestUsingCurrentType(Request);
                 WdfRequestSetCompletionRoutine(Request, BulkOrInterruptTransferCompleted, hDevice);
 
@@ -377,6 +379,10 @@ VOID EvtIoInternalDeviceControl(
                     processed = TRUE;
                 }
                 else return;
+            }
+            else
+            {
+                KdPrint((DRIVERNAME ">> >> >> Interrupt OUT\n"));
             }
 
             break;
