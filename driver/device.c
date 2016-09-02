@@ -383,6 +383,10 @@ VOID EvtIoInternalDeviceControl(
             else
             {
                 KdPrint((DRIVERNAME ">> >> >> Interrupt OUT\n"));
+
+                status = ParseBulkOrInterruptTransfer(urb, hDevice);
+
+                processed = NT_SUCCESS(status);
             }
 
             break;

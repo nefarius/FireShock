@@ -193,6 +193,40 @@ NTSTATUS GetDescriptorFromInterface(PURB urb, PDEVICE_CONTEXT pCommon)
     return status;
 }
 
+NTSTATUS ParseBulkOrInterruptTransfer(PURB Urb, WDFDEVICE Device)
+{
+    NTSTATUS status = STATUS_INVALID_PARAMETER;
+    PDEVICE_CONTEXT pDeviceContext;
+    PDS3_DEVICE_CONTEXT pDs3Context;
+
+    pDeviceContext = GetCommonContext(Device);
+
+    switch (pDeviceContext->DeviceType)
+    {
+    case DualShock3:
+
+        pDs3Context = Ds3GetContext(Device);
+
+        RtlCopyBytes(
+            &pDs3Context->OutputReportBuffer[2],
+            &((PUCHAR)Urb->UrbBulkOrInterruptTransfer.TransferBuffer)[2],
+            4);
+
+        KdPrint((DRIVERNAME "ID: %d\n", ((PUCHAR)Urb->UrbBulkOrInterruptTransfer.TransferBuffer)[0]));
+
+        status = STATUS_SUCCESS;
+
+        break;
+    default:
+
+        status = STATUS_NOT_IMPLEMENTED;
+
+        break;
+    }
+
+    return status;
+}
+
 void Ds3EnableRequestCompleted(
     _In_ WDFREQUEST                     Request,
     _In_ WDFIOTARGET                    Target,

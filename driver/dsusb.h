@@ -46,3 +46,5 @@ NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon);
 
 NTSTATUS GetDescriptorFromInterface(PURB urb, PDEVICE_CONTEXT pCommon);
 
+NTSTATUS ParseBulkOrInterruptTransfer(PURB Urb, WDFDEVICE Device);
+

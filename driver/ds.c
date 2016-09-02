@@ -210,6 +210,14 @@ VOID Ds3GetDescriptorFromInterface(PUCHAR Buffer)
         0x75, 0x08,        //     Report Size (8)
         0x95, 0x02,        //     Report Count (2)
         0x81, 0x02,        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        0x75, 0x08,        //     Report Size (8)
+        0x95, 0x30,        //     Report Count (48)
+        0x09, 0x01,        //     Usage (Pointer)
+        0x91, 0x02,        //     Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+        0x75, 0x08,        //     Report Size (8)
+        0x95, 0x30,        //     Report Count (48)
+        0x09, 0x01,        //     Usage (Pointer)
+        0xB1, 0x02,        //     Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
         0xC0,              //   End Collection
         0xA1, 0x01,        //   Collection (Application)
         0x85, 0x01,        //     Report ID (1)
@@ -242,7 +250,7 @@ VOID Ds3GetDescriptorFromInterface(PUCHAR Buffer)
         0xC0,              //   End Collection
         0xC0,              // End Collection
 
-                           // 160 bytes
+                           // 176 bytes
     };
 
     RtlCopyBytes(Buffer, HidReportDescriptor, DS3_HID_REPORT_DESCRIPTOR_SIZE);
