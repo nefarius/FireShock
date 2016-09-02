@@ -195,11 +195,13 @@ NTSTATUS GetDescriptorFromInterface(PURB urb, PDEVICE_CONTEXT pCommon)
 
 NTSTATUS ParseBulkOrInterruptTransfer(PURB Urb, WDFDEVICE Device)
 {
-    NTSTATUS status = STATUS_INVALID_PARAMETER;
-    PDEVICE_CONTEXT pDeviceContext;
-    PDS3_DEVICE_CONTEXT pDs3Context;
+    NTSTATUS                status;
+    PDEVICE_CONTEXT         pDeviceContext;
+    PDS3_DEVICE_CONTEXT     pDs3Context;
+    PUCHAR                  Buffer;
 
     pDeviceContext = GetCommonContext(Device);
+    Buffer = (PUCHAR)Urb->UrbBulkOrInterruptTransfer.TransferBuffer;
 
     switch (pDeviceContext->DeviceType)
     {
@@ -207,12 +209,13 @@ NTSTATUS ParseBulkOrInterruptTransfer(PURB Urb, WDFDEVICE Device)
 
         pDs3Context = Ds3GetContext(Device);
 
-        RtlCopyBytes(
-            &pDs3Context->OutputReportBuffer[2],
-            &((PUCHAR)Urb->UrbBulkOrInterruptTransfer.TransferBuffer)[2],
-            4);
-
-        KdPrint((DRIVERNAME "ID: %d\n", ((PUCHAR)Urb->UrbBulkOrInterruptTransfer.TransferBuffer)[0]));
+        //
+        // Copy rumble bytes from interrupt to control endpoint buffer.
+        // 
+        // Caution: the control buffer doesn't have a report ID, so it
+        // has to be skipped on the interrupt buffer when getting copied.
+        // 
+        RtlCopyBytes(&pDs3Context->OutputReportBuffer[1], &Buffer[2], 4);
 
         status = STATUS_SUCCESS;
 
