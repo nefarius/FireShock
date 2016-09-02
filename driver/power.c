@@ -50,6 +50,9 @@ NTSTATUS FireShockEvtDevicePrepareHardware(
     return STATUS_SUCCESS;
 }
 
+//
+// Gets called when the device reaches D0 state.
+// 
 NTSTATUS FireShockEvtDeviceD0Entry(
     _In_ WDFDEVICE              Device,
     _In_ WDF_POWER_DEVICE_STATE PreviousState
@@ -114,16 +117,16 @@ NTSTATUS FireShockEvtDeviceD0Entry(
         switch (pDeviceContext->DeviceIndex)
         {
         case 0:
-            pDs3Context->OutputReportBuffer[9] |= DS3_OFFSET_LED_0;
+            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_0;
             break;
         case 1:
-            pDs3Context->OutputReportBuffer[9] |= DS3_OFFSET_LED_1;
+            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_1;
             break;
         case 2:
-            pDs3Context->OutputReportBuffer[9] |= DS3_OFFSET_LED_2;
+            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_2;
             break;
         case 3:
-            pDs3Context->OutputReportBuffer[9] |= DS3_OFFSET_LED_3;
+            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_3;
             break;
         default:
             // TODO: what do we do in this case? Light animation?
@@ -169,6 +172,9 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     return status;
 }
 
+//
+// Gets called when the device leaves D0 state.
+// 
 NTSTATUS FireShockEvtDeviceD0Exit(
     _In_ WDFDEVICE              Device,
     _In_ WDF_POWER_DEVICE_STATE TargetState

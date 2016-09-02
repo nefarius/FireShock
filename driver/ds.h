@@ -39,6 +39,8 @@ SOFTWARE.
 #define DS3_OFFSET_LED_2                        0x08
 #define DS3_OFFSET_LED_3                        0x10
 
+#define DS3_OFFSET_LED_INDEX                    0x09
+
 
 typedef enum _USB_HID_REQUEST
 {

@@ -126,6 +126,9 @@ NTSTATUS SendControlRequest(
     return status;
 }
 
+//
+// Returns the device's configuration descriptor.
+// 
 NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon)
 {
     PUCHAR Buffer = (PUCHAR)urb->UrbControlDescriptorRequest.TransferBuffer;
@@ -167,6 +170,9 @@ NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon)
     return STATUS_SUCCESS;
 }
 
+//
+// Returns the device's HID report descriptor.
+// 
 NTSTATUS GetDescriptorFromInterface(PURB urb, PDEVICE_CONTEXT pCommon)
 {
     NTSTATUS status = STATUS_INVALID_PARAMETER;
@@ -193,6 +199,11 @@ NTSTATUS GetDescriptorFromInterface(PURB urb, PDEVICE_CONTEXT pCommon)
     return status;
 }
 
+//
+// Gets called when the upper driver sent a bulk or interrupt OUT request.
+// 
+// The translation of the output report occurs here.
+// 
 NTSTATUS ParseBulkOrInterruptTransfer(PURB Urb, WDFDEVICE Device)
 {
     NTSTATUS                status;
@@ -230,6 +241,9 @@ NTSTATUS ParseBulkOrInterruptTransfer(PURB Urb, WDFDEVICE Device)
     return status;
 }
 
+//
+// A DS3-related enable packet request has been completed.
+// 
 void Ds3EnableRequestCompleted(
     _In_ WDFREQUEST                     Request,
     _In_ WDFIOTARGET                    Target,
@@ -248,8 +262,6 @@ void Ds3EnableRequestCompleted(
     status = WdfRequestGetStatus(Request);
 
     KdPrint((DRIVERNAME "Ds3EnableRequestCompleted called with status 0x%X\n", status));
-
-    status = WdfRequestGetStatus(Request);
 
     // On successful delivery...
     if (NT_SUCCESS(status))
@@ -271,6 +283,9 @@ void Ds3EnableRequestCompleted(
     WdfObjectDelete(Request);
 }
 
+//
+// A DS3-related output packet request has been completed.
+// 
 void Ds3OutputRequestCompleted(
     _In_ WDFREQUEST                     Request,
     _In_ WDFIOTARGET                    Target,
@@ -296,9 +311,9 @@ void Ds3OutputRequestCompleted(
     WdfObjectDelete(Request);
 }
 
-
 //
 // Gets called when the lower driver completed a bulk or interrupt request.
+// 
 // The translation of the input report occurs here.
 // 
 void BulkOrInterruptTransferCompleted(
