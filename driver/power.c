@@ -28,27 +28,10 @@ SOFTWARE.
 
 
 #ifdef ALLOC_PRAGMA
-#pragma alloc_text(PAGE, FireShockEvtDevicePrepareHardware)
+#pragma alloc_text(PAGE, FireShockEvtDeviceD0Entry)
 #pragma alloc_text(PAGE, FireShockEvtDeviceD0Exit)
 #endif
 
-//
-// Initializes the device contexts.
-// 
-NTSTATUS FireShockEvtDevicePrepareHardware(
-    _In_ WDFDEVICE Device,
-    _In_ WDFCMRESLIST ResourcesRaw,
-    _In_ WDFCMRESLIST ResourcesTranslated
-)
-{
-    UNREFERENCED_PARAMETER(Device);
-    UNREFERENCED_PARAMETER(ResourcesRaw);
-    UNREFERENCED_PARAMETER(ResourcesTranslated);
-
-    KdPrint((DRIVERNAME "FireShockEvtDevicePrepareHardware called\n"));
-
-    return STATUS_SUCCESS;
-}
 
 //
 // Gets called when the device reaches D0 state.
@@ -100,7 +83,11 @@ NTSTATUS FireShockEvtDeviceD0Entry(
             return status;
         }
 
+        // 
         // Initial output state (rumble & LEDs off)
+        // 
+        // Note: no report ID because sent over control endpoint
+        // 
         UCHAR DefaultOutputReport[DS3_HID_OUTPUT_REPORT_SIZE] =
         {
             0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00,
