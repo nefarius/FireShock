@@ -422,7 +422,7 @@ VOID EvtIoInternalDeviceControl(
                 if (pDeviceContext->DeviceType == DualShock3)
                 {
                     status = GetConfigurationDescriptorType(urb, pDeviceContext);
-                    processed = TRUE;
+                    processed = NT_SUCCESS(status);
                 }
 
                 break;
@@ -481,7 +481,7 @@ VOID EvtIoInternalDeviceControl(
             if (pDeviceContext->DeviceType == DualShock3)
             {
                 status = GetDescriptorFromInterface(urb, pDeviceContext);
-                processed = TRUE;
+                processed = NT_SUCCESS(status);
             }
 
             break;

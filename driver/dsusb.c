@@ -146,7 +146,7 @@ NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon)
 
             break;
         default:
-            return STATUS_UNSUCCESSFUL;
+            return STATUS_NOT_IMPLEMENTED;
         }
     }
 
@@ -164,7 +164,7 @@ NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon)
 
         break;
     default:
-        return STATUS_UNSUCCESSFUL;
+        return STATUS_NOT_IMPLEMENTED;
     }
 
     return STATUS_SUCCESS;
@@ -175,9 +175,9 @@ NTSTATUS GetConfigurationDescriptorType(PURB urb, PDEVICE_CONTEXT pCommon)
 // 
 NTSTATUS GetDescriptorFromInterface(PURB urb, PDEVICE_CONTEXT pCommon)
 {
-    NTSTATUS status = STATUS_INVALID_PARAMETER;
-    struct _URB_CONTROL_DESCRIPTOR_REQUEST* pRequest = &urb->UrbControlDescriptorRequest;
-    PUCHAR Buffer = (PUCHAR)pRequest->TransferBuffer;
+    NTSTATUS                                    status = STATUS_INVALID_PARAMETER;
+    struct _URB_CONTROL_DESCRIPTOR_REQUEST*     pRequest = &urb->UrbControlDescriptorRequest;
+    PUCHAR                                      Buffer = (PUCHAR)pRequest->TransferBuffer;
 
     KdPrint((DRIVERNAME ">> >> >> _URB_CONTROL_DESCRIPTOR_REQUEST: Buffer Length %d\n", pRequest->TransferBufferLength));
 
@@ -193,6 +193,7 @@ NTSTATUS GetDescriptorFromInterface(PURB urb, PDEVICE_CONTEXT pCommon)
 
         break;
     default:
+        status = STATUS_NOT_IMPLEMENTED;
         break;
     }
 
