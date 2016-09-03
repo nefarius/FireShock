@@ -71,6 +71,8 @@ Return Value:
     WDF_IO_QUEUE_CONFIG             ioQueueConfig;
     PDEVICE_CONTEXT                 pDeviceContext;
     WDF_DEVICE_POWER_CAPABILITIES   powerCaps;
+    WDFIOTARGET                     vigemTarget;
+    WDF_IO_TARGET_OPEN_PARAMS       openParams;
 
 
     UNREFERENCED_PARAMETER(Driver);
@@ -169,6 +171,40 @@ Return Value:
     powerCaps.DeviceState[PowerSystemShutdown] = PowerDeviceD3;
 
     WdfDeviceSetPowerCapabilities(device, &powerCaps);
+
+    //
+    // Get ViGEm interface
+    // 
+    status = WdfIoTargetCreate(device, WDF_NO_OBJECT_ATTRIBUTES, &vigemTarget);
+    if (!NT_SUCCESS(status)) {
+        KdPrint((DRIVERNAME "WdfIoTargetCreate failed with status code 0x%x\n", status));
+        return status;
+    }
+
+    WDF_IO_TARGET_OPEN_PARAMS_INIT_CREATE_BY_NAME(&openParams, &VigemDosDeviceName, STANDARD_RIGHTS_ALL);
+
+    status = WdfIoTargetOpen(vigemTarget, &openParams);
+    if (!NT_SUCCESS(status)) {
+        KdPrint((DRIVERNAME "WdfIoTargetOpen failed with status code 0x%x\n", status));
+        return status;
+    }
+
+    status = WdfIoTargetQueryForInterface(vigemTarget,
+        &GUID_VIGEM_INTERFACE_STANDARD,
+        (PINTERFACE)&pDeviceContext->VigemInterface,
+        sizeof(VIGEM_INTERFACE_STANDARD),
+        1,
+        NULL);// InterfaceSpecific Data
+    pDeviceContext->VigemAvailable = NT_SUCCESS(status);
+
+    if (pDeviceContext->VigemAvailable)
+    {
+        (*pDeviceContext->VigemInterface.PlugInTarget)(pDeviceContext->VigemInterface.Header.Context, 1, Xbox360Wired);
+    }
+    else
+    {
+        KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
+    }
 
     //
     // Create a control device

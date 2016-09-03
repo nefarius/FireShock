@@ -70,9 +70,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fireshock.h" />
-    <ClInclude Include="magic.h" />
-    <ClInclude Include="vfeature.h" />
-    <ClInclude Include="wmi.h" />
     <ClInclude Include="device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -142,7 +139,6 @@
     <ClInclude Include="fireshock.h" />
     <ClInclude Include="magic.h" />
     <ClInclude Include="power.h" />
-    <ClInclude Include="usb.h" />
     <ClInclude Include="vfeature.h" />
     <ClInclude Include="wmi.h" />
     <ClInclude Include="device.h">

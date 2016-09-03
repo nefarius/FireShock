@@ -27,6 +27,7 @@ Environment:
 // a WDM device extension in the driver framework
 //
 #include "ds.h"
+#include "driver.h"
 
 #define NTDEVICE_NAME_STRING      L"\\Device\\FireShockFilter"
 #define SYMBOLIC_NAME_STRING      L"\\DosDevices\\FireShockFilter"
@@ -38,6 +39,10 @@ typedef struct _DEVICE_CONTEXT
     DS_DEVICE_TYPE DeviceType;
 
     ULONG DeviceIndex;
+
+    VIGEM_INTERFACE_STANDARD VigemInterface;
+
+    BOOLEAN VigemAvailable;
 
 } DEVICE_CONTEXT, *PDEVICE_CONTEXT;
 

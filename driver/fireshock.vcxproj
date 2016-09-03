@@ -114,32 +114,32 @@
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>fireshock</TargetName>
-    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath);$(SolutionDir)..\ViGEm\Common</IncludePath>
     <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>fireshock</TargetName>
-    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath);$(SolutionDir)..\ViGEm\Common</IncludePath>
     <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Windows 7)|x64'">
     <TargetName>fireshock</TargetName>
-    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath);$(SolutionDir)..\ViGEm\Common</IncludePath>
     <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>fireshock</TargetName>
-    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath);$(SolutionDir)..\ViGEm\Common</IncludePath>
     <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>fireshock</TargetName>
-    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath);$(SolutionDir)..\ViGEm\Common</IncludePath>
     <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Windows 7)|Win32'">
     <TargetName>fireshock</TargetName>
-    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Common;$(ProjectDir);$(IncludePath);$(SolutionDir)..\ViGEm\Common</IncludePath>
     <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
