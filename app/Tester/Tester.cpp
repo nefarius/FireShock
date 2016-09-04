@@ -47,10 +47,9 @@ int main()
                 printf("Ioctl to ToasterFilter device failed: 0x%X\n", GetLastError());
             }
             else {
-                printf("Buttons: %2X %2X %2X\r", 
-                    req.State.Buttons[0],
-                    req.State.Buttons[1],
-                    req.State.Buttons[2]);
+                printf("Buttons: %4X %2X\r", 
+                    req.State.Buttons,
+                    req.State.PsButton);
             }
 
             Sleep(2);

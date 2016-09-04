@@ -458,6 +458,18 @@ void BulkOrInterruptTransferCompleted(
          * Skip first byte since it's the report ID we don't need */
         RtlCopyBytes(&pDs3Context->InputState, upperBuffer + 1, sizeof(FS3_GAMEPAD_STATE));
 
+        // Translate FS3 buttons to XUSB buttons
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_SELECT) xusbReport.Report.wButtons |= XUSB_GAMEPAD_BACK;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_LEFT_THUMB) xusbReport.Report.wButtons |= XUSB_GAMEPAD_LEFT_THUMB;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_RIGHT_THUMB) xusbReport.Report.wButtons |= XUSB_GAMEPAD_RIGHT_THUMB;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_START) xusbReport.Report.wButtons |= XUSB_GAMEPAD_START;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_LEFT_SHOULDER) xusbReport.Report.wButtons |= XUSB_GAMEPAD_LEFT_SHOULDER;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_RIGHT_SHOULDER) xusbReport.Report.wButtons |= XUSB_GAMEPAD_RIGHT_SHOULDER;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_TRIANGLE) xusbReport.Report.wButtons |= XUSB_GAMEPAD_Y;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_CIRCLE) xusbReport.Report.wButtons |= XUSB_GAMEPAD_B;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_CROSS) xusbReport.Report.wButtons |= XUSB_GAMEPAD_A;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_SQUARE) xusbReport.Report.wButtons |= XUSB_GAMEPAD_X;
+
         break;
     default:
         break;
