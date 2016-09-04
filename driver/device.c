@@ -204,6 +204,7 @@ Return Value:
     else
     {
         KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
+        WdfObjectDelete(vigemTarget);
     }
 
     //
