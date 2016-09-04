@@ -197,11 +197,7 @@ Return Value:
         NULL);// InterfaceSpecific Data
     pDeviceContext->VigemAvailable = NT_SUCCESS(status);
 
-    if (pDeviceContext->VigemAvailable)
-    {
-        (*pDeviceContext->VigemInterface.PlugInTarget)(pDeviceContext->VigemInterface.Header.Context, 1, Xbox360Wired);
-    }
-    else
+    if (!pDeviceContext->VigemAvailable)
     {
         KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
         WdfObjectDelete(vigemTarget);

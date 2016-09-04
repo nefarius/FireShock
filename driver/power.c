@@ -146,6 +146,19 @@ NTSTATUS FireShockEvtDeviceD0Entry(
 
         // We can start the timer here since the callback is called again on failure
         WdfTimerStart(pDs3Context->InputEnableTimer, WDF_REL_TIMEOUT_IN_MS(DS3_INPUT_ENABLE_SEND_DELAY));
+
+        // Spawn XUSB device if ViGEm is available
+        if (pDeviceContext->VigemAvailable)
+        {
+            status = (*pDeviceContext->VigemInterface.PlugInTarget)(
+                pDeviceContext->VigemInterface.Header.Context,
+                pDeviceContext->DeviceIndex + 1,
+                Xbox360Wired);
+            if (!NT_SUCCESS(status))
+            {
+                KdPrint((DRIVERNAME "Couldn't request XUSB device: 0x%X", status));
+            }
+        }
     }
 
     // Device is a DualShock 4
