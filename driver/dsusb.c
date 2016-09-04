@@ -331,6 +331,7 @@ void BulkOrInterruptTransferCompleted(
     ULONG                       transferBufferLength;
     PDEVICE_CONTEXT             pDeviceContext;
     PDS3_DEVICE_CONTEXT         pDs3Context;
+    XUSB_SUBMIT_REPORT          xusbReport;
 
     // Temporary copy of the transfer buffer
     UCHAR upperBuffer[DS3_ORIGINAL_HID_REPORT_SIZE];
@@ -356,6 +357,8 @@ void BulkOrInterruptTransferCompleted(
     transferBuffer = (PUCHAR)urb->UrbBulkOrInterruptTransfer.TransferBuffer;
     transferBufferLength = urb->UrbBulkOrInterruptTransfer.TransferBufferLength;
 
+    XUSB_SUBMIT_REPORT_INIT(&xusbReport, pDeviceContext->DeviceIndex + 1);
+
     switch (pDeviceContext->DeviceType)
     {
     case DualShock3:
@@ -373,27 +376,39 @@ void BulkOrInterruptTransferCompleted(
         {
         case 0x10: // N
             upperBuffer[5] |= 0 & 0xF;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
             break;
         case 0x30: // NE
             upperBuffer[5] |= 1 & 0xF;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case 0x20: // E
             upperBuffer[5] |= 2 & 0xF;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case 0x60: // SE
             upperBuffer[5] |= 3 & 0xF;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case 0x40: // S
             upperBuffer[5] |= 4 & 0xF;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
             break;
         case 0xC0: // SW
             upperBuffer[5] |= 5 & 0xF;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         case 0x80: // W
             upperBuffer[5] |= 6 & 0xF;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         case 0x90: // NW
             upperBuffer[5] |= 7 & 0xF;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         default: // Released
             upperBuffer[5] |= 8 & 0xF;
@@ -450,6 +465,14 @@ void BulkOrInterruptTransferCompleted(
 
     // Copy back modified buffer to request buffer
     RtlCopyBytes(transferBuffer, upperBuffer, transferBufferLength);
+
+    if (pDeviceContext->VigemAvailable)
+    {
+        (*pDeviceContext->VigemInterface.XusbSubmitReport)(
+            pDeviceContext->VigemInterface.Header.Context,
+            pDeviceContext->DeviceIndex + 1,
+            &xusbReport);
+    }
 
     // Complete upper request
     WdfRequestComplete(Request, status);
