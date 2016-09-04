@@ -478,6 +478,7 @@ void BulkOrInterruptTransferCompleted(
     // Copy back modified buffer to request buffer
     RtlCopyBytes(transferBuffer, upperBuffer, transferBufferLength);
 
+    // Submit XUSB report if ViGEm is available
     if (pDeviceContext->VigemAvailable)
     {
         (*pDeviceContext->VigemInterface.XusbSubmitReport)(
