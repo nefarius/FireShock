@@ -99,3 +99,5 @@ NTSTATUS Ds3Init(WDFDEVICE hDevice);
 VOID Ds3GetConfigurationDescriptorType(PUCHAR Buffer, ULONG Length);
 
 VOID Ds3GetDescriptorFromInterface(PUCHAR Buffer);
+
+SHORT ScaleAxis(SHORT value, BOOLEAN flip);

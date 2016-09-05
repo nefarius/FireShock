@@ -256,3 +256,16 @@ VOID Ds3GetDescriptorFromInterface(PUCHAR Buffer)
     RtlCopyBytes(Buffer, HidReportDescriptor, DS3_HID_REPORT_DESCRIPTOR_SIZE);
 }
 
+//
+// Scales up DS axis (1 byte, unsigned) to XUSB axis (2 bytes, signed)
+// 
+SHORT ScaleAxis(SHORT value, BOOLEAN flip)
+{
+    value -= 0x80;
+    if (value == -128) value = -127;
+
+    if (flip) value *= -1;
+
+    return (SHORT)(value * 258);
+}
+

@@ -470,6 +470,16 @@ void BulkOrInterruptTransferCompleted(
         if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_CROSS) xusbReport.Report.wButtons |= XUSB_GAMEPAD_A;
         if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_SQUARE) xusbReport.Report.wButtons |= XUSB_GAMEPAD_X;
 
+        // FS3 to XUSB Trigger axes
+        xusbReport.Report.bLeftTrigger = pDs3Context->InputState.LeftTrigger;
+        xusbReport.Report.bRightTrigger = pDs3Context->InputState.RightTrigger;
+
+        // FS3 to XUSB Thumb axes
+        xusbReport.Report.sThumbLX = ScaleAxis(pDs3Context->InputState.LeftThumbX, FALSE);
+        xusbReport.Report.sThumbLY = ScaleAxis(pDs3Context->InputState.LeftThumbY, TRUE);
+        xusbReport.Report.sThumbRX = ScaleAxis(pDs3Context->InputState.RightThumbX, FALSE);
+        xusbReport.Report.sThumbRY = ScaleAxis(pDs3Context->InputState.RightThumbY, TRUE);
+
         break;
     default:
         break;
