@@ -469,6 +469,9 @@ void BulkOrInterruptTransferCompleted(
         if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_CIRCLE) xusbReport.Report.wButtons |= XUSB_GAMEPAD_B;
         if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_CROSS) xusbReport.Report.wButtons |= XUSB_GAMEPAD_A;
         if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_SQUARE) xusbReport.Report.wButtons |= XUSB_GAMEPAD_X;
+        
+        // PS to Guide button
+        if (pDs3Context->InputState.PsButton & 0x01) xusbReport.Report.wButtons |= XUSB_GAMEPAD_GUIDE;
 
         // FS3 to XUSB Trigger axes
         xusbReport.Report.bLeftTrigger = pDs3Context->InputState.LeftTrigger;
