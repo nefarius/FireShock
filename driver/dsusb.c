@@ -507,7 +507,7 @@ void BulkOrInterruptTransferCompleted(
     {
         (*pDeviceContext->VigemInterface.XusbSubmitReport)(
             pDeviceContext->VigemInterface.Header.Context,
-            pDeviceContext->DeviceIndex + 1,
+            pDeviceContext->VigemSerial,
             &xusbReport);
     }
 

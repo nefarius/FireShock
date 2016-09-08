@@ -150,15 +150,26 @@ NTSTATUS FireShockEvtDeviceD0Entry(
         // Spawn XUSB device if ViGEm is available
         if (pDeviceContext->VigemAvailable)
         {
-            status = (*pDeviceContext->VigemInterface.PlugInTarget)(
-                pDeviceContext->VigemInterface.Header.Context,
-                pDeviceContext->DeviceIndex + 1,
-                Xbox360Wired,
-                0x1337,
-                0x0001);
-            if (!NT_SUCCESS(status))
+            for (
+                pDeviceContext->VigemSerial = VIGEM_SERIAL_BEGIN;
+                pDeviceContext->VigemSerial <= VIGEM_SERIAL_END;
+                pDeviceContext->VigemSerial++)
             {
-                KdPrint((DRIVERNAME "Couldn't request XUSB device: 0x%X", status));
+                status = (*pDeviceContext->VigemInterface.PlugInTarget)(
+                    pDeviceContext->VigemInterface.Header.Context,
+                    pDeviceContext->VigemSerial,
+                    Xbox360Wired,
+                    0,
+                    0);
+
+                if (!NT_SUCCESS(status))
+                {
+                    KdPrint((DRIVERNAME "Couldn't request XUSB device: 0x%X", status));
+                }
+                else
+                {
+                    break;
+                }
             }
         }
     }
@@ -168,7 +179,31 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     {
         pDeviceContext->DeviceType = DualShock4;
 
-        // TODO: implement
+        // Spawn XUSB device if ViGEm is available
+        if (pDeviceContext->VigemAvailable)
+        {
+            for (
+                pDeviceContext->VigemSerial = VIGEM_SERIAL_BEGIN;
+                pDeviceContext->VigemSerial <= VIGEM_SERIAL_END;
+                pDeviceContext->VigemSerial++)
+            {
+                status = (*pDeviceContext->VigemInterface.PlugInTarget)(
+                    pDeviceContext->VigemInterface.Header.Context,
+                    pDeviceContext->VigemSerial,
+                    Xbox360Wired,
+                    0,
+                    0);
+
+                if (!NT_SUCCESS(status))
+                {
+                    KdPrint((DRIVERNAME "Couldn't request XUSB device: 0x%X", status));
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
     }
 
     return status;

@@ -46,6 +46,9 @@ SOFTWARE.
 #define DS4_VENDOR_ID                           0x054C
 #define DS4_PRODUCT_ID                          0x05C4
 
+#define VIGEM_SERIAL_BEGIN                      0x01
+#define VIGEM_SERIAL_END                        0x04
+
 
 typedef enum _USB_HID_REQUEST
 {

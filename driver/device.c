@@ -184,23 +184,21 @@ Return Value:
     WDF_IO_TARGET_OPEN_PARAMS_INIT_CREATE_BY_NAME(&openParams, &VigemDosDeviceName, STANDARD_RIGHTS_ALL);
 
     status = WdfIoTargetOpen(vigemTarget, &openParams);
-    if (!NT_SUCCESS(status)) {
-        KdPrint((DRIVERNAME "WdfIoTargetOpen failed with status code 0x%x\n", status));
-        return status;
-    }
-
-    status = WdfIoTargetQueryForInterface(vigemTarget,
-        &GUID_VIGEM_INTERFACE_STANDARD,
-        (PINTERFACE)&pDeviceContext->VigemInterface,
-        sizeof(VIGEM_INTERFACE_STANDARD),
-        1,
-        NULL);// InterfaceSpecific Data
-    pDeviceContext->VigemAvailable = NT_SUCCESS(status);
-
-    if (!pDeviceContext->VigemAvailable)
+    if (NT_SUCCESS(status))
     {
-        KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
-        WdfObjectDelete(vigemTarget);
+        status = WdfIoTargetQueryForInterface(vigemTarget,
+            &GUID_VIGEM_INTERFACE_STANDARD,
+            (PINTERFACE)&pDeviceContext->VigemInterface,
+            sizeof(VIGEM_INTERFACE_STANDARD),
+            1,
+            NULL);// InterfaceSpecific Data
+        pDeviceContext->VigemAvailable = NT_SUCCESS(status);
+
+        if (!pDeviceContext->VigemAvailable)
+        {
+            KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
+            WdfObjectDelete(vigemTarget);
+        }
     }
 
     //
@@ -230,11 +228,23 @@ VOID EvtCleanupCallback(
     _In_ WDFOBJECT Device
 )
 {
-    ULONG   count;
+    ULONG               count;
+    PDEVICE_CONTEXT     pDeviceContext;
 
     PAGED_CODE();
 
     KdPrint((DRIVERNAME "Entered FilterEvtDeviceContextCleanup\n"));
+
+    pDeviceContext = GetCommonContext(Device);
+
+    if (pDeviceContext->VigemAvailable)
+    {
+        // "Unplug" emulated device
+        (*pDeviceContext->VigemInterface.UnPlugTarget)(
+            pDeviceContext->VigemInterface.Header.Context,
+            pDeviceContext->VigemSerial
+            );
+    }
 
     WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
 
