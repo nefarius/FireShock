@@ -23,6 +23,7 @@ ExcludeFromSelect = *
 [NefariusSoftwareSolutions.NT$ARCH$]
 %Ds3DeviceName%=FireShock_Inst, USB\VID_054C&PID_0268&REV_0100
 %Ds3DeviceName%=FireShock_Inst, USB\VID_054C&PID_0268
+%Ds4DeviceName%=FireShock_Inst, USB\VID_054C&PID_05C4
 
 ; Install Section
 ; ---------------------------------------------------------
@@ -105,6 +106,7 @@ DiskName = "FireShock Driver Disk"
 
 ; HID device IDs
 Ds3DeviceName = "FireShock 3 Device"
+Ds4DeviceName = "FireShock 4 Device"
 
 ; Standard defs
 SPSVCINST_TAGTOFRONT  = 0x00000001

@@ -232,6 +232,11 @@ NTSTATUS ParseBulkOrInterruptTransfer(PURB Urb, WDFDEVICE Device)
         status = STATUS_SUCCESS;
 
         break;
+    case DualShock4:
+
+        status = STATUS_SUCCESS;
+
+        break;
     default:
 
         status = STATUS_NOT_IMPLEMENTED;
