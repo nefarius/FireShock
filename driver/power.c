@@ -69,7 +69,7 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     WdfUsbTargetDeviceGetDeviceDescriptor(pDeviceContext->UsbDevice, &deviceDescriptor);
 
     // Device is a DualShock 3
-    if (deviceDescriptor.idVendor == 0x054C && deviceDescriptor.idProduct == 0x0268)
+    if (deviceDescriptor.idVendor == DS3_VENDOR_ID && deviceDescriptor.idProduct == DS3_PRODUCT_ID)
     {
         pDeviceContext->DeviceType = DualShock3;
 
@@ -153,7 +153,9 @@ NTSTATUS FireShockEvtDeviceD0Entry(
             status = (*pDeviceContext->VigemInterface.PlugInTarget)(
                 pDeviceContext->VigemInterface.Header.Context,
                 pDeviceContext->DeviceIndex + 1,
-                Xbox360Wired);
+                Xbox360Wired,
+                0x1337,
+                0x0001);
             if (!NT_SUCCESS(status))
             {
                 KdPrint((DRIVERNAME "Couldn't request XUSB device: 0x%X", status));
@@ -162,7 +164,7 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     }
 
     // Device is a DualShock 4
-    if (deviceDescriptor.idVendor == 0x054C && deviceDescriptor.idProduct == 0x05C4)
+    if (deviceDescriptor.idVendor == DS4_VENDOR_ID && deviceDescriptor.idProduct == DS4_PRODUCT_ID)
     {
         pDeviceContext->DeviceType = DualShock4;
 

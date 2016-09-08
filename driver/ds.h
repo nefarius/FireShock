@@ -41,6 +41,11 @@ SOFTWARE.
 
 #define DS3_OFFSET_LED_INDEX                    0x09
 
+#define DS3_VENDOR_ID                           0x054C
+#define DS3_PRODUCT_ID                          0x0268
+#define DS4_VENDOR_ID                           0x054C
+#define DS4_PRODUCT_ID                          0x05C4
+
 
 typedef enum _USB_HID_REQUEST
 {
