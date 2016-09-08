@@ -337,10 +337,7 @@ void BulkOrInterruptTransferCompleted(
     PDEVICE_CONTEXT             pDeviceContext;
     PDS3_DEVICE_CONTEXT         pDs3Context;
     XUSB_SUBMIT_REPORT          xusbReport;
-
-    // Temporary copy of the transfer buffer
-    UCHAR upperBuffer[DS3_ORIGINAL_HID_REPORT_SIZE];
-    RtlZeroMemory(upperBuffer, DS3_ORIGINAL_HID_REPORT_SIZE);
+    PUCHAR                      buffer = NULL;
 
     UNREFERENCED_PARAMETER(Target);
     UNREFERENCED_PARAMETER(Params);
@@ -369,99 +366,103 @@ void BulkOrInterruptTransferCompleted(
     case DualShock3:
 
         pDs3Context = Ds3GetContext(device);
+        buffer = ExAllocatePoolWithTag(
+            NonPagedPool,
+            DS3_ORIGINAL_HID_REPORT_SIZE,
+            FIRESHOCK_POOL_TAG);
 
         // Report ID
-        upperBuffer[0] = transferBuffer[0];
+        buffer[0] = transferBuffer[0];
 
         // Prepare D-Pad
-        upperBuffer[5] &= ~0xF; // Clear lower 4 bits
+        buffer[5] &= ~0xF; // Clear lower 4 bits
 
         // Translate D-Pad to HAT format
         switch (transferBuffer[2] & ~0xF)
         {
         case 0x10: // N
-            upperBuffer[5] |= 0 & 0xF;
+            buffer[5] |= 0 & 0xF;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
             break;
         case 0x30: // NE
-            upperBuffer[5] |= 1 & 0xF;
+            buffer[5] |= 1 & 0xF;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case 0x20: // E
-            upperBuffer[5] |= 2 & 0xF;
+            buffer[5] |= 2 & 0xF;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case 0x60: // SE
-            upperBuffer[5] |= 3 & 0xF;
+            buffer[5] |= 3 & 0xF;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case 0x40: // S
-            upperBuffer[5] |= 4 & 0xF;
+            buffer[5] |= 4 & 0xF;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
             break;
         case 0xC0: // SW
-            upperBuffer[5] |= 5 & 0xF;
+            buffer[5] |= 5 & 0xF;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         case 0x80: // W
-            upperBuffer[5] |= 6 & 0xF;
+            buffer[5] |= 6 & 0xF;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         case 0x90: // NW
-            upperBuffer[5] |= 7 & 0xF;
+            buffer[5] |= 7 & 0xF;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
             xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         default: // Released
-            upperBuffer[5] |= 8 & 0xF;
+            buffer[5] |= 8 & 0xF;
             break;
         }
 
         // Prepare face buttons
-        upperBuffer[5] &= ~0xF0; // Clear upper 4 bits
+        buffer[5] &= ~0xF0; // Clear upper 4 bits
         // Set face buttons
-        upperBuffer[5] |= transferBuffer[3] & 0xF0;
+        buffer[5] |= transferBuffer[3] & 0xF0;
 
         // Thumb axes
-        upperBuffer[1] = transferBuffer[6]; // LTX
-        upperBuffer[2] = transferBuffer[7]; // LTY
-        upperBuffer[3] = transferBuffer[8]; // RTX
-        upperBuffer[4] = transferBuffer[9]; // RTY
+        buffer[1] = transferBuffer[6]; // LTX
+        buffer[2] = transferBuffer[7]; // LTY
+        buffer[3] = transferBuffer[8]; // RTX
+        buffer[4] = transferBuffer[9]; // RTY
 
         // Remaining buttons
-        upperBuffer[6] &= ~0xFF; // Clear all 8 bits
-        upperBuffer[6] |= (transferBuffer[2] & 0xF);
-        upperBuffer[6] |= (transferBuffer[3] & 0xF) << 4;
+        buffer[6] &= ~0xFF; // Clear all 8 bits
+        buffer[6] |= (transferBuffer[2] & 0xF);
+        buffer[6] |= (transferBuffer[3] & 0xF) << 4;
 
         // Trigger axes
-        upperBuffer[8] = transferBuffer[18];
-        upperBuffer[9] = transferBuffer[19];
+        buffer[8] = transferBuffer[18];
+        buffer[9] = transferBuffer[19];
 
         // PS button
-        upperBuffer[7] = transferBuffer[4];
+        buffer[7] = transferBuffer[4];
 
         // D-Pad (pressure)
-        upperBuffer[10] = transferBuffer[14];
-        upperBuffer[11] = transferBuffer[15];
-        upperBuffer[12] = transferBuffer[16];
-        upperBuffer[13] = transferBuffer[17];
+        buffer[10] = transferBuffer[14];
+        buffer[11] = transferBuffer[15];
+        buffer[12] = transferBuffer[16];
+        buffer[13] = transferBuffer[17];
 
         // Shoulders (pressure)
-        upperBuffer[14] = transferBuffer[20];
-        upperBuffer[15] = transferBuffer[21];
+        buffer[14] = transferBuffer[20];
+        buffer[15] = transferBuffer[21];
 
         // Face buttons (pressure)
-        upperBuffer[16] = transferBuffer[22];
-        upperBuffer[17] = transferBuffer[23];
-        upperBuffer[18] = transferBuffer[24];
-        upperBuffer[19] = transferBuffer[25];
+        buffer[16] = transferBuffer[22];
+        buffer[17] = transferBuffer[23];
+        buffer[18] = transferBuffer[24];
+        buffer[19] = transferBuffer[25];
 
         /* Cache gamepad state for sideband communication
          * Skip first byte since it's the report ID we don't need */
-        RtlCopyBytes(&pDs3Context->InputState, upperBuffer + 1, sizeof(FS3_GAMEPAD_STATE));
+        RtlCopyBytes(&pDs3Context->InputState, buffer + 1, sizeof(FS3_GAMEPAD_STATE));
 
         // Translate FS3 buttons to XUSB buttons
         if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_SELECT) xusbReport.Report.wButtons |= XUSB_GAMEPAD_BACK;
@@ -474,7 +475,7 @@ void BulkOrInterruptTransferCompleted(
         if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_CIRCLE) xusbReport.Report.wButtons |= XUSB_GAMEPAD_B;
         if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_CROSS) xusbReport.Report.wButtons |= XUSB_GAMEPAD_A;
         if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_SQUARE) xusbReport.Report.wButtons |= XUSB_GAMEPAD_X;
-        
+
         // PS to Guide button
         if (pDs3Context->InputState.PsButton & 0x01) xusbReport.Report.wButtons |= XUSB_GAMEPAD_GUIDE;
 
@@ -493,8 +494,13 @@ void BulkOrInterruptTransferCompleted(
         break;
     }
 
-    // Copy back modified buffer to request buffer
-    RtlCopyBytes(transferBuffer, upperBuffer, transferBufferLength);
+    if (buffer)
+    {
+        // Copy back modified buffer to request buffer
+        RtlCopyBytes(transferBuffer, buffer, transferBufferLength);
+
+        ExFreePoolWithTag(buffer, FIRESHOCK_POOL_TAG);
+    }
 
     // Submit XUSB report if ViGEm is available
     if (pDeviceContext->VigemAvailable)

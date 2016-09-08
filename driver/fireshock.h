@@ -41,7 +41,8 @@ Environment:
 #include "dsusb.h"
 
 
-#define DRIVERNAME "FireShock: "
+#define DRIVERNAME              "FireShock: "
+#define FIRESHOCK_POOL_TAG      0x44465346
 
 extern WDFCOLLECTION   FilterDeviceCollection;
 extern WDFWAITLOCK     FilterDeviceCollectionLock;
