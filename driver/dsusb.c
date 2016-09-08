@@ -359,7 +359,7 @@ void BulkOrInterruptTransferCompleted(
     transferBuffer = (PUCHAR)urb->UrbBulkOrInterruptTransfer.TransferBuffer;
     transferBufferLength = urb->UrbBulkOrInterruptTransfer.TransferBufferLength;
 
-    XUSB_SUBMIT_REPORT_INIT(&xusbReport, pDeviceContext->DeviceIndex + 1);
+    XUSB_SUBMIT_REPORT_INIT(&xusbReport, pDeviceContext->VigemSerial);
 
     switch (pDeviceContext->DeviceType)
     {
