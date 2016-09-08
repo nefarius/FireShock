@@ -338,6 +338,7 @@ void BulkOrInterruptTransferCompleted(
     PDS3_DEVICE_CONTEXT         pDs3Context;
     XUSB_SUBMIT_REPORT          xusbReport;
     PUCHAR                      buffer = NULL;
+    PDS4_REPORT                 pDs4Report;
 
     UNREFERENCED_PARAMETER(Target);
     UNREFERENCED_PARAMETER(Params);
@@ -488,6 +489,69 @@ void BulkOrInterruptTransferCompleted(
         xusbReport.Report.sThumbLY = ScaleAxis(pDs3Context->InputState.LeftThumbY, TRUE);
         xusbReport.Report.sThumbRX = ScaleAxis(pDs3Context->InputState.RightThumbX, FALSE);
         xusbReport.Report.sThumbRY = ScaleAxis(pDs3Context->InputState.RightThumbY, TRUE);
+
+        break;
+    case DualShock4:
+
+        pDs4Report = (PDS4_REPORT)&transferBuffer[1];
+
+        // Translate FS4 D-Pad to XUSB format
+        switch (pDs4Report->wButtons & 0xF)
+        {
+        case Ds4DpadN:
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
+            break;
+        case Ds4DpadNE:
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
+            break;
+        case Ds4DpadE:
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
+            break;
+        case Ds4DpadSE:
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
+            break;
+        case Ds4DpadS:
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
+            break;
+        case Ds4DpadSW:
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
+            break;
+        case Ds4DpadW:
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
+            break;
+        case Ds4DpadNW:
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
+            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
+            break;
+        }
+
+        // Translate FS4 buttons to XUSB buttons
+        if (pDs4Report->wButtons & Ds4ThumbR) xusbReport.Report.wButtons |= XUSB_GAMEPAD_RIGHT_THUMB;
+        if (pDs4Report->wButtons & Ds4ThumbL) xusbReport.Report.wButtons |= XUSB_GAMEPAD_LEFT_THUMB;
+        if (pDs4Report->wButtons & Ds4Options) xusbReport.Report.wButtons |= XUSB_GAMEPAD_START;
+        if (pDs4Report->wButtons & Ds4Share) xusbReport.Report.wButtons |= XUSB_GAMEPAD_BACK;
+        if (pDs4Report->wButtons & Ds4ShoulderR) xusbReport.Report.wButtons |= XUSB_GAMEPAD_RIGHT_SHOULDER;
+        if (pDs4Report->wButtons & Ds4ShoulderL) xusbReport.Report.wButtons |= XUSB_GAMEPAD_LEFT_SHOULDER;
+        if (pDs4Report->wButtons & Ds4Triangle) xusbReport.Report.wButtons |= XUSB_GAMEPAD_Y;
+        if (pDs4Report->wButtons & Ds4Circle) xusbReport.Report.wButtons |= XUSB_GAMEPAD_B;
+        if (pDs4Report->wButtons & Ds4Cross) xusbReport.Report.wButtons |= XUSB_GAMEPAD_A;
+        if (pDs4Report->wButtons & Ds4Square) xusbReport.Report.wButtons |= XUSB_GAMEPAD_X;
+
+        // PS to Guide button
+        if (pDs4Report->bSpecial & Ds4Ps) xusbReport.Report.wButtons |= XUSB_GAMEPAD_GUIDE;
+
+        // FS4 to XUSB Trigger axes
+        xusbReport.Report.bLeftTrigger = pDs4Report->bTriggerL;
+        xusbReport.Report.bRightTrigger = pDs4Report->bTriggerR;
+
+        // FS4 to XUSB Thumb axes
+        xusbReport.Report.sThumbLX = ScaleAxis(pDs4Report->bThumbLX, FALSE);
+        xusbReport.Report.sThumbLY = ScaleAxis(pDs4Report->bThumbLY, TRUE);
+        xusbReport.Report.sThumbRX = ScaleAxis(pDs4Report->bThumbRX, FALSE);
+        xusbReport.Report.sThumbRY = ScaleAxis(pDs4Report->bThumbRY, TRUE);
 
         break;
     default:
