@@ -167,8 +167,6 @@ NTSTATUS FireShockEvtDeviceD0Entry(
         // 
         // Initial output state (rumble & LEDs off)
         // 
-        // Note: no report ID because sent over control endpoint
-        // 
         UCHAR DefaultOutputReport[DS4_HID_OUTPUT_REPORT_SIZE] =
         {
             0x05, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF,
