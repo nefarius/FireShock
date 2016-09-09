@@ -146,62 +146,36 @@ NTSTATUS FireShockEvtDeviceD0Entry(
 
         // We can start the timer here since the callback is called again on failure
         WdfTimerStart(pDs3Context->InputEnableTimer, WDF_REL_TIMEOUT_IN_MS(DS3_INPUT_ENABLE_SEND_DELAY));
-
-        // Spawn XUSB device if ViGEm is available
-        if (pDeviceContext->VigemAvailable)
-        {
-            for (
-                pDeviceContext->VigemSerial = VIGEM_SERIAL_BEGIN;
-                pDeviceContext->VigemSerial <= VIGEM_SERIAL_END;
-                pDeviceContext->VigemSerial++)
-            {
-                status = (*pDeviceContext->VigemInterface.PlugInTarget)(
-                    pDeviceContext->VigemInterface.Header.Context,
-                    pDeviceContext->VigemSerial,
-                    Xbox360Wired,
-                    0,
-                    0);
-
-                if (!NT_SUCCESS(status))
-                {
-                    KdPrint((DRIVERNAME "Couldn't request XUSB device: 0x%X", status));
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
     }
 
     // Device is a DualShock 4
     if (deviceDescriptor.idVendor == DS4_VENDOR_ID && deviceDescriptor.idProduct == DS4_PRODUCT_ID)
     {
         pDeviceContext->DeviceType = DualShock4;
+    }
 
-        // Spawn XUSB device if ViGEm is available
-        if (pDeviceContext->VigemAvailable)
+    // Spawn XUSB device if ViGEm is available
+    if (pDeviceContext->VigemAvailable)
+    {
+        for (
+            pDeviceContext->VigemSerial = VIGEM_SERIAL_BEGIN;
+            pDeviceContext->VigemSerial <= VIGEM_SERIAL_END;
+            pDeviceContext->VigemSerial++)
         {
-            for (
-                pDeviceContext->VigemSerial = VIGEM_SERIAL_BEGIN;
-                pDeviceContext->VigemSerial <= VIGEM_SERIAL_END;
-                pDeviceContext->VigemSerial++)
-            {
-                status = (*pDeviceContext->VigemInterface.PlugInTarget)(
-                    pDeviceContext->VigemInterface.Header.Context,
-                    pDeviceContext->VigemSerial,
-                    Xbox360Wired,
-                    0,
-                    0);
+            status = (*pDeviceContext->VigemInterface.PlugInTarget)(
+                pDeviceContext->VigemInterface.Header.Context,
+                pDeviceContext->VigemSerial,
+                Xbox360Wired,
+                deviceDescriptor.idVendor,
+                deviceDescriptor.idProduct);
 
-                if (!NT_SUCCESS(status))
-                {
-                    KdPrint((DRIVERNAME "Couldn't request XUSB device: 0x%X", status));
-                }
-                else
-                {
-                    break;
-                }
+            if (!NT_SUCCESS(status))
+            {
+                KdPrint((DRIVERNAME "Couldn't request XUSB device: 0x%X", status));
+            }
+            else
+            {
+                break;
             }
         }
     }
