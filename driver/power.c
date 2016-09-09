@@ -45,6 +45,7 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     PDEVICE_CONTEXT                 pDeviceContext;
     USB_DEVICE_DESCRIPTOR           deviceDescriptor;
     PDS3_DEVICE_CONTEXT             pDs3Context;
+    PDS4_DEVICE_CONTEXT             pDs4Context;
     WDF_OBJECT_ATTRIBUTES           attributes;
     WDF_TIMER_CONFIG                timerCfg;
 
@@ -152,6 +153,31 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     if (deviceDescriptor.idVendor == DS4_VENDOR_ID && deviceDescriptor.idProduct == DS4_PRODUCT_ID)
     {
         pDeviceContext->DeviceType = DualShock4;
+
+        // Add DS4-specific context to device object
+        WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS4_DEVICE_CONTEXT);
+
+        status = WdfObjectAllocateContext(Device, &attributes, (PVOID)&pDs4Context);
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint((DRIVERNAME "WdfObjectAllocateContext failed status 0x%x\n", status));
+            return status;
+        }
+
+        // 
+        // Initial output state (rumble & LEDs off)
+        // 
+        // Note: no report ID because sent over control endpoint
+        // 
+        UCHAR DefaultOutputReport[DS4_HID_OUTPUT_REPORT_SIZE] =
+        {
+            0x05, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF,
+            0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        };
+
+        RtlCopyBytes(pDs4Context->OutputReportBuffer, DefaultOutputReport, DS4_HID_OUTPUT_REPORT_SIZE);
     }
 
     // Spawn XUSB device if ViGEm is available
