@@ -25,13 +25,13 @@ namespace FireShockCockpit
         public const int DBT_DEVICEREMOVECOMPLETE = 0x8004; // removed 
         public const int DBT_DEVNODES_CHANGED = 0x0007; //A device has been added to or removed from the system.
 
-        private static readonly Guid MediaClassId = Guid.Parse("2409EA50-9ECA-410E-AC9E-F9AC798C4D9C");
-
         public const int DBT_DEVTYP_DEVICEINTERFACE = 0x00000005;
         public const int DBT_DEVTYP_HANDLE = 0x00000006;
         public const int DBT_DEVTYP_OEM = 0x00000000;
         public const int DBT_DEVTYP_PORT = 0x00000003;
         public const int DBT_DEVTYP_VOLUME = 0x00000002;
+
+        private static readonly Guid MediaClassId = Guid.Parse("2409EA50-9ECA-410E-AC9E-F9AC798C4D9C");
 
         private readonly HwndSource _hwndSource;
 
@@ -226,36 +226,42 @@ namespace FireShockCockpit
             return string.Empty;
         }
 
-        public static IList<string> EnumerateFireShockDevices()
+        public static IEnumerable<string> FireShockDevices
         {
-            var list = new List<string>();
-            var gHid = MediaClassId; // next, get the GUID from Windows that it uses to represent the HID USB interface
-            var hInfoSet = SetupDiGetClassDevs(ref gHid, null, IntPtr.Zero, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
-            // this gets a list of all HID devices currently connected to the computer (InfoSet)
+            get
+            {
+                var list = new List<string>();
+                var gHid = MediaClassId;
+                // next, get the GUID from Windows that it uses to represent the HID USB interface
+                var hInfoSet = SetupDiGetClassDevs(ref gHid, null, IntPtr.Zero, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
+                // this gets a list of all HID devices currently connected to the computer (InfoSet)
 
-            try
-            {
-                var oInterface = new DeviceInterfaceData(); // build up a device interface data block
-                oInterface.Size = Marshal.SizeOf(oInterface);
-                // Now iterate through the InfoSet memory block assigned within Windows in the call to SetupDiGetClassDevs
-                // to get device details for each device connected
-                var nIndex = 0;
-                while (SetupDiEnumDeviceInterfaces(hInfoSet, 0, ref gHid, (uint)nIndex, ref oInterface))
-                // this gets the device interface information for a device at index 'nIndex' in the memory block
+                try
                 {
-                    list.Add(GetDevicePath(hInfoSet, ref oInterface));
+                    var oInterface = new DeviceInterfaceData(); // build up a device interface data block
+                    oInterface.Size = Marshal.SizeOf(oInterface);
+                    // Now iterate through the InfoSet memory block assigned within Windows in the call to SetupDiGetClassDevs
+                    // to get device details for each device connected
+                    var nIndex = 0;
+                    while (SetupDiEnumDeviceInterfaces(hInfoSet, 0, ref gHid, (uint)nIndex, ref oInterface))
+                    // this gets the device interface information for a device at index 'nIndex' in the memory block
+                    {
+                        list.Add(GetDevicePath(hInfoSet, ref oInterface));
+
+                        nIndex++;
+                    }
                 }
+                catch (Exception)
+                {
+                    return list;
+                }
+                finally
+                {
+                    // Before we go, we have to free up the InfoSet memory reserved by SetupDiGetClassDevs
+                    SetupDiDestroyDeviceInfoList(hInfoSet);
+                }
+                return list; // oops, didn't find our device
             }
-            catch (Exception)
-            {
-                return list;
-            }
-            finally
-            {
-                // Before we go, we have to free up the InfoSet memory reserved by SetupDiGetClassDevs
-                SetupDiDestroyDeviceInfoList(hInfoSet);
-            }
-            return list; // oops, didn't find our device
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -271,7 +277,7 @@ namespace FireShockCockpit
                 dbcc_classguid;
 
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
-            public char[] dbcc_name;
+            public readonly char[] dbcc_name;
             //public byte dbcc_data;
             //public byte dbcc_data1; 
         }
