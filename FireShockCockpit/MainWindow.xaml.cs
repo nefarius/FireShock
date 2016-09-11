@@ -16,10 +16,7 @@ namespace FireShockCockpit
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            foreach (var device in FireShockDetector.FireShockDevices)
-            {
-                MessageBox.Show(device);
-            }
+            FireShockControllersListBox.ItemsSource = FireShockDetector.FireShockDevices;
 
             Detector.DeviceAttached += (o, args) => MessageBox.Show(args.ToString());
 

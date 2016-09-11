@@ -5,8 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FireShockCockpit"
         mc:Ignorable="d"
-        Title="FireShock Cockpit" Height="350" Width="525" Icon="favicon.ico" Loaded="Window_Loaded">
+        Title="FireShock Cockpit" Height="405.614" Width="648.835" Icon="favicon.ico" Loaded="Window_Loaded" ResizeMode="NoResize">
+    <Window.Background>
+        <ImageBrush ImageSource="Images/wallpaperplaystationBLUE.png" Stretch="UniformToFill"/>
+    </Window.Background>
     <Grid>
-        
+        <Canvas>
+            <GroupBox Header="GroupBox" Canvas.Left="26" Canvas.Top="23" Height="198" Width="291">
+                <ListBox x:Name="FireShockControllersListBox" Margin="5" />
+            </GroupBox>
+        </Canvas>
+
     </Grid>
 </Window>
