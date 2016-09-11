@@ -9,7 +9,7 @@ namespace FireShockCockpit
         /// </summary>
         /// <param name="classguid"></param>
         /// <param name="name"></param>
-        public FireShockDetectorEventArgs(string classguid, string name)
+        public FireShockDetectorEventArgs(Guid classguid, string name)
         {
             this.ClassGuid = classguid;
             this.Name = name;
@@ -19,7 +19,7 @@ namespace FireShockCockpit
         /// <summary>
         /// The GUID for the interface device class
         /// </summary>
-        public string ClassGuid { get; internal set; }
+        public Guid ClassGuid { get; internal set; }
 
 
         /// <summary>
@@ -27,5 +27,9 @@ namespace FireShockCockpit
         /// </summary>
         public string Name { get; internal set; }
 
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

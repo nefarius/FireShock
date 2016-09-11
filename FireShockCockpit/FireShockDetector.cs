@@ -6,6 +6,10 @@ namespace FireShockCockpit
 {
     public class FireShockDetector : IDisposable
     {
+        public delegate void DeviceAttachedEventHandler(object sender, FireShockDetectorEventArgs args);
+
+        public delegate void DeviceRemovedEventHandler(object sender, FireShockDetectorEventArgs args);
+
         [Flags]
         public enum DEVICE_NOTIFY : uint
         {
@@ -62,8 +66,8 @@ namespace FireShockCockpit
             GC.SuppressFinalize(this);
         }
 
-        public event EventHandler DeviceAttached;
-        public event EventHandler DeviceRemoved;
+        public event DeviceAttachedEventHandler DeviceAttached;
+        public event DeviceRemovedEventHandler DeviceRemoved;
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr RegisterDeviceNotification(IntPtr intPtr, IntPtr notificationFilter, uint flags);
@@ -128,8 +132,8 @@ namespace FireShockCockpit
                         (DEV_BROADCAST_DEVICEINTERFACE)
                             Marshal.PtrToStructure(lParam, typeof (DEV_BROADCAST_DEVICEINTERFACE));
 
-
-                    DeviceAttached?.Invoke(this, EventArgs.Empty);
+                    DeviceAttached?.Invoke(this,
+                        new FireShockDetectorEventArgs(new Guid(info.dbcc_classguid), new string(info.dbcc_name)));
                 }
                     break;
                 case DBT_DEVICEREMOVECOMPLETE:
@@ -138,8 +142,8 @@ namespace FireShockCockpit
                         (DEV_BROADCAST_DEVICEINTERFACE)
                             Marshal.PtrToStructure(lParam, typeof (DEV_BROADCAST_DEVICEINTERFACE));
 
-
-                    DeviceRemoved?.Invoke(this, EventArgs.Empty);
+                    DeviceRemoved?.Invoke(this,
+                        new FireShockDetectorEventArgs(new Guid(info.dbcc_classguid), new string(info.dbcc_name)));
                 }
                     break;
                 case DBT_DEVNODES_CHANGED:
@@ -186,7 +190,7 @@ namespace FireShockCockpit
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        public struct DEV_BROADCAST_DEVICEINTERFACE
+        private struct DEV_BROADCAST_DEVICEINTERFACE
         {
             public int dbcc_size;
             public int dbcc_devicetype;
