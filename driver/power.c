@@ -179,16 +179,16 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     }
 
     // Spawn XUSB device if ViGEm is available
-    if (pDeviceContext->VigemAvailable)
+    if (pDeviceContext->ViGEm.Available)
     {
         for (
-            pDeviceContext->VigemSerial = VIGEM_SERIAL_BEGIN;
-            pDeviceContext->VigemSerial <= VIGEM_SERIAL_END;
-            pDeviceContext->VigemSerial++)
+            pDeviceContext->ViGEm.Serial = VIGEM_SERIAL_BEGIN;
+            pDeviceContext->ViGEm.Serial <= VIGEM_SERIAL_END;
+            pDeviceContext->ViGEm.Serial++)
         {
-            status = (*pDeviceContext->VigemInterface.PlugInTarget)(
-                pDeviceContext->VigemInterface.Header.Context,
-                pDeviceContext->VigemSerial,
+            status = (*pDeviceContext->ViGEm.Interface.PlugInTarget)(
+                pDeviceContext->ViGEm.Interface.Header.Context,
+                pDeviceContext->ViGEm.Serial,
                 Xbox360Wired,
                 deviceDescriptor.idVendor,
                 deviceDescriptor.idProduct);
@@ -196,11 +196,10 @@ NTSTATUS FireShockEvtDeviceD0Entry(
             if (!NT_SUCCESS(status))
             {
                 KdPrint((DRIVERNAME "Couldn't request XUSB device: 0x%X", status));
+                continue;
             }
-            else
-            {
-                break;
-            }
+            
+            break;
         }
     }
 

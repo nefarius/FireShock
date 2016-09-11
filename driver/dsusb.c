@@ -360,7 +360,7 @@ void BulkOrInterruptTransferCompleted(
     transferBuffer = (PUCHAR)urb->UrbBulkOrInterruptTransfer.TransferBuffer;
     transferBufferLength = urb->UrbBulkOrInterruptTransfer.TransferBufferLength;
 
-    XUSB_SUBMIT_REPORT_INIT(&xusbReport, pDeviceContext->VigemSerial);
+    XUSB_SUBMIT_REPORT_INIT(&xusbReport, pDeviceContext->ViGEm.Serial);
 
     switch (pDeviceContext->DeviceType)
     {
@@ -567,11 +567,11 @@ void BulkOrInterruptTransferCompleted(
     }
 
     // Submit XUSB report if ViGEm is available
-    if (pDeviceContext->VigemAvailable)
+    if (pDeviceContext->ViGEm.Available)
     {
-        (*pDeviceContext->VigemInterface.XusbSubmitReport)(
-            pDeviceContext->VigemInterface.Header.Context,
-            pDeviceContext->VigemSerial,
+        (*pDeviceContext->ViGEm.Interface.XusbSubmitReport)(
+            pDeviceContext->ViGEm.Interface.Header.Context,
+            pDeviceContext->ViGEm.Serial,
             &xusbReport);
     }
 

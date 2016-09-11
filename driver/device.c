@@ -188,13 +188,13 @@ Return Value:
     {
         status = WdfIoTargetQueryForInterface(vigemTarget,
             &GUID_VIGEM_INTERFACE_STANDARD,
-            (PINTERFACE)&pDeviceContext->VigemInterface,
+            (PINTERFACE)&pDeviceContext->ViGEm.Interface,
             sizeof(VIGEM_INTERFACE_STANDARD),
             1,
             NULL);// InterfaceSpecific Data
-        pDeviceContext->VigemAvailable = NT_SUCCESS(status);
+        pDeviceContext->ViGEm.Available = NT_SUCCESS(status);
 
-        if (!pDeviceContext->VigemAvailable)
+        if (!pDeviceContext->ViGEm.Available)
         {
             KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
             WdfObjectDelete(vigemTarget);
@@ -237,12 +237,12 @@ VOID EvtCleanupCallback(
 
     pDeviceContext = GetCommonContext(Device);
 
-    if (pDeviceContext->VigemAvailable)
+    if (pDeviceContext->ViGEm.Available)
     {
         // "Unplug" emulated device
-        (*pDeviceContext->VigemInterface.UnPlugTarget)(
-            pDeviceContext->VigemInterface.Header.Context,
-            pDeviceContext->VigemSerial
+        (*pDeviceContext->ViGEm.Interface.UnPlugTarget)(
+            pDeviceContext->ViGEm.Interface.Header.Context,
+            pDeviceContext->ViGEm.Serial
             );
     }
 

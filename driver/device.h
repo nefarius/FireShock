@@ -1,37 +1,50 @@
-/*++
+/*
+MIT License
 
-Copyright (c) Microsoft Corporation.  All rights reserved.
+Copyright (c) 2016 Benjamin "Nefarius" Höglinger
 
-    THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
-    KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
-    PURPOSE.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Module Name:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-    device.h
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
-Abstract:
 
-    This module contains the Windows Driver Framework Device object
-    handlers for the fireshock filter driver.
-
-Environment:
-
-    Kernel mode
-
---*/
-
-//
-// The device context performs the same job as
-// a WDM device extension in the driver framework
-//
 #include "ds.h"
 #include "driver.h"
 
 #define NTDEVICE_NAME_STRING      L"\\Device\\FireShockFilter"
 #define SYMBOLIC_NAME_STRING      L"\\DosDevices\\FireShockFilter"
 
+//
+// Data used in ViGEm interaction
+// 
+typedef struct _VIGEM_META
+{
+    VIGEM_INTERFACE_STANDARD Interface;
+
+    BOOLEAN Available;
+
+    ULONG Serial;
+
+} VIGEM_META, *PVIGEM_META;
+
+//
+// Common device context
+// 
 typedef struct _DEVICE_CONTEXT
 {
     WDFUSBDEVICE UsbDevice;
@@ -40,16 +53,15 @@ typedef struct _DEVICE_CONTEXT
 
     ULONG DeviceIndex;
 
-    VIGEM_INTERFACE_STANDARD VigemInterface;
-
-    BOOLEAN VigemAvailable;
-
-    ULONG VigemSerial;
+    VIGEM_META ViGEm;
 
 } DEVICE_CONTEXT, *PDEVICE_CONTEXT;
 
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DEVICE_CONTEXT, GetCommonContext)
 
+//
+// DualShock 3-specific context
+// 
 typedef struct _DS3_DEVICE_CONTEXT
 {
     WDFTIMER OutputReportTimer;
@@ -64,6 +76,9 @@ typedef struct _DS3_DEVICE_CONTEXT
 
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DS3_DEVICE_CONTEXT, Ds3GetContext)
 
+//
+// DualShock 4-specific context
+// 
 typedef struct _DS4_DEVICE_CONTEXT
 {
     WDFTIMER OutputReportTimer;
