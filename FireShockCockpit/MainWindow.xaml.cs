@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
+using HidLibrary;
 
 namespace FireShockCockpit
 {
@@ -21,6 +23,11 @@ namespace FireShockCockpit
             Detector.DeviceAttached += (o, args) => MessageBox.Show(args.ToString());
 
             Detector.Register();
+
+            foreach (var hidDevice in HidDevices.Enumerate())
+            {
+                MessageBox.Show(hidDevice.Description);
+            }
         }
     }
 }

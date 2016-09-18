@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FireShockCockpit"
+        xmlns:toggleSwitch="clr-namespace:ToggleSwitch;assembly=ToggleSwitch"
         mc:Ignorable="d"
         Title="FireShock Cockpit" Height="405.614" Width="648.835" Icon="favicon.ico" Loaded="Window_Loaded" ResizeMode="NoResize">
     <Window.Background>
@@ -14,6 +15,8 @@
             <GroupBox Header="GroupBox" Canvas.Left="26" Canvas.Top="23" Height="198" Width="291">
                 <ListBox x:Name="FireShockControllersListBox" Margin="5" />
             </GroupBox>
+            <toggleSwitch:HorizontalToggleSwitch Canvas.Left="179" Canvas.Top="254"/>
+
         </Canvas>
 
     </Grid>

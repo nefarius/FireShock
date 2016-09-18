@@ -31,7 +31,7 @@ namespace FireShockCockpit
         public const int DBT_DEVTYP_PORT = 0x00000003;
         public const int DBT_DEVTYP_VOLUME = 0x00000002;
 
-        private static readonly Guid MediaClassId = Guid.Parse("2409EA50-9ECA-410E-AC9E-F9AC798C4D9C");
+        public static Guid MediaClassId => Guid.Parse("2409EA50-9ECA-410E-AC9E-F9AC798C4D9C");
 
         private readonly HwndSource _hwndSource;
 
