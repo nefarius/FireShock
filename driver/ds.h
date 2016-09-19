@@ -96,6 +96,7 @@ typedef enum _DS3_FEATURE_VALUE
 
 typedef enum _DS_DEVICE_TYPE
 {
+    Unknown,
 	DualShock3,
 	DualShock4
 } DS_DEVICE_TYPE, *PDS_DEVICE_TYPE;

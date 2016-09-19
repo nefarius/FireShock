@@ -24,6 +24,8 @@ ExcludeFromSelect = *
 %Ds3DeviceName%=FireShock_Inst, USB\VID_054C&PID_0268&REV_0100
 %Ds3DeviceName%=FireShock_Inst, USB\VID_054C&PID_0268
 %Ds4DeviceName%=FireShock_Inst, USB\VID_054C&PID_05C4
+%Xusb3DeviceName%=FireShock_Inst, USB\VID_1337&PID_0001&IG_00
+%Xusb4DeviceName%=FireShock_Inst, USB\VID_1337&PID_0002&IG_00
 
 ; Install Section
 ; ---------------------------------------------------------
@@ -107,6 +109,8 @@ DiskName = "FireShock Driver Disk"
 ; HID device IDs
 Ds3DeviceName = "FireShock 3 Device"
 Ds4DeviceName = "FireShock 4 Device"
+Xusb3DeviceName = "FireShock 3 XINPUT Device"
+Xusb4DeviceName = "FireShock 4 XINPUT Device"
 
 ; Standard defs
 SPSVCINST_TAGTOFRONT  = 0x00000001

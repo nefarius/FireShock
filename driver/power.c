@@ -48,6 +48,8 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     PDS4_DEVICE_CONTEXT             pDs4Context;
     WDF_OBJECT_ATTRIBUTES           attributes;
     WDF_TIMER_CONFIG                timerCfg;
+    USHORT                          xusbVid = 0;
+    USHORT                          xusbPid = 0;
 
     UNREFERENCED_PARAMETER(PreviousState);
 
@@ -73,6 +75,8 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     if (deviceDescriptor.idVendor == DS3_VENDOR_ID && deviceDescriptor.idProduct == DS3_PRODUCT_ID)
     {
         pDeviceContext->DeviceType = DualShock3;
+        xusbVid = 0x1337;
+        xusbPid = 0x0001;
 
         // Add DS3-specific context to device object
         WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS3_DEVICE_CONTEXT);
@@ -153,6 +157,8 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     if (deviceDescriptor.idVendor == DS4_VENDOR_ID && deviceDescriptor.idProduct == DS4_PRODUCT_ID)
     {
         pDeviceContext->DeviceType = DualShock4;
+        xusbVid = 0x1337;
+        xusbPid = 0x0002;
 
         // Add DS4-specific context to device object
         WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS4_DEVICE_CONTEXT);
@@ -178,6 +184,12 @@ NTSTATUS FireShockEvtDeviceD0Entry(
         RtlCopyBytes(pDs4Context->OutputReportBuffer, DefaultOutputReport, DS4_HID_OUTPUT_REPORT_SIZE);
     }
 
+    if (deviceDescriptor.idVendor == 0x1337)
+    {
+        KdPrint((DRIVERNAME "Device is XUSB HID device\n"));
+        return status;
+    }
+
     // Spawn XUSB device if ViGEm is available
     WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
     if (pDeviceContext->ViGEm.Available)
@@ -191,15 +203,15 @@ NTSTATUS FireShockEvtDeviceD0Entry(
                 pDeviceContext->ViGEm.Interface.Header.Context,
                 pDeviceContext->ViGEm.Serial,
                 Xbox360Wired,
-                0,
-                0);
+                xusbVid,
+                xusbPid);
 
             if (!NT_SUCCESS(status))
             {
                 KdPrint((DRIVERNAME "Couldn't request XUSB device: 0x%X", status));
                 continue;
             }
-            
+
             break;
         }
     }

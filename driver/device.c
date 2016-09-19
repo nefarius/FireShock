@@ -400,6 +400,11 @@ VOID EvtIoInternalDeviceControl(
     irp = WdfRequestWdmGetIrp(Request);
     pDeviceContext = GetCommonContext(hDevice);
 
+    if (pDeviceContext->DeviceType == Unknown)
+    {
+        goto ioForward;
+    }
+
     switch (IoControlCode)
     {
     case IOCTL_INTERNAL_USB_SUBMIT_URB:
@@ -573,6 +578,8 @@ VOID EvtIoInternalDeviceControl(
         WdfRequestComplete(Request, status);
         return;
     }
+
+ioForward:
 
     // The upper request gets forwarded to the lower driver
     WDF_REQUEST_SEND_OPTIONS_INIT(&options,
