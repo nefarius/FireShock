@@ -179,6 +179,7 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     }
 
     // Spawn XUSB device if ViGEm is available
+    WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
     if (pDeviceContext->ViGEm.Available)
     {
         for (
@@ -190,8 +191,8 @@ NTSTATUS FireShockEvtDeviceD0Entry(
                 pDeviceContext->ViGEm.Interface.Header.Context,
                 pDeviceContext->ViGEm.Serial,
                 Xbox360Wired,
-                deviceDescriptor.idVendor,
-                deviceDescriptor.idProduct);
+                0,
+                0);
 
             if (!NT_SUCCESS(status))
             {
@@ -202,6 +203,7 @@ NTSTATUS FireShockEvtDeviceD0Entry(
             break;
         }
     }
+    WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
 
     return status;
 }

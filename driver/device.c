@@ -38,6 +38,7 @@ WDFDEVICE       ControlDevice = NULL;
 #pragma alloc_text(PAGE, FilterEvtIoDeviceControl)
 #pragma alloc_text(PAGE, FilterShutdown)
 #pragma alloc_text(PAGE, EvtCleanupCallback)
+#pragma alloc_text(PAGE, EvtIoTargetQueryRemove)
 #endif
 
 NTSTATUS
@@ -183,6 +184,8 @@ Return Value:
 
     WDF_IO_TARGET_OPEN_PARAMS_INIT_CREATE_BY_NAME(&openParams, &VigemDosDeviceName, STANDARD_RIGHTS_ALL);
 
+    openParams.EvtIoTargetQueryRemove = EvtIoTargetQueryRemove;
+
     status = WdfIoTargetOpen(vigemTarget, &openParams);
     if (NT_SUCCESS(status))
     {
@@ -198,6 +201,13 @@ Return Value:
         {
             KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
             WdfObjectDelete(vigemTarget);
+        }
+
+        status = WdfWaitLockCreate(WDF_NO_OBJECT_ATTRIBUTES, &pDeviceContext->ViGEm.Lock);
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint((DRIVERNAME "WdfWaitLockCreate failed with status 0x%X\n", status));
+            return status;
         }
     }
 
@@ -237,6 +247,7 @@ VOID EvtCleanupCallback(
 
     pDeviceContext = GetCommonContext(Device);
 
+    WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
     if (pDeviceContext->ViGEm.Available)
     {
         // "Unplug" emulated device
@@ -245,6 +256,7 @@ VOID EvtCleanupCallback(
             pDeviceContext->ViGEm.Serial
             );
     }
+    WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
 
     WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
 
@@ -756,8 +768,39 @@ void FilterShutdown(WDFDEVICE Device)
     {
         pDs3Context = Ds3GetContext(Device);
 
-        WdfTimerStop(pDs3Context->OutputReportTimer, TRUE);
-        WdfTimerStop(pDs3Context->InputEnableTimer, FALSE);
+        if (pDs3Context)
+        {
+            WdfTimerStop(pDs3Context->OutputReportTimer, TRUE);
+            WdfTimerStop(pDs3Context->InputEnableTimer, FALSE);
+        }
     }
+}
+
+//
+// Gets called when the remote target (ViGEm) gets removed.
+// 
+_Use_decl_annotations_
+NTSTATUS
+EvtIoTargetQueryRemove(
+    WDFIOTARGET  IoTarget
+)
+{
+    WDFDEVICE           device;
+    PDEVICE_CONTEXT     pDeviceContext;
+
+    PAGED_CODE();
+
+    KdPrint((DRIVERNAME "EvtIoTargetQueryRemove called\n"));
+
+    device = WdfIoTargetGetDevice(IoTarget);
+    pDeviceContext = GetCommonContext(device);
+
+    WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
+
+    pDeviceContext->ViGEm.Available = FALSE;
+
+    WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
+
+    return STATUS_SUCCESS;
 }
 

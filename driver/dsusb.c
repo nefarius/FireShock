@@ -567,6 +567,7 @@ void BulkOrInterruptTransferCompleted(
     }
 
     // Submit XUSB report if ViGEm is available
+    WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
     if (pDeviceContext->ViGEm.Available)
     {
         (*pDeviceContext->ViGEm.Interface.XusbSubmitReport)(
@@ -574,6 +575,7 @@ void BulkOrInterruptTransferCompleted(
             pDeviceContext->ViGEm.Serial,
             &xusbReport);
     }
+    WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
 
     // Complete upper request
     WdfRequestComplete(Request, status);

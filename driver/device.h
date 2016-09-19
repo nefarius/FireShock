@@ -40,6 +40,8 @@ typedef struct _VIGEM_META
 
     ULONG Serial;
 
+    WDFWAITLOCK Lock;
+
 } VIGEM_META, *PVIGEM_META;
 
 //
@@ -94,6 +96,7 @@ EVT_WDF_DEVICE_CONTEXT_CLEANUP EvtDeviceContextCleanup;
 EVT_WDF_IO_QUEUE_IO_INTERNAL_DEVICE_CONTROL EvtIoInternalDeviceControl;
 EVT_WDF_IO_QUEUE_IO_DEVICE_CONTROL FilterEvtIoDeviceControl;
 EVT_WDF_OBJECT_CONTEXT_CLEANUP EvtCleanupCallback;
+EVT_WDF_IO_TARGET_QUERY_REMOVE EvtIoTargetQueryRemove;
 
 _Must_inspect_result_
 _Success_(return == STATUS_SUCCESS)
