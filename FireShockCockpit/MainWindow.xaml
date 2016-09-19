@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:FireShockCockpit"
         xmlns:toggleSwitch="clr-namespace:ToggleSwitch;assembly=ToggleSwitch"
         mc:Ignorable="d"
-        Title="FireShock Cockpit" Height="405.614" Width="648.835" Icon="favicon.ico" Loaded="Window_Loaded" ResizeMode="NoResize">
+        Title="FireShock Cockpit" Height="448.947" Width="736.835" Icon="favicon.ico" Loaded="Window_Loaded" ResizeMode="NoResize">
     <Window.Background>
         <ImageBrush ImageSource="Images/wallpaperplaystationBLUE.png" Stretch="UniformToFill"/>
     </Window.Background>
@@ -15,8 +15,43 @@
             <GroupBox Header="GroupBox" Canvas.Left="26" Canvas.Top="23" Height="198" Width="291">
                 <ListBox x:Name="FireShockControllersListBox" Margin="5" />
             </GroupBox>
-            <toggleSwitch:HorizontalToggleSwitch Canvas.Left="179" Canvas.Top="254"/>
 
+            <Grid Canvas.Left="26" Canvas.Top="226">
+                <Grid.Resources>
+                    <Style TargetType="{x:Type toggleSwitch:HorizontalToggleSwitch}">
+                        <Setter Property="Margin" Value="5"/>
+                    </Style>
+                    <Style TargetType="{x:Type Label}">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Foreground" Value="AntiqueWhite"/>
+                    </Style>
+                </Grid.Resources>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0">XInput Emulation (requires ViGEm)</Label>
+                <Label Grid.Row="1" Grid.Column="0">XInput HID Input Pass-through</Label>
+                <Label Grid.Row="2" Grid.Column="0">XInput HID Output Pass-through</Label>
+                <Label Grid.Row="3" Grid.Column="0">FireShock HID Input Pass-through</Label>
+                <Label Grid.Row="4" Grid.Column="0">FireShock HID Output Pass-through</Label>
+
+                <toggleSwitch:HorizontalToggleSwitch Grid.Row="0" Grid.Column="1" IsChecked="True"/>
+                <toggleSwitch:HorizontalToggleSwitch Grid.Row="1" Grid.Column="1" IsChecked="True"/>
+                <toggleSwitch:HorizontalToggleSwitch Grid.Row="2" Grid.Column="1" IsChecked="True"/>
+                <toggleSwitch:HorizontalToggleSwitch Grid.Row="3" Grid.Column="1" IsChecked="True"/>
+                <toggleSwitch:HorizontalToggleSwitch Grid.Row="4" Grid.Column="1" IsChecked="True"/>
+            </Grid>
         </Canvas>
 
     </Grid>

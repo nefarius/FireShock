@@ -56,6 +56,8 @@ typedef struct _DEVICE_CONTEXT
     ULONG DeviceIndex;
 
     VIGEM_META ViGEm;
+    
+    FS_DEVICE_SETTINGS Settings;
 
 } DEVICE_CONTEXT, *PDEVICE_CONTEXT;
 

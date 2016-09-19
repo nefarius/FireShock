@@ -24,10 +24,10 @@ namespace FireShockCockpit
 
             Detector.Register();
 
-            foreach (var hidDevice in HidDevices.Enumerate())
-            {
-                MessageBox.Show(hidDevice.Description);
-            }
+            //foreach (var hidDevice in HidDevices.Enumerate())
+            //{
+            //    MessageBox.Show(hidDevice.Description);
+            //}
         }
     }
 }

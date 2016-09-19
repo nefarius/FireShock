@@ -44,6 +44,20 @@ DEFINE_GUID(GUID_DEVINTERFACE_FIRESHOCK,
 #define IOCTL_FIRESHOCK_FS3_SUBMIT_REPORT        BUSENUM_RW_IOCTL (IOCTL_FIRESHOCK_BASE + 0x001)
 
 
+typedef struct _FS_DEVICE_SETTINGS
+{
+    BOOLEAN XusbEmulationEnabled;
+
+    BOOLEAN XusbHidInputEnabled;
+
+    BOOLEAN XusbHidOutputEnabled;
+
+    BOOLEAN FsHidInputEnabled;
+
+    BOOLEAN FsHidOutputEnabled;
+
+} FS_DEVICE_SETTINGS, *PFS_DEVICE_SETTINGS;
+
 typedef enum _FS3_BUTTON
 {
     FS3_GAMEPAD_SELECT = 0x0100,
