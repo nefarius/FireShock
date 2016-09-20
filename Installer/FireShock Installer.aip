@@ -9,6 +9,8 @@
     <ROW Property="ALLUSERS" Value="1"/>
     <ROW Property="ARPCOMMENTS" Value="[|ProductName]" ValueLocId="*"/>
     <ROW Property="ARPHELPLINK" Value="https://github.com/nefarius/FireShock/issues"/>
+    <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
+    <ROW Property="ARPNOREPAIR" Value="1"/>
     <ROW Property="ARPPRODUCTICON" Value="favicon.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="https://github.com/nefarius/FireShock"/>
     <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/nefarius/FireShock/releases"/>
