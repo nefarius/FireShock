@@ -336,6 +336,7 @@ void BulkOrInterruptTransferCompleted(
     ULONG                       transferBufferLength;
     PDEVICE_CONTEXT             pDeviceContext;
     PDS3_DEVICE_CONTEXT         pDs3Context;
+    PDS4_DEVICE_CONTEXT         pDs4Context;
     XUSB_SUBMIT_REPORT          xusbReport;
     PUCHAR                      buffer = NULL;
     PDS4_REPORT                 pDs4Report;
@@ -371,6 +372,8 @@ void BulkOrInterruptTransferCompleted(
             NonPagedPool,
             DS3_ORIGINAL_HID_REPORT_SIZE,
             FIRESHOCK_POOL_TAG);
+
+        if (!buffer) break;
 
         // Report ID
         buffer[0] = transferBuffer[0];
@@ -490,9 +493,24 @@ void BulkOrInterruptTransferCompleted(
         xusbReport.Report.sThumbRX = ScaleAxis(pDs3Context->InputState.RightThumbX, FALSE);
         xusbReport.Report.sThumbRY = ScaleAxis(pDs3Context->InputState.RightThumbY, TRUE);
 
+        if (pDeviceContext->Settings.FsHidInputEnabled)
+        {
+            RtlCopyBytes(pDs3Context->LastReport, buffer, DS3_ORIGINAL_HID_REPORT_SIZE);
+        }
+        else
+        {
+            RtlCopyBytes(buffer, pDs3Context->LastReport, DS3_ORIGINAL_HID_REPORT_SIZE);
+        }
+
+        // Copy back modified buffer to request buffer
+        RtlCopyBytes(transferBuffer, buffer, transferBufferLength);
+
+        ExFreePoolWithTag(buffer, FIRESHOCK_POOL_TAG);
+
         break;
     case DualShock4:
 
+        pDs4Context = Ds4GetContext(device);
         pDs4Report = (PDS4_REPORT)&transferBuffer[1];
 
         // Translate FS4 D-Pad to XUSB format
@@ -553,17 +571,18 @@ void BulkOrInterruptTransferCompleted(
         xusbReport.Report.sThumbRX = ScaleAxis(pDs4Report->bThumbRX, FALSE);
         xusbReport.Report.sThumbRY = ScaleAxis(pDs4Report->bThumbRY, TRUE);
 
+        if (pDeviceContext->Settings.FsHidInputEnabled)
+        {
+            RtlCopyBytes(&pDs4Context->LastReport, pDs4Report, sizeof(DS4_REPORT));
+        }
+        else
+        {
+            RtlCopyBytes(pDs4Report, &pDs4Context->LastReport, sizeof(DS4_REPORT));
+        }
+
         break;
     default:
         break;
-    }
-
-    if (buffer)
-    {
-        // Copy back modified buffer to request buffer
-        RtlCopyBytes(transferBuffer, buffer, transferBufferLength);
-
-        ExFreePoolWithTag(buffer, FIRESHOCK_POOL_TAG);
     }
 
     // Submit XUSB report if ViGEm is available
