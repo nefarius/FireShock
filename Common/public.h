@@ -142,6 +142,7 @@ VOID FORCEINLINE FS_REQUEST_SETTINGS_INIT(
     IN ULONG SerialNo)
 {
     RtlZeroMemory(Request, sizeof(FS_REQUEST_SETTINGS));
+
     Request->Size = sizeof(FS_REQUEST_SETTINGS);
     Request->SerialNo = SerialNo;
 }
@@ -161,6 +162,7 @@ VOID FORCEINLINE FS_SUBMIT_SETTINGS_INIT(
     IN ULONG SerialNo)
 {
     RtlZeroMemory(Request, sizeof(FS_SUBMIT_SETTINGS));
+
     Request->Size = sizeof(FS_SUBMIT_SETTINGS);
     Request->SerialNo = SerialNo;
 }
