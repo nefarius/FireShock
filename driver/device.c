@@ -302,6 +302,8 @@ VOID FilterEvtIoDeviceControl(
     PFS3_REQUEST_REPORT         pFs3Report = NULL;
     PDEVICE_CONTEXT             pDeviceContext;
     PDS3_DEVICE_CONTEXT         pDs3Context;
+    PFS_REQUEST_SETTINGS        pReqSettings;
+    PFS_SUBMIT_SETTINGS         pSubSettings;
 
     UNREFERENCED_PARAMETER(Queue);
 
@@ -363,6 +365,68 @@ VOID FilterEvtIoDeviceControl(
         }
 
         pFs3Report->State = pDs3Context->InputState;
+
+        break;
+
+    case IOCTL_FIRESHOCK_REQUEST_SETTINGS:
+
+        status = WdfRequestRetrieveInputBuffer(Request, sizeof(FS_REQUEST_SETTINGS), (PVOID)&pReqSettings, &length);
+
+        // Validate input buffer size
+        if (!NT_SUCCESS(status)
+            || (sizeof(FS_REQUEST_SETTINGS) != pReqSettings->Size)
+            || (length != InputBufferLength))
+        {
+            status = STATUS_INVALID_PARAMETER;
+            break;
+        }
+
+        hFilterDevice = WdfCollectionGetItem(FilterDeviceCollection, pReqSettings->SerialNo);
+        pDeviceContext = GetCommonContext(hFilterDevice);
+
+        status = WdfRequestRetrieveOutputBuffer(Request, sizeof(FS_REQUEST_SETTINGS), (PVOID)&pReqSettings, &length);
+
+        // Validate output buffer size
+        if (!NT_SUCCESS(status)
+            || (sizeof(FS_REQUEST_SETTINGS) != pFs3Report->Size)
+            || (length != OutputBufferLength))
+        {
+            status = STATUS_INVALID_PARAMETER;
+            break;
+        }
+
+        pReqSettings->Settings = pDeviceContext->Settings;
+
+        break;
+
+    case IOCTL_FIRESHOCK_SUBMIT_SETTINGS:
+
+        status = WdfRequestRetrieveInputBuffer(Request, sizeof(FS_SUBMIT_SETTINGS), (PVOID)&pSubSettings, &length);
+
+        // Validate input buffer size
+        if (!NT_SUCCESS(status)
+            || (sizeof(FS_SUBMIT_SETTINGS) != pSubSettings->Size)
+            || (length != InputBufferLength))
+        {
+            status = STATUS_INVALID_PARAMETER;
+            break;
+        }
+
+        hFilterDevice = WdfCollectionGetItem(FilterDeviceCollection, pSubSettings->SerialNo);
+        pDeviceContext = GetCommonContext(hFilterDevice);
+
+        status = WdfRequestRetrieveOutputBuffer(Request, sizeof(FS_SUBMIT_SETTINGS), (PVOID)&pSubSettings, &length);
+
+        // Validate output buffer size
+        if (!NT_SUCCESS(status)
+            || (sizeof(FS_SUBMIT_SETTINGS) != pFs3Report->Size)
+            || (length != OutputBufferLength))
+        {
+            status = STATUS_INVALID_PARAMETER;
+            break;
+        }
+
+        pDeviceContext->Settings = pSubSettings->Settings;
 
         break;
     }
@@ -427,25 +491,31 @@ VOID EvtIoInternalDeviceControl(
             {
                 KdPrint((DRIVERNAME ">> >> >> Interrupt IN\n"));
 
-                WdfRequestFormatRequestUsingCurrentType(Request);
-                WdfRequestSetCompletionRoutine(Request, BulkOrInterruptTransferCompleted, hDevice);
+                if (pDeviceContext->DeviceType > Unknown)
+                {
+                    WdfRequestFormatRequestUsingCurrentType(Request);
+                    WdfRequestSetCompletionRoutine(Request, BulkOrInterruptTransferCompleted, hDevice);
 
-                ret = WdfRequestSend(Request, WdfDeviceGetIoTarget(hDevice), WDF_NO_SEND_OPTIONS);
+                    ret = WdfRequestSend(Request, WdfDeviceGetIoTarget(hDevice), WDF_NO_SEND_OPTIONS);
 
-                if (ret == FALSE) {
-                    status = WdfRequestGetStatus(Request);
-                    KdPrint((DRIVERNAME "WdfRequestSend failed: 0x%x\n", status));
-                    processed = TRUE;
+                    if (ret == FALSE) {
+                        status = WdfRequestGetStatus(Request);
+                        KdPrint((DRIVERNAME "WdfRequestSend failed: 0x%x\n", status));
+                        processed = TRUE;
+                    }
+                    else return;
                 }
-                else return;
             }
             else
             {
                 KdPrint((DRIVERNAME ">> >> >> Interrupt OUT\n"));
 
-                status = ParseBulkOrInterruptTransfer(urb, hDevice);
+                if (pDeviceContext->DeviceType > Unknown)
+                {
+                    status = ParseBulkOrInterruptTransfer(urb, hDevice);
 
-                processed = NT_SUCCESS(status);
+                    processed = NT_SUCCESS(status);
+                }
             }
 
             break;
