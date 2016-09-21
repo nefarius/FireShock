@@ -174,6 +174,16 @@ Return Value:
     WdfDeviceSetPowerCapabilities(device, &powerCaps);
 
     //
+    // Wait lock for ViGEm
+    // 
+    status = WdfWaitLockCreate(WDF_NO_OBJECT_ATTRIBUTES, &pDeviceContext->ViGEm.Lock);
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint((DRIVERNAME "WdfWaitLockCreate failed with status 0x%X\n", status));
+        return status;
+    }
+
+    //
     // Get ViGEm interface
     // 
     status = WdfIoTargetCreate(device, WDF_NO_OBJECT_ATTRIBUTES, &vigemTarget);
@@ -195,19 +205,15 @@ Return Value:
             sizeof(VIGEM_INTERFACE_STANDARD),
             1,
             NULL);// InterfaceSpecific Data
+
+        WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
         pDeviceContext->ViGEm.Available = NT_SUCCESS(status);
+        WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
 
         if (!pDeviceContext->ViGEm.Available)
         {
             KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
             WdfObjectDelete(vigemTarget);
-        }
-
-        status = WdfWaitLockCreate(WDF_NO_OBJECT_ATTRIBUTES, &pDeviceContext->ViGEm.Lock);
-        if (!NT_SUCCESS(status))
-        {
-            KdPrint((DRIVERNAME "WdfWaitLockCreate failed with status 0x%X\n", status));
-            return status;
         }
     }
 
