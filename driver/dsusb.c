@@ -338,7 +338,7 @@ void BulkOrInterruptTransferCompleted(
     PDS3_DEVICE_CONTEXT         pDs3Context;
     PDS4_DEVICE_CONTEXT         pDs4Context;
     XUSB_SUBMIT_REPORT          xusbReport;
-    PUCHAR                      buffer = NULL;
+    PUCHAR                      buffer;
     PDS4_REPORT                 pDs4Report;
 
     UNREFERENCED_PARAMETER(Target);
