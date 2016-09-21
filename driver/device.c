@@ -217,6 +217,15 @@ Return Value:
         }
     }
 
+    // 
+    // Default settings
+    // 
+    pDeviceContext->Settings.FsHidInputEnabled = TRUE;
+    pDeviceContext->Settings.FsHidOutputEnabled = TRUE;
+    pDeviceContext->Settings.XusbEmulationEnabled = TRUE;
+    pDeviceContext->Settings.XusbHidInputEnabled = TRUE;
+    pDeviceContext->Settings.XusbHidOutputEnabled = TRUE;
+
     //
     // Create a control device
     //
@@ -331,6 +340,8 @@ VOID FilterEvtIoDeviceControl(
     {
     case IOCTL_FIRESHOCK_FS3_REQUEST_REPORT:
 
+        KdPrint((DRIVERNAME "IOCTL_FIRESHOCK_FS3_REQUEST_REPORT\n"));
+
         status = WdfRequestRetrieveInputBuffer(Request, sizeof(FS3_REQUEST_REPORT), (PVOID)&pFs3Report, &length);
 
         // Validate input buffer size
@@ -376,6 +387,8 @@ VOID FilterEvtIoDeviceControl(
 
     case IOCTL_FIRESHOCK_REQUEST_SETTINGS:
 
+        KdPrint((DRIVERNAME "IOCTL_FIRESHOCK_REQUEST_SETTINGS\n"));
+
         status = WdfRequestRetrieveInputBuffer(Request, sizeof(FS_REQUEST_SETTINGS), (PVOID)&pReqSettings, &length);
 
         // Validate input buffer size
@@ -394,7 +407,7 @@ VOID FilterEvtIoDeviceControl(
 
         // Validate output buffer size
         if (!NT_SUCCESS(status)
-            || (sizeof(FS_REQUEST_SETTINGS) != pFs3Report->Size)
+            || (sizeof(FS_REQUEST_SETTINGS) != pReqSettings->Size)
             || (length != OutputBufferLength))
         {
             status = STATUS_INVALID_PARAMETER;
@@ -406,6 +419,8 @@ VOID FilterEvtIoDeviceControl(
         break;
 
     case IOCTL_FIRESHOCK_SUBMIT_SETTINGS:
+
+        KdPrint((DRIVERNAME "IOCTL_FIRESHOCK_SUBMIT_SETTINGS\n"));
 
         status = WdfRequestRetrieveInputBuffer(Request, sizeof(FS_SUBMIT_SETTINGS), (PVOID)&pSubSettings, &length);
 
@@ -420,17 +435,6 @@ VOID FilterEvtIoDeviceControl(
 
         hFilterDevice = WdfCollectionGetItem(FilterDeviceCollection, pSubSettings->SerialNo);
         pDeviceContext = GetCommonContext(hFilterDevice);
-
-        status = WdfRequestRetrieveOutputBuffer(Request, sizeof(FS_SUBMIT_SETTINGS), (PVOID)&pSubSettings, &length);
-
-        // Validate output buffer size
-        if (!NT_SUCCESS(status)
-            || (sizeof(FS_SUBMIT_SETTINGS) != pFs3Report->Size)
-            || (length != OutputBufferLength))
-        {
-            status = STATUS_INVALID_PARAMETER;
-            break;
-        }
 
         pDeviceContext->Settings = pSubSettings->Settings;
 

@@ -13,7 +13,7 @@ int main()
     SP_DEVICE_INTERFACE_DATA deviceInterfaceData = { 0 };
     deviceInterfaceData.cbSize = sizeof(deviceInterfaceData);
     DWORD memberIndex = 0;
-    UCHAR Buffer[20];
+    DWORD status;
     DWORD bytes = 0;
 
     HANDLE hControlDevice = CreateFile(TEXT("\\\\.\\FireShockFilter"),
@@ -29,31 +29,37 @@ int main()
     else
         printf("Device not found! 0x%X\n", GetLastError());
 
-
+    FS_REQUEST_SETTINGS reqSettings;
+    FS_SUBMIT_SETTINGS subSettings;
+    
     auto deviceInfoSet = SetupDiGetClassDevs(&GUID_DEVINTERFACE_FIRESHOCK, nullptr, nullptr, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
 
     while (SetupDiEnumDeviceInterfaces(deviceInfoSet, nullptr, &GUID_DEVINTERFACE_FIRESHOCK, memberIndex, &deviceInterfaceData))
     {
-        while (TRUE)
-        {
-            FS3_REQUEST_REPORT req;
-            FS3_REQUEST_REPORT_INIT(&req, memberIndex);
+        FS_REQUEST_SETTINGS_INIT(&reqSettings, memberIndex);
 
-            if (!DeviceIoControl(hControlDevice,
-                IOCTL_FIRESHOCK_FS3_REQUEST_REPORT,
-                &req, req.Size,
-                &req, req.Size,
-                &bytes, nullptr)) {
-                printf("Ioctl to ToasterFilter device failed: 0x%X\n", GetLastError());
-            }
-            else {
-                printf("Buttons: %4X %2X\r", 
-                    req.State.Buttons,
-                    req.State.PsButton);
-            }
+        status = DeviceIoControl(
+            hControlDevice,
+            IOCTL_FIRESHOCK_REQUEST_SETTINGS,
+            &reqSettings, reqSettings.Size,
+            &reqSettings, reqSettings.Size, &bytes, NULL);
 
-            Sleep(2);
-        }
+        printf("Request result: %X\n", status);
+
+        printf("FsHidInputEnabled: %X\n", reqSettings.Settings.FsHidInputEnabled);
+
+        FS_SUBMIT_SETTINGS_INIT(&subSettings, memberIndex);
+
+        subSettings.Settings = reqSettings.Settings;
+        subSettings.Settings.FsHidInputEnabled = FALSE;
+
+        status = DeviceIoControl(
+            hControlDevice,
+            IOCTL_FIRESHOCK_SUBMIT_SETTINGS,
+            &subSettings, subSettings.Size,
+            &subSettings, subSettings.Size, &bytes, NULL);
+
+        printf("Submit result: %X\n", status);
 
         memberIndex++;
     }
