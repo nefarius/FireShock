@@ -491,31 +491,25 @@ VOID EvtIoInternalDeviceControl(
             {
                 KdPrint((DRIVERNAME ">> >> >> Interrupt IN\n"));
 
-                if (pDeviceContext->DeviceType > Unknown)
-                {
-                    WdfRequestFormatRequestUsingCurrentType(Request);
-                    WdfRequestSetCompletionRoutine(Request, BulkOrInterruptTransferCompleted, hDevice);
+                WdfRequestFormatRequestUsingCurrentType(Request);
+                WdfRequestSetCompletionRoutine(Request, BulkOrInterruptTransferCompleted, hDevice);
 
-                    ret = WdfRequestSend(Request, WdfDeviceGetIoTarget(hDevice), WDF_NO_SEND_OPTIONS);
+                ret = WdfRequestSend(Request, WdfDeviceGetIoTarget(hDevice), WDF_NO_SEND_OPTIONS);
 
-                    if (ret == FALSE) {
-                        status = WdfRequestGetStatus(Request);
-                        KdPrint((DRIVERNAME "WdfRequestSend failed: 0x%x\n", status));
-                        processed = TRUE;
-                    }
-                    else return;
+                if (ret == FALSE) {
+                    status = WdfRequestGetStatus(Request);
+                    KdPrint((DRIVERNAME "WdfRequestSend failed: 0x%x\n", status));
+                    processed = TRUE;
                 }
+                else return;
             }
             else
             {
                 KdPrint((DRIVERNAME ">> >> >> Interrupt OUT\n"));
 
-                if (pDeviceContext->DeviceType > Unknown)
-                {
-                    status = ParseBulkOrInterruptTransfer(urb, hDevice);
+                status = ParseBulkOrInterruptTransfer(urb, hDevice);
 
-                    processed = NT_SUCCESS(status);
-                }
+                processed = NT_SUCCESS(status);
             }
 
             break;
