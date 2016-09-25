@@ -115,11 +115,14 @@ Return Value:
 
     ioQueueConfig.EvtIoInternalDeviceControl = EvtIoInternalDeviceControl;
 
+    __analysis_assume(ioQueueConfig.EvtIoStop != 0);
     status = WdfIoQueueCreate(device,
         &ioQueueConfig,
         WDF_NO_OBJECT_ATTRIBUTES,
         WDF_NO_HANDLE // pointer to default queue
     );
+    __analysis_assume(ioQueueConfig.EvtIoStop == 0);
+
     if (!NT_SUCCESS(status))
     {
         KdPrint((DRIVERNAME "WdfIoQueueCreate failed 0x%x\n", status));
