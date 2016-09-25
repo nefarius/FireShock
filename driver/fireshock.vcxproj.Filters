@@ -23,4 +23,49 @@
       <Filter>Driver Files</Filter>
     </Inf>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="device.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="driver.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ds.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dsusb.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="power.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\public.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dsusb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fireshock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="power.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="fireshock.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
 </Project>

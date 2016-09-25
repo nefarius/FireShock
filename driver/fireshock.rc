@@ -1,12 +1,88 @@
-#include <windows.h>
-#include <ntverp.h>
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+/////////////////////////////////////////////////////////////////////////////
+// German (Austria) resources
 
-#define VER_FILETYPE                VFT_DRV
-#define VER_FILESUBTYPE             VFT2_DRV_SYSTEM
-#define VER_FILEDESCRIPTION_STR     "Filter Driver for the FireShock Device (Framework Version)"
-#define VER_INTERNALNAME_STR        "fireshock.sys"
-#define VER_ORIGINALFILENAME_STR    "fireshock.sys"
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEA)
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN_AUSTRIAN
+#pragma code_page(1252)
 
-#include "common.ver"
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
 
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x9L
+#else
+ FILEFLAGS 0x8L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x3L
+ FILESUBTYPE 0x7L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Nefarius Software Solutions"
+            VALUE "FileDescription", "Filter Driver for the Sony DualShock Devices"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "fireshock.sys"
+            VALUE "LegalCopyright", "© Benjamin Höglinger. All rights reserved."
+            VALUE "OriginalFilename", "fireshock.sys"
+            VALUE "ProductName", "FireShock Filter Driver"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // German (Austria) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
 
