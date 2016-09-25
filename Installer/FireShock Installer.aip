@@ -11,7 +11,7 @@
     <ROW Property="ARPHELPLINK" Value="https://github.com/nefarius/FireShock/issues"/>
     <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="ARPNOREPAIR" Value="1"/>
-    <ROW Property="ARPPRODUCTICON" Value="favicon.exe" Type="8"/>
+    <ROW Property="ARPPRODUCTICON" Value="FireShock.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="https://github.com/nefarius/FireShock"/>
     <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/nefarius/FireShock/releases"/>
     <ROW Property="Manufacturer" Value="Nefarius Software Solutions"/>
@@ -58,7 +58,7 @@
     <ROW File="fireshock.sys_1" Component_="fireshock.sys_1" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="..\driver\Release\fireshock\fireshock.sys" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Setup Files" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="favicon.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" UseLargeSchema="true" ExeName="FireShock_Setup_[|ProductVersion]" MsiPackageType="AI_ALL"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Setup Files" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="FireShock.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" UseLargeSchema="true" ExeName="FireShock_Setup_[|ProductVersion]" MsiPackageType="AI_ALL"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
     <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
@@ -166,7 +166,7 @@
     <ROW InfFileName="fireshock.inf" Flags="19"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
-    <ROW Name="favicon.exe" SourcePath="favicon.ico" Index="0"/>
+    <ROW Name="FireShock.exe" SourcePath="FireShock.ico" Index="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
