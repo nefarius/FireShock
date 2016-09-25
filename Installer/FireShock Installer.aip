@@ -33,11 +33,13 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="AI_Bin32_Dir" Directory_Parent="APPDIR" DefaultDir="32-bit"/>
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="PCSX2_Dir" Directory_Parent="APPDIR" DefaultDir="PCSX2"/>
     <ROW Directory="SHORTCUTDIR" Directory_Parent="TARGETDIR" DefaultDir="SHORTC~1|SHORTCUTDIR" IsPseudoRoot="1"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="AI_ExePath" ComponentId="{F4EA8371-38C6-46BB-88E1-8BA645FF7931}" Directory_="APPDIR" Attributes="4" KeyPath="AI_ExePath"/>
+    <ROW Component="LilyPad.dll" ComponentId="{6A4EB386-2DC4-4676-A2C4-ABB45FFD9602}" Directory_="PCSX2_Dir" Attributes="0" KeyPath="LilyPad.dll"/>
     <ROW Component="ProductInformation" ComponentId="{4D87BAB6-A275-4D4D-87F1-2DD36D9D735C}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
     <ROW Component="fireshock.inf" ComponentId="{7CFB77BD-D3BA-4023-92D9-C273AECB7B6B}" Directory_="APPDIR" Attributes="256" Condition="VersionNT64" KeyPath="fireshock.inf"/>
     <ROW Component="fireshock.sys_1" ComponentId="{1941DFCC-898E-4DA4-9558-7DB03E184AC2}" Directory_="AI_Bin32_Dir" Attributes="0" Condition="NOT VersionNT64" KeyPath="fireshock.sys_1"/>
@@ -45,17 +47,18 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="AI32BitFiles" Title="32-bit" Description="32-bit Executables and Libraries" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="fireshock.sys_1"/>
     <ROW Feature="AI64BitFiles" Title="64-bit" Description="64-bit Executables and Libraries" Display="3" Level="1" Directory_="APPDIR" Attributes="0"/>
-    <ROW Feature="AIOtherFiles" Title="Common" Description="Shared Resource and Regular Files" Display="7" Level="1" Directory_="APPDIR" Attributes="0"/>
+    <ROW Feature="AIOtherFiles" Title="Common" Description="Shared Resource and Regular Files" Display="7" Level="1" Directory_="APPDIR" Attributes="0" Components="LilyPad.dll"/>
     <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_ExePath ProductInformation"/>
     <ROW Feature="fireshock" Feature_Parent="AIOtherFiles" Title="fireshock" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0"/>
     <ROW Feature="fireshock_1" Feature_Parent="fireshock" Title="fireshock" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="fireshock.inf"/>
-    <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
+    <ATTRIBUTE name="CurrentFeature" value="AIOtherFiles"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="LilyPad.dll" Component_="LilyPad.dll" FileName="LilyPad.dll" Attributes="0" SourcePath="..\..\pcsx2\bin\plugins\LilyPad.dll" SelfReg="false"/>
     <ROW File="fireshock.cat" Component_="fireshock.inf" FileName="FIRESH~1.CAT|fireshock.cat" Attributes="0" SourcePath="..\driver\x64\Release\fireshock\fireshock.cat" SelfReg="false" NextFile="fireshock.inf"/>
     <ROW File="fireshock.inf" Component_="fireshock.inf" FileName="FIRESH~1.INF|fireshock.inf" Attributes="0" SourcePath="..\driver\x64\Release\fireshock\fireshock.inf" SelfReg="false" NextFile="fireshock.sys_1"/>
     <ROW File="fireshock.sys" Component_="fireshock.inf" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="..\driver\x64\Release\fireshock\fireshock.sys" SelfReg="false" NextFile="fireshock.cat"/>
-    <ROW File="fireshock.sys_1" Component_="fireshock.sys_1" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="..\driver\Release\fireshock\fireshock.sys" SelfReg="false"/>
+    <ROW File="fireshock.sys_1" Component_="fireshock.sys_1" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="..\driver\Release\fireshock\fireshock.sys" SelfReg="false" NextFile="LilyPad.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Setup Files" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="FireShock.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" UseLargeSchema="true" ExeName="FireShock_Setup_[|ProductVersion]" MsiPackageType="AI_ALL"/>
