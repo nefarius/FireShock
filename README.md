@@ -23,3 +23,4 @@ If a DualShock 3 gets connected to the USB hub, the filter will inject a modifie
  * https://github.com/Microsoft/Windows-driver-samples/tree/master/general/toaster/toastDrv/kmdf/filter/sideband
  * https://msdn.microsoft.com/en-us/library/windows/hardware/dn265671(v=vs.85).aspx
  * http://eleccelerator.com/usbdescreqparser/
+ * http://www.psdevwiki.com/ps4/DS4-USB
