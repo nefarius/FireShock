@@ -13,6 +13,10 @@ Once installed the `fireshock.sys` filter driver will be loaded into the driver 
 
 If a DualShock 3 gets connected to the USB hub, the filter will inject a modified configuration and HID report descriptor which describes a button and axis layout similar to the DualShock 4. After the USB device was successfully initialized it sends a "magic" start packet to the _control endpoint_ so the controller will continously start sending HID input reports via the _interrupt in endpoint_ on interface 0. If an _interrupt in_ transfer was requested, the request gets sent down to the USB PDO, the result intercepted and translated by the filter and completed. If an _interrupt out_ (e.g. rumble state change) transfer was requested, the request gets converted into an output report and redirected to the _control endpoint_.
 
+If a DualShock 4 gets connected, it enables XInput-Support if [ViGEm] (../../../ViGEm) is installed.
+
+## How to install
+Just download the [latest setup](../../releases/latest) and run it. It doesn't matter if you've got your controllers connected during the setup or connect them afterwards.
 
 ## Sources
  * http://eleccelerator.com/wiki/index.php?title=DualShock_3
