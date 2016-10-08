@@ -57,6 +57,8 @@ typedef struct _VIGEM_META
     // 
     WDFWAITLOCK Lock;
 
+    WDFIOTARGET IoTarget;
+
 } VIGEM_META, *PVIGEM_META;
 
 //
@@ -170,4 +172,8 @@ FilterDeleteControlDevice(
 );
 
 VOID FilterShutdown(WDFDEVICE Device);
+
+VOID AcquireViGEmInterface(WDFDEVICE Device, const UNICODE_STRING DeviceName);
+
+VOID ResetDeviceSettings(PDEVICE_CONTEXT Context);
 

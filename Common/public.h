@@ -40,12 +40,18 @@ DEFINE_GUID(GUID_DEVINTERFACE_FIRESHOCK,
 // 
 // IO control codes
 // 
+
 #define IOCTL_FIRESHOCK_FS3_REQUEST_REPORT       BUSENUM_RW_IOCTL (IOCTL_FIRESHOCK_BASE + 0x000)
 #define IOCTL_FIRESHOCK_FS3_SUBMIT_REPORT        BUSENUM_RW_IOCTL (IOCTL_FIRESHOCK_BASE + 0x001)
 #define IOCTL_FIRESHOCK_REQUEST_SETTINGS         BUSENUM_RW_IOCTL (IOCTL_FIRESHOCK_BASE + 0x002)
 #define IOCTL_FIRESHOCK_SUBMIT_SETTINGS          BUSENUM_W_IOCTL  (IOCTL_FIRESHOCK_BASE + 0x003)
 
 
+///-------------------------------------------------------------------------------------------------
+/// <summary>Stores various options for the device.</summary>
+///
+/// <remarks>Benjamin, 08.10.2016.</remarks>
+///-------------------------------------------------------------------------------------------------
 typedef struct _FS_DEVICE_SETTINGS
 {
     BOOLEAN XusbEmulationEnabled;
@@ -60,6 +66,11 @@ typedef struct _FS_DEVICE_SETTINGS
 
 } FS_DEVICE_SETTINGS, *PFS_DEVICE_SETTINGS;
 
+///-------------------------------------------------------------------------------------------------
+/// <summary>Defines FireShock 3 compatible buttons.</summary>
+///
+/// <remarks>Benjamin, 08.10.2016.</remarks>
+///-------------------------------------------------------------------------------------------------
 typedef enum _FS3_BUTTON
 {
     FS3_GAMEPAD_SELECT = 0x0100,
@@ -76,6 +87,11 @@ typedef enum _FS3_BUTTON
     FS3_GAMEPAD_SQUARE = 0x0080
 } FS3_BUTTON, *PFS3_BUTTON;
 
+///-------------------------------------------------------------------------------------------------
+/// <summary>Defines FireShock 3 compatible pressure sensitive button states.</summary>
+///
+/// <remarks>Benjamin, 08.10.2016.</remarks>
+///-------------------------------------------------------------------------------------------------
 typedef struct _FS3_PRESSURE_STATE
 {
     UCHAR Up;
@@ -93,6 +109,11 @@ typedef struct _FS3_PRESSURE_STATE
 
 } FS3_PRESSURE_STATE, *PFS3_PRESSURE_STATE;
 
+///-------------------------------------------------------------------------------------------------
+/// <summary>Defines an FireShock 3 input state.</summary>
+///
+/// <remarks>Benjamin, 08.10.2016.</remarks>
+///-------------------------------------------------------------------------------------------------
 typedef struct _FS3_GAMEPAD_STATE
 {
     UCHAR LeftThumbX;

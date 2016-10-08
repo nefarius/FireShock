@@ -72,8 +72,7 @@ Return Value:
     WDF_IO_QUEUE_CONFIG             ioQueueConfig;
     PDEVICE_CONTEXT                 pDeviceContext;
     WDF_DEVICE_POWER_CAPABILITIES   powerCaps;
-    WDFIOTARGET                     vigemTarget;
-    WDF_IO_TARGET_OPEN_PARAMS       openParams;
+
 
 
     UNREFERENCED_PARAMETER(Driver);
@@ -189,45 +188,12 @@ Return Value:
     //
     // Get ViGEm interface
     // 
-    status = WdfIoTargetCreate(device, WDF_NO_OBJECT_ATTRIBUTES, &vigemTarget);
-    if (!NT_SUCCESS(status)) {
-        KdPrint((DRIVERNAME "WdfIoTargetCreate failed with status code 0x%x\n", status));
-        return status;
-    }
-
-    WDF_IO_TARGET_OPEN_PARAMS_INIT_CREATE_BY_NAME(&openParams, &VigemDosDeviceName, STANDARD_RIGHTS_ALL);
-
-    openParams.EvtIoTargetQueryRemove = EvtIoTargetQueryRemove;
-
-    status = WdfIoTargetOpen(vigemTarget, &openParams);
-    if (NT_SUCCESS(status))
-    {
-        status = WdfIoTargetQueryForInterface(vigemTarget,
-            &GUID_VIGEM_INTERFACE_STANDARD,
-            (PINTERFACE)&pDeviceContext->ViGEm.Interface,
-            sizeof(VIGEM_INTERFACE_STANDARD),
-            1,
-            NULL);// InterfaceSpecific Data
-
-        WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
-        pDeviceContext->ViGEm.Available = NT_SUCCESS(status);
-        WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
-
-        if (!pDeviceContext->ViGEm.Available)
-        {
-            KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
-            WdfObjectDelete(vigemTarget);
-        }
-    }
+    AcquireViGEmInterface(device, VigemDosDeviceName);
 
     // 
     // Default settings
     // 
-    pDeviceContext->Settings.FsHidInputEnabled = TRUE;
-    pDeviceContext->Settings.FsHidOutputEnabled = TRUE;
-    pDeviceContext->Settings.XusbEmulationEnabled = TRUE;
-    pDeviceContext->Settings.XusbHidInputEnabled = TRUE;
-    pDeviceContext->Settings.XusbHidOutputEnabled = TRUE;
+    ResetDeviceSettings(pDeviceContext);
 
     //
     // Create a control device
@@ -858,6 +824,64 @@ void FilterShutdown(WDFDEVICE Device)
             WdfTimerStop(pDs3Context->InputEnableTimer, FALSE);
         }
     }
+}
+
+//
+// Searches for ViGEm bus and tries to initialize direct-call interface.
+// 
+VOID AcquireViGEmInterface(WDFDEVICE Device, const UNICODE_STRING DeviceName)
+{
+    NTSTATUS                        status;
+    WDF_IO_TARGET_OPEN_PARAMS       openParams;
+    PDEVICE_CONTEXT                 pDeviceContext;
+
+    pDeviceContext = GetCommonContext(Device);
+
+    status = WdfIoTargetCreate(Device, WDF_NO_OBJECT_ATTRIBUTES, &pDeviceContext->ViGEm.IoTarget);
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint((DRIVERNAME "WdfIoTargetCreate failed with status code 0x%x\n", status));
+        return;
+    }
+
+    WDF_IO_TARGET_OPEN_PARAMS_INIT_CREATE_BY_NAME(&openParams, &DeviceName, STANDARD_RIGHTS_ALL);
+
+    openParams.EvtIoTargetQueryRemove = EvtIoTargetQueryRemove;
+
+    status = WdfIoTargetOpen(pDeviceContext->ViGEm.IoTarget, &openParams);
+    if (NT_SUCCESS(status))
+    {
+        status = WdfIoTargetQueryForInterface(
+            pDeviceContext->ViGEm.IoTarget,
+            &GUID_VIGEM_INTERFACE_STANDARD,
+            (PINTERFACE)&pDeviceContext->ViGEm.Interface,
+            sizeof(VIGEM_INTERFACE_STANDARD),
+            1,
+            NULL);
+
+        WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
+        pDeviceContext->ViGEm.Available = NT_SUCCESS(status);
+        WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
+
+        if (!pDeviceContext->ViGEm.Available)
+        {
+            KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
+            WdfObjectDelete(pDeviceContext->ViGEm.IoTarget);
+            pDeviceContext->ViGEm.IoTarget = NULL;
+        }
+    }
+}
+
+//
+// Reset current device's settings to its defaults.
+// 
+VOID ResetDeviceSettings(PDEVICE_CONTEXT Context)
+{
+    Context->Settings.FsHidInputEnabled = TRUE;
+    Context->Settings.FsHidOutputEnabled = TRUE;
+    Context->Settings.XusbEmulationEnabled = TRUE;
+    Context->Settings.XusbHidInputEnabled = TRUE;
+    Context->Settings.XusbHidOutputEnabled = TRUE;
 }
 
 //
