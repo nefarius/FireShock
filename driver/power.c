@@ -154,7 +154,8 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     }
 
     // Device is a DualShock 4
-    if (deviceDescriptor.idVendor == DS4_VENDOR_ID && deviceDescriptor.idProduct == DS4_PRODUCT_ID)
+    if (deviceDescriptor.idVendor == DS4_VENDOR_ID 
+        && (deviceDescriptor.idProduct == DS4_PRODUCT_ID || deviceDescriptor.idProduct == DS4_WIRELESS_ADAPTER_PRODUCT_ID))
     {
         pDeviceContext->DeviceType = DualShock4;
         xusbVid = 0x1337;
