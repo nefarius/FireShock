@@ -76,6 +76,9 @@ typedef struct _DEVICE_CONTEXT
     // 
     DS_DEVICE_TYPE DeviceType;
 
+    //
+    // Device instance index
+    // 
     ULONG DeviceIndex;
 
     //
@@ -177,3 +180,4 @@ VOID AcquireViGEmInterface(WDFDEVICE Device, const UNICODE_STRING DeviceName);
 
 VOID ResetDeviceSettings(PDEVICE_CONTEXT Context);
 
+VOID XusbNotificationCallback(IN PVOID Context, IN UCHAR LargeMotor, IN UCHAR SmallMotor, IN UCHAR LedNumber);

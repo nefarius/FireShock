@@ -55,12 +55,29 @@ VOID Ds3EnableEvtTimerFunc(
     _In_ WDFTIMER Timer
 )
 {
-    NTSTATUS    status;
-    WDFDEVICE   hDevice;
+    NTSTATUS            status;
+    WDFDEVICE           hDevice;
+    PDEVICE_CONTEXT     pDeviceContext;
 
     KdPrint((DRIVERNAME "Ds3EnableEvtTimerFunc called\n"));
 
     hDevice = WdfTimerGetParentObject(Timer);
+    pDeviceContext = GetCommonContext(hDevice);
+
+    if (pDeviceContext->ViGEm.Available)
+    {
+        status = (*pDeviceContext->ViGEm.Interface.RegisterXusbRequestNotificationCallback)(
+            pDeviceContext->ViGEm.Interface.Header.Context,
+            pDeviceContext->ViGEm.Serial,
+            XusbNotificationCallback,
+            hDevice
+            );
+
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint((DRIVERNAME "Couldn't register XUSB notification callback: 0x%X", status));
+        }
+    }
 
     status = Ds3Init(hDevice);
 

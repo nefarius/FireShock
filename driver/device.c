@@ -884,6 +884,33 @@ VOID ResetDeviceSettings(PDEVICE_CONTEXT Context)
     Context->Settings.XusbHidOutputEnabled = TRUE;
 }
 
+VOID XusbNotificationCallback(IN PVOID Context, IN UCHAR LargeMotor, IN UCHAR SmallMotor, IN UCHAR LedNumber)
+{
+    WDFDEVICE               device = Context;
+    PDEVICE_CONTEXT         pDeviceContext;
+    PDS3_DEVICE_CONTEXT     pDs3Context;
+
+    UNREFERENCED_PARAMETER(LedNumber);
+
+    KdPrint((DRIVERNAME "XusbNotificationCallback called\n"));
+
+    pDeviceContext = GetCommonContext(device);
+
+    switch(pDeviceContext->DeviceType)
+    {
+    case DualShock3:
+
+        pDs3Context = Ds3GetContext(device);
+
+        pDs3Context->OutputReportBuffer[2] = (SmallMotor > 0) ? 0x01 : 0x00;
+        pDs3Context->OutputReportBuffer[4] = LargeMotor;
+
+        break;
+    default:
+        return;
+    }
+}
+
 //
 // Gets called when the remote target (ViGEm) gets removed.
 // 
