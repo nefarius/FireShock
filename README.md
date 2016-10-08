@@ -1,7 +1,7 @@
 # FireShock
 HIDUSB filter driver for Sony DualShock controllers
 
-Follow development progress on [Twitter](https://twitter.com/CNefarius) and [YouTube](https://www.youtube.com/user/nefarius2k8)!
+Follow development progress on [Twitter](https://twitter.com/CNefarius) and [YouTube](https://www.youtube.com/user/nefarius2k8)! Like my stuff? [Support me on Patreon](https://www.patreon.com/nefarius)!
 
 _Work in progress_
 
