@@ -19,10 +19,10 @@
     <ROW Property="AiFeatIcoPCSX2" Value="PCSX2Icon.exe" Type="8"/>
     <ROW Property="IAgree" Value="Yes" Type="4" MsiKey="IAgree"/>
     <ROW Property="Manufacturer" Value="Nefarius Software Solutions"/>
-    <ROW Property="ProductCode" Value="1033:{6C46591E-7D11-4E82-81EE-1DFF2EDDF57A} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{A7B5969F-E6A1-4C52-9C70-E54FBA825E68} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="FireShock Device Driver"/>
-    <ROW Property="ProductVersion" Value="1.0.1" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.0.2" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
     <ROW Property="UpgradeCode" Value="{C7E914CC-7843-46C6-9DF8-3F1E040B4722}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -71,9 +71,6 @@
     <ROW File="fireshock.sys" Component_="fireshock.inf" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="..\driver\x64\Release\fireshock\fireshock.sys" SelfReg="false" NextFile="fireshock.cat"/>
     <ROW File="fireshock.sys_1" Component_="fireshock.sys_1" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="..\driver\Release\fireshock\fireshock.sys" SelfReg="false" NextFile="LilyPad.dll"/>
     <ROW File="updater.exe" Component_="updater.exe" FileName="FIRESH~1.EXE|FireShock Updater.exe" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;AI_STUBS&gt;updater.exe" SelfReg="false" DigSign="true"/>
-  </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
-    <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" UpdatesUrl="https://raw.githubusercontent.com/nefarius/FireShock/master/updates.txt" EulaPathLocId="*" IntroTextPathLocId="*"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Setup Files" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="FireShock.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" ExtUI="true" UseLargeSchema="true" ExeName="FireShock_Setup_[|ProductVersion]" MsiPackageType="AI_ALL"/>
@@ -220,7 +217,7 @@
     <ROW IniFile="AppDir" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="AppDir" Value="[APPDIR]" Action="0" Component_="updater.exe"/>
     <ROW IniFile="ApplicationName" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="ApplicationName" Value="[ProductName]" Action="0" Component_="updater.exe"/>
     <ROW IniFile="ApplicationVersion" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="ApplicationVersion" Value="[ProductVersion]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="CheckFrequency" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="CheckFrequency" Value="2" Action="0" Component_="updater.exe"/>
+    <ROW IniFile="CheckFrequency" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="CheckFrequency" Value="1" Action="0" Component_="updater.exe"/>
     <ROW IniFile="CompanyName" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="CompanyName" Value="[Manufacturer]" Action="0" Component_="updater.exe"/>
     <ROW IniFile="DefaultCommandLine" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="DefaultCommandLine" Value="/checknow" Action="0" Component_="updater.exe"/>
     <ROW IniFile="DownloadsFolder" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="DownloadsFolder" Value="[CommonAppDataFolder][Manufacturer]\[ProductName]\updates\" Action="0" Component_="updater.exe"/>
