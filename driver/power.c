@@ -72,8 +72,9 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     // Use device descriptor to identify the device
     WdfUsbTargetDeviceGetDeviceDescriptor(pDeviceContext->UsbDevice, &deviceDescriptor);
 
-    // Device is a DualShock 3
-    if (deviceDescriptor.idVendor == DS3_VENDOR_ID && deviceDescriptor.idProduct == DS3_PRODUCT_ID)
+    // Device is a DualShock 3 or Move Navigation Controller
+    if (deviceDescriptor.idVendor == DS3_VENDOR_ID 
+        && (deviceDescriptor.idProduct == DS3_PRODUCT_ID || deviceDescriptor.idProduct == PS_MOVE_NAVI_PRODUCT_ID))
     {
         pDeviceContext->DeviceType = DualShock3;
         xusbVid = 0x1337;
@@ -155,7 +156,7 @@ NTSTATUS FireShockEvtDeviceD0Entry(
         WdfTimerStart(pDs3Context->InputEnableTimer, WDF_REL_TIMEOUT_IN_MS(DS3_INPUT_ENABLE_SEND_DELAY));
     }
 
-    // Device is a DualShock 4
+    // Device is a DualShock 4 or Wireless USB Adapter
     if (deviceDescriptor.idVendor == DS4_VENDOR_ID
         && (deviceDescriptor.idProduct == DS4_PRODUCT_ID || deviceDescriptor.idProduct == DS4_WIRELESS_ADAPTER_PRODUCT_ID))
     {

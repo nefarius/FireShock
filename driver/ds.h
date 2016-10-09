@@ -49,6 +49,8 @@ SOFTWARE.
 #define DS4_PRODUCT_ID                          0x05C4
 #define DS4_WIRELESS_ADAPTER_PRODUCT_ID         0x0BA0
 
+#define PS_MOVE_NAVI_PRODUCT_ID                 0x042F
+
 #define VIGEM_SERIAL_BEGIN                      0x01
 #define VIGEM_SERIAL_END                        0x04
 
