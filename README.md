@@ -3,8 +3,6 @@ HIDUSB filter driver for Sony DualShock controllers
 
 Follow development progress on [Twitter](https://twitter.com/CNefarius) and [YouTube](https://www.youtube.com/user/nefarius2k8)! Like my stuff? [Support me on Patreon](https://www.patreon.com/nefarius)!
 
-[![Github All Releases](https://img.shields.io/github/downloads/atom/atom/total.svg?maxAge=2592000)]()
-
 _Work in progress_
 
 ## Summary
