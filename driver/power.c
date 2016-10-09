@@ -50,6 +50,7 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     WDF_TIMER_CONFIG                timerCfg;
     USHORT                          xusbVid = 0;
     USHORT                          xusbPid = 0;
+    BOOLEAN                         supported = FALSE;
 
     UNREFERENCED_PARAMETER(PreviousState);
 
@@ -77,6 +78,7 @@ NTSTATUS FireShockEvtDeviceD0Entry(
         pDeviceContext->DeviceType = DualShock3;
         xusbVid = 0x1337;
         xusbPid = 0x0001;
+        supported = TRUE;
 
         // Add DS3-specific context to device object
         WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS3_DEVICE_CONTEXT);
@@ -154,12 +156,13 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     }
 
     // Device is a DualShock 4
-    if (deviceDescriptor.idVendor == DS4_VENDOR_ID 
+    if (deviceDescriptor.idVendor == DS4_VENDOR_ID
         && (deviceDescriptor.idProduct == DS4_PRODUCT_ID || deviceDescriptor.idProduct == DS4_WIRELESS_ADAPTER_PRODUCT_ID))
     {
         pDeviceContext->DeviceType = DualShock4;
         xusbVid = 0x1337;
         xusbPid = 0x0002;
+        supported = TRUE;
 
         // Add DS4-specific context to device object
         WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS4_DEVICE_CONTEXT);
@@ -188,7 +191,13 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     if (deviceDescriptor.idVendor == 0x1337)
     {
         KdPrint((DRIVERNAME "Device is XUSB HID device\n"));
+
         return status;
+    }
+
+    if (!supported)
+    {
+        return STATUS_NOT_SUPPORTED;
     }
 
     // Spawn XUSB device if ViGEm is available
