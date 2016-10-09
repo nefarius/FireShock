@@ -456,19 +456,13 @@ VOID EvtIoInternalDeviceControl(
 
         switch (urb->UrbHeader.Function)
         {
-        case URB_FUNCTION_CONTROL_TRANSFER:
-
-            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_CONTROL_TRANSFER\n"));
-
-            break;
-
         case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
 
-            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
+            KdPrint((DRIVERNAME "URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
 
             if (urb->UrbBulkOrInterruptTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN)
             {
-                KdPrint((DRIVERNAME ">> >> >> Interrupt IN\n"));
+                KdPrint((DRIVERNAME "Interrupt IN\n"));
 
                 WdfRequestFormatRequestUsingCurrentType(Request);
                 WdfRequestSetCompletionRoutine(Request, BulkOrInterruptTransferCompleted, hDevice);
@@ -484,7 +478,7 @@ VOID EvtIoInternalDeviceControl(
             }
             else
             {
-                KdPrint((DRIVERNAME ">> >> >> Interrupt OUT\n"));
+                KdPrint((DRIVERNAME "Interrupt OUT\n"));
 
                 status = ParseBulkOrInterruptTransfer(urb, hDevice);
 
@@ -493,33 +487,15 @@ VOID EvtIoInternalDeviceControl(
 
             break;
 
-        case URB_FUNCTION_SELECT_CONFIGURATION:
-
-            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_SELECT_CONFIGURATION\n"));
-
-            break;
-
-        case URB_FUNCTION_SELECT_INTERFACE:
-
-            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_SELECT_INTERFACE\n"));
-
-            break;
-
         case URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE:
 
-            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE\n"));
+            KdPrint((DRIVERNAME "URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE\n"));
 
             switch (urb->UrbControlDescriptorRequest.DescriptorType)
             {
-            case USB_DEVICE_DESCRIPTOR_TYPE:
-
-                KdPrint((DRIVERNAME ">> >> >> USB_DEVICE_DESCRIPTOR_TYPE\n"));
-
-                break;
-
             case USB_CONFIGURATION_DESCRIPTOR_TYPE:
 
-                KdPrint((DRIVERNAME ">> >> >> USB_CONFIGURATION_DESCRIPTOR_TYPE\n"));
+                KdPrint((DRIVERNAME "USB_CONFIGURATION_DESCRIPTOR_TYPE\n"));
 
                 // Intercept and write back custom configuration descriptor
                 if (pDeviceContext->DeviceType == DualShock3)
@@ -529,56 +505,21 @@ VOID EvtIoInternalDeviceControl(
                 }
 
                 break;
-
-            case USB_STRING_DESCRIPTOR_TYPE:
-
-                KdPrint((DRIVERNAME ">> >> >> USB_STRING_DESCRIPTOR_TYPE\n"));
-
-                break;
-            case USB_INTERFACE_DESCRIPTOR_TYPE:
-
-                KdPrint((DRIVERNAME ">> >> >> USB_INTERFACE_DESCRIPTOR_TYPE\n"));
-
-                break;
-
-            case USB_ENDPOINT_DESCRIPTOR_TYPE:
-
-                KdPrint((DRIVERNAME ">> >> >> USB_ENDPOINT_DESCRIPTOR_TYPE\n"));
-
-                break;
-
-            default:
-                KdPrint((DRIVERNAME ">> >> >> Unknown descriptor type\n"));
-                break;
             }
-
-            KdPrint((DRIVERNAME "<< <<\n"));
-
-            break;
-
-        case URB_FUNCTION_GET_STATUS_FROM_DEVICE:
-
-            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_GET_STATUS_FROM_DEVICE\n"));
 
             break;
 
         case URB_FUNCTION_ABORT_PIPE:
 
-            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_ABORT_PIPE\n"));
+            KdPrint((DRIVERNAME "URB_FUNCTION_ABORT_PIPE\n"));
 
             FilterShutdown(hDevice);
 
             break;
 
-        case URB_FUNCTION_CLASS_INTERFACE:
-
-            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_CLASS_INTERFACE\n"));
-
-            break;
-
         case URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE:
 
-            KdPrint((DRIVERNAME ">> >> URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE\n"));
+            KdPrint((DRIVERNAME "URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE\n"));
 
             // Intercept and write back custom HID report descriptor
             if (pDeviceContext->DeviceType == DualShock3)
@@ -588,29 +529,7 @@ VOID EvtIoInternalDeviceControl(
             }
 
             break;
-
-        default:
-            KdPrint((DRIVERNAME ">> >> Unknown function: 0x%X\n", urb->UrbHeader.Function));
-            break;
         }
-
-        break;
-
-    case IOCTL_INTERNAL_USB_GET_PORT_STATUS:
-
-        KdPrint((DRIVERNAME ">> IOCTL_INTERNAL_USB_GET_PORT_STATUS\n"));
-
-        break;
-
-    case IOCTL_INTERNAL_USB_RESET_PORT:
-
-        KdPrint((DRIVERNAME ">> IOCTL_INTERNAL_USB_RESET_PORT\n"));
-
-        break;
-
-    case IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION:
-
-        KdPrint((DRIVERNAME ">> IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION\n"));
 
         break;
     }
@@ -896,7 +815,7 @@ VOID XusbNotificationCallback(IN PVOID Context, IN UCHAR LargeMotor, IN UCHAR Sm
 
     pDeviceContext = GetCommonContext(device);
 
-    switch(pDeviceContext->DeviceType)
+    switch (pDeviceContext->DeviceType)
     {
     case DualShock3:
 
