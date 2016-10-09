@@ -28,6 +28,8 @@ ExcludeFromSelect = *
 %Xusb4DeviceName%=FireShock_Inst, USB\VID_1337&PID_0002&IG_00
 %Ds4WirelessDeviceName%=FireShock_Inst, USB\VID_054C&PID_0BA0&REV_0100&MI_03
 %Ds4WirelessDeviceName%=FireShock_Inst, USB\VID_054C&PID_0BA0&MI_03
+%Ps3MoveNaviDeviceName%=FireShock_Inst, USB\VID_054C&PID_042F&REV_0100
+%Ps3MoveNaviDeviceName%=FireShock_Inst, USB\VID_054C&PID_042F
 
 ; Install Section
 ; ---------------------------------------------------------
@@ -114,6 +116,7 @@ Ds4DeviceName = "FireShock 4 Device"
 Xusb3DeviceName = "FireShock 3 XINPUT Device"
 Xusb4DeviceName = "FireShock 4 XINPUT Device"
 Ds4WirelessDeviceName = "FireShock 4 USB Wireless Adapter"
+Ps3MoveNaviDeviceName = "FireShock 3 Move Navigation Device"
 
 ; Standard defs
 SPSVCINST_TAGTOFRONT  = 0x00000001
