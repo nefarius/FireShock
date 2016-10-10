@@ -54,6 +54,10 @@ SOFTWARE.
 #define VIGEM_SERIAL_BEGIN                      0x01
 #define VIGEM_SERIAL_END                        0x04
 
+#define IS_DS3(_ctx_)             ((_ctx_->DeviceType == DualShock3))
+#define IS_DS4(_ctx_)             ((_ctx_->DeviceType == DualShock4))
+#define IS_INTERRUPT_IN(_urb_)    ((_urb_->UrbBulkOrInterruptTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN))
+
 
 typedef enum _USB_HID_REQUEST
 {

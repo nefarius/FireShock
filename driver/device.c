@@ -460,7 +460,7 @@ VOID EvtIoInternalDeviceControl(
 
             KdPrint((DRIVERNAME "URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER\n"));
 
-            if (urb->UrbBulkOrInterruptTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN)
+            if (IS_INTERRUPT_IN(urb))
             {
                 KdPrint((DRIVERNAME "Interrupt IN\n"));
 
@@ -480,6 +480,8 @@ VOID EvtIoInternalDeviceControl(
             {
                 KdPrint((DRIVERNAME "Interrupt OUT\n"));
 
+                if (IS_DS4(pDeviceContext)) break;
+
                 status = ParseBulkOrInterruptTransfer(urb, hDevice);
 
                 processed = NT_SUCCESS(status);
@@ -498,7 +500,7 @@ VOID EvtIoInternalDeviceControl(
                 KdPrint((DRIVERNAME "USB_CONFIGURATION_DESCRIPTOR_TYPE\n"));
 
                 // Intercept and write back custom configuration descriptor
-                if (pDeviceContext->DeviceType == DualShock3)
+                if (IS_DS3(pDeviceContext))
                 {
                     status = GetConfigurationDescriptorType(urb, pDeviceContext);
                     processed = NT_SUCCESS(status);
@@ -522,7 +524,7 @@ VOID EvtIoInternalDeviceControl(
             KdPrint((DRIVERNAME "URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE\n"));
 
             // Intercept and write back custom HID report descriptor
-            if (pDeviceContext->DeviceType == DualShock3)
+            if (IS_DS3(pDeviceContext))
             {
                 status = GetDescriptorFromInterface(urb, pDeviceContext);
                 processed = NT_SUCCESS(status);
