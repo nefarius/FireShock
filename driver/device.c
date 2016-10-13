@@ -84,6 +84,9 @@ Return Value:
     //
     WdfFdoInitSetFilter(DeviceInit);
 
+    WdfDeviceInitSetDeviceType(DeviceInit, FILE_DEVICE_UNKNOWN);
+    WdfDeviceInitSetPowerPolicyOwnership(DeviceInit, FALSE);
+
     //
     // Set PNP & power callbacks.
     // 
@@ -112,6 +115,7 @@ Return Value:
     WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(&ioQueueConfig,
         WdfIoQueueDispatchParallel);
 
+    ioQueueConfig.PowerManaged = WdfFalse;
     ioQueueConfig.EvtIoInternalDeviceControl = EvtIoInternalDeviceControl;
 
     __analysis_assume(ioQueueConfig.EvtIoStop != 0);
