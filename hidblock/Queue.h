@@ -29,14 +29,14 @@ typedef struct _QUEUE_CONTEXT {
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(QUEUE_CONTEXT, QueueGetContext)
 
 NTSTATUS
-hidblockQueueInitialize(
+HidBlockQueueInitialize(
     _In_ WDFDEVICE hDevice
     );
 
 //
 // Events from the IoQueue object
 //
-EVT_WDF_IO_QUEUE_IO_DEVICE_CONTROL hidblockEvtIoDeviceControl;
-EVT_WDF_IO_QUEUE_IO_STOP hidblockEvtIoStop;
+EVT_WDF_IO_QUEUE_IO_DEVICE_CONTROL HidBlockEvtIoDeviceControl;
+EVT_WDF_IO_QUEUE_IO_STOP HidBlockEvtIoStop;
 
 EXTERN_C_END

@@ -19,7 +19,7 @@ Environment:
 
 
 NTSTATUS
-hidblockQueueInitialize(
+HidBlockQueueInitialize(
     _In_ WDFDEVICE Device
     )
 /*++
@@ -59,8 +59,8 @@ Return Value:
         WdfIoQueueDispatchParallel
         );
 
-    queueConfig.EvtIoDeviceControl = hidblockEvtIoDeviceControl;
-    queueConfig.EvtIoStop = hidblockEvtIoStop;
+    queueConfig.EvtIoDeviceControl = HidBlockEvtIoDeviceControl;
+    queueConfig.EvtIoStop = HidBlockEvtIoStop;
 
     status = WdfIoQueueCreate(
                  Device,
@@ -78,7 +78,7 @@ Return Value:
 }
 
 VOID
-hidblockEvtIoDeviceControl(
+HidBlockEvtIoDeviceControl(
     _In_ WDFQUEUE Queue,
     _In_ WDFREQUEST Request,
     _In_ size_t OutputBufferLength,
@@ -121,7 +121,7 @@ Return Value:
 }
 
 VOID
-hidblockEvtIoStop(
+HidBlockEvtIoStop(
     _In_ WDFQUEUE Queue,
     _In_ WDFREQUEST Request,
     _In_ ULONG ActionFlags

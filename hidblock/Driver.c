@@ -70,10 +70,10 @@ Return Value:
     // the framework driver object is deleted during driver unload.
     //
     WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
-    attributes.EvtCleanupCallback = hidblockEvtDriverContextCleanup;
+    attributes.EvtCleanupCallback = HidBlockEvtDriverContextCleanup;
 
     WDF_DRIVER_CONFIG_INIT(&config,
-                           hidblockEvtDeviceAdd
+                           HidBlockEvtDeviceAdd
                            );
 
     status = WdfDriverCreate(DriverObject,
@@ -99,7 +99,7 @@ Return Value:
 }
 
 NTSTATUS
-hidblockEvtDeviceAdd(
+HidBlockEvtDeviceAdd(
     _In_    WDFDRIVER       Driver,
     _Inout_ PWDFDEVICE_INIT DeviceInit
     )
@@ -128,7 +128,7 @@ Return Value:
 
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Entry");
 
-    status = hidblockCreateDevice(DeviceInit);
+    status = HidBlockCreateDevice(DeviceInit);
 
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Exit");
 
@@ -136,7 +136,7 @@ Return Value:
 }
 
 VOID
-hidblockEvtDriverContextCleanup(
+HidBlockEvtDriverContextCleanup(
     _In_ WDFOBJECT DriverObject
     )
 /*++

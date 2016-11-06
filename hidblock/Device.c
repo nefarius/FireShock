@@ -20,7 +20,7 @@ Environment:
 
 
 NTSTATUS
-hidblockCreateDevice(
+HidBlockCreateDevice(
     _Inout_ PWDFDEVICE_INIT DeviceInit
     )
 /*++
@@ -81,7 +81,7 @@ Return Value:
             //
             // Initialize the I/O Package and any Queues
             //
-            status = hidblockQueueInitialize(device);
+            status = HidBlockQueueInitialize(device);
         }
     }
 
