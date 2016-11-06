@@ -585,7 +585,7 @@ void BulkOrInterruptTransferCompleted(
         WDF_MEMORY_DESCRIPTOR xBuffer;
         WDF_MEMORY_DESCRIPTOR_INIT_BUFFER(&xBuffer, &xusbReport, xusbReport.Size);
 
-        status = WdfIoTargetSendIoctlSynchronously(
+        status = WdfIoTargetSendInternalIoctlSynchronously(
             pDeviceContext->ViGEm.IoTarget,
             NULL,
             IOCTL_XUSB_SUBMIT_REPORT,

@@ -220,7 +220,7 @@ FireShockEvtDevicePrepareHardware(
 
             KdPrint((DRIVERNAME "pDeviceContext->ViGEm.Serial = %d", pDeviceContext->ViGEm.Serial));
 
-            status = WdfIoTargetSendIoctlSynchronously(
+            status = WdfIoTargetSendInternalIoctlSynchronously(
                 pDeviceContext->ViGEm.IoTarget,
                 NULL,
                 IOCTL_VIGEM_PLUGIN_TARGET,
