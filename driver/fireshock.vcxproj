@@ -158,7 +158,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Inf>
-      <TimeStamp>1.0.2.0</TimeStamp>
+      <TimeStamp>1.1.0.0</TimeStamp>
     </Inf>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -177,7 +177,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Inf>
-      <TimeStamp>1.0.2.0</TimeStamp>
+      <TimeStamp>1.1.0.0</TimeStamp>
     </Inf>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Windows 7)|x64'">
@@ -196,7 +196,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Inf>
-      <TimeStamp>1.0.2.0</TimeStamp>
+      <TimeStamp>1.1.0.0</TimeStamp>
     </Inf>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -215,7 +215,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Inf>
-      <TimeStamp>1.0.2.0</TimeStamp>
+      <TimeStamp>1.1.0.0</TimeStamp>
     </Inf>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -234,7 +234,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Inf>
-      <TimeStamp>1.0.2.0</TimeStamp>
+      <TimeStamp>1.1.0.0</TimeStamp>
     </Inf>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Windows 7)|Win32'">
@@ -253,7 +253,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Inf>
-      <TimeStamp>1.0.2.0</TimeStamp>
+      <TimeStamp>1.1.0.0</TimeStamp>
     </Inf>
   </ItemDefinitionGroup>
   <ItemGroup>

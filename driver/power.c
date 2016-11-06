@@ -28,17 +28,18 @@ SOFTWARE.
 
 
 #ifdef ALLOC_PRAGMA
+#pragma alloc_text(PAGE, FireShockEvtDevicePrepareHardware)
 #pragma alloc_text(PAGE, FireShockEvtDeviceD0Entry)
 #pragma alloc_text(PAGE, FireShockEvtDeviceD0Exit)
 #endif
 
 
-//
-// Gets called when the device reaches D0 state.
-// 
-NTSTATUS FireShockEvtDeviceD0Entry(
-    _In_ WDFDEVICE              Device,
-    _In_ WDF_POWER_DEVICE_STATE PreviousState
+_Use_decl_annotations_
+NTSTATUS
+FireShockEvtDevicePrepareHardware(
+    WDFDEVICE  Device,
+    WDFCMRESLIST  ResourcesRaw,
+    WDFCMRESLIST  ResourcesTranslated
 )
 {
     NTSTATUS                        status = STATUS_SUCCESS;
@@ -52,9 +53,12 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     USHORT                          xusbPid = 0;
     BOOLEAN                         supported = FALSE;
 
-    UNREFERENCED_PARAMETER(PreviousState);
+    UNREFERENCED_PARAMETER(ResourcesRaw);
+    UNREFERENCED_PARAMETER(ResourcesTranslated);
 
-    KdPrint((DRIVERNAME "FireShockEvtDeviceD0Entry called\n"));
+    PAGED_CODE();
+
+    KdPrint((DRIVERNAME "FireShockEvtDevicePrepareHardware called\n"));
 
     pDeviceContext = GetCommonContext(Device);
 
@@ -73,7 +77,7 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     WdfUsbTargetDeviceGetDeviceDescriptor(pDeviceContext->UsbDevice, &deviceDescriptor);
 
     // Device is a DualShock 3 or Move Navigation Controller
-    if (deviceDescriptor.idVendor == DS3_VENDOR_ID 
+    if (deviceDescriptor.idVendor == DS3_VENDOR_ID
         && (deviceDescriptor.idProduct == DS3_PRODUCT_ID || deviceDescriptor.idProduct == PS_MOVE_NAVI_PRODUCT_ID))
     {
         pDeviceContext->DeviceType = DualShock3;
@@ -201,21 +205,29 @@ NTSTATUS FireShockEvtDeviceD0Entry(
         return STATUS_NOT_SUPPORTED;
     }
 
-    // Spawn XUSB device if ViGEm is available
-    WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
-    if (pDeviceContext->ViGEm.Available)
+    VIGEM_PLUGIN_TARGET plugIn;
+    WDF_MEMORY_DESCRIPTOR inBuffer;
+
+    if (pDeviceContext->ViGEm.IoTarget)
     {
         for (
             pDeviceContext->ViGEm.Serial = VIGEM_SERIAL_BEGIN;
             pDeviceContext->ViGEm.Serial <= VIGEM_SERIAL_END;
             pDeviceContext->ViGEm.Serial++)
         {
-            status = (*pDeviceContext->ViGEm.Interface.PlugInTarget)(
-                pDeviceContext->ViGEm.Interface.Header.Context,
-                pDeviceContext->ViGEm.Serial,
-                Xbox360Wired,
-                xusbVid,
-                xusbPid);
+            VIGEM_PLUGIN_TARGET_INIT(&plugIn, pDeviceContext->ViGEm.Serial, Xbox360Wired);
+            WDF_MEMORY_DESCRIPTOR_INIT_BUFFER(&inBuffer, &plugIn, plugIn.Size);
+
+            KdPrint((DRIVERNAME "pDeviceContext->ViGEm.Serial = %d", pDeviceContext->ViGEm.Serial));
+
+            status = WdfIoTargetSendIoctlSynchronously(
+                pDeviceContext->ViGEm.IoTarget,
+                NULL,
+                IOCTL_VIGEM_PLUGIN_TARGET,
+                &inBuffer,
+                NULL,
+                NULL,
+                NULL);
 
             if (!NT_SUCCESS(status))
             {
@@ -226,9 +238,26 @@ NTSTATUS FireShockEvtDeviceD0Entry(
             break;
         }
     }
-    WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
 
     return status;
+}
+
+//
+// Gets called when the device reaches D0 state.
+// 
+NTSTATUS FireShockEvtDeviceD0Entry(
+    _In_ WDFDEVICE              Device,
+    _In_ WDF_POWER_DEVICE_STATE PreviousState
+)
+{
+    UNREFERENCED_PARAMETER(Device);
+    UNREFERENCED_PARAMETER(PreviousState);
+
+    PAGED_CODE();
+
+    KdPrint((DRIVERNAME "FireShockEvtDeviceD0Entry called\n"));
+
+    return STATUS_SUCCESS;
 }
 
 //

@@ -580,16 +580,23 @@ void BulkOrInterruptTransferCompleted(
         break;
     }
 
-    // Submit XUSB report if ViGEm is available
-    WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
-    if (pDeviceContext->ViGEm.Available)
+    if (pDeviceContext->ViGEm.IoTarget)
     {
-        (*pDeviceContext->ViGEm.Interface.XusbSubmitReport)(
-            pDeviceContext->ViGEm.Interface.Header.Context,
-            pDeviceContext->ViGEm.Serial,
-            &xusbReport);
+        WDF_MEMORY_DESCRIPTOR xBuffer;
+        WDF_MEMORY_DESCRIPTOR_INIT_BUFFER(&xBuffer, &xusbReport, xusbReport.Size);
+
+        status = WdfIoTargetSendIoctlSynchronously(
+            pDeviceContext->ViGEm.IoTarget,
+            NULL,
+            IOCTL_XUSB_SUBMIT_REPORT,
+            &xBuffer,
+            NULL,
+            NULL,
+            NULL
+        );
+
+        KdPrint((DRIVERNAME "WdfIoTargetSendIoctlSynchronously failed with status 0x%X\n", status));
     }
-    WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
 
     // Complete upper request
     WdfRequestComplete(Request, status);

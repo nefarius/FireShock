@@ -1,27 +1,27 @@
-/*++
+/*
+MIT License
 
-Copyright (c) Microsoft Corporation.  All rights reserved.
+Copyright (c) 2016 Benjamin "Nefarius" Höglinger
 
-    THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
-    KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
-    PURPOSE.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Module Name:
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
-    device.c
-
-Abstract:
-
-    This module contains the Windows Driver Framework Device object
-    handlers for the fireshock filter driver.
-
-Environment:
-
-    Kernel mode
-
---*/
 
 #include "FireShock.h"
 #include <usbioctl.h>
@@ -41,29 +41,12 @@ WDFDEVICE       ControlDevice = NULL;
 #pragma alloc_text(PAGE, EvtIoTargetQueryRemove)
 #endif
 
+
 NTSTATUS
 FireShockEvtDeviceAdd(
     WDFDRIVER Driver,
     PWDFDEVICE_INIT DeviceInit
 )
-/*++
-Routine Description:
-
-    EvtDeviceAdd is called by the framework in response to AddDevice
-    call from the PnP manager. We create and initialize a device object to
-    represent to be part of the device stack as a filter.
-
-Arguments:
-
-    Driver - Handle to a framework driver object created in DriverEntry
-
-    DeviceInit - Pointer to a framework-allocated WDFDEVICE_INIT structure.
-
-Return Value:
-
-    NTSTATUS
-
---*/
 {
     WDF_OBJECT_ATTRIBUTES           attributes;
     NTSTATUS                        status;
@@ -71,8 +54,6 @@ Return Value:
     WDF_PNPPOWER_EVENT_CALLBACKS    pnpPowerCallbacks;
     WDF_IO_QUEUE_CONFIG             ioQueueConfig;
     PDEVICE_CONTEXT                 pDeviceContext;
-    WDF_DEVICE_POWER_CAPABILITIES   powerCaps;
-
 
 
     UNREFERENCED_PARAMETER(Driver);
@@ -92,6 +73,7 @@ Return Value:
     // 
     WDF_PNPPOWER_EVENT_CALLBACKS_INIT(&pnpPowerCallbacks);
 
+    pnpPowerCallbacks.EvtDevicePrepareHardware = FireShockEvtDevicePrepareHardware;
     pnpPowerCallbacks.EvtDeviceD0Entry = FireShockEvtDeviceD0Entry;
     pnpPowerCallbacks.EvtDeviceD0Exit = FireShockEvtDeviceD0Exit;
 
@@ -115,7 +97,6 @@ Return Value:
     WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(&ioQueueConfig,
         WdfIoQueueDispatchParallel);
 
-    ioQueueConfig.PowerManaged = WdfFalse;
     ioQueueConfig.EvtIoInternalDeviceControl = EvtIoInternalDeviceControl;
 
     __analysis_assume(ioQueueConfig.EvtIoStop != 0);
@@ -166,30 +147,6 @@ Return Value:
     WdfWaitLockRelease(FilterDeviceCollectionLock);
 
     //
-    // Set power capabilities.
-    // 
-    WDF_DEVICE_POWER_CAPABILITIES_INIT(&powerCaps);
-
-    powerCaps.DeviceState[PowerSystemWorking] = PowerDeviceD0;
-    powerCaps.DeviceState[PowerSystemSleeping1] = PowerDeviceD3;
-    powerCaps.DeviceState[PowerSystemSleeping2] = PowerDeviceD3;
-    powerCaps.DeviceState[PowerSystemSleeping3] = PowerDeviceD3;
-    powerCaps.DeviceState[PowerSystemHibernate] = PowerDeviceD3;
-    powerCaps.DeviceState[PowerSystemShutdown] = PowerDeviceD3;
-
-    WdfDeviceSetPowerCapabilities(device, &powerCaps);
-
-    //
-    // Wait lock for ViGEm
-    // 
-    status = WdfWaitLockCreate(WDF_NO_OBJECT_ATTRIBUTES, &pDeviceContext->ViGEm.Lock);
-    if (!NT_SUCCESS(status))
-    {
-        KdPrint((DRIVERNAME "WdfWaitLockCreate failed with status 0x%X\n", status));
-        return status;
-    }
-
-    //
     // Get ViGEm interface
     // 
     AcquireViGEmInterface(device, VigemDosDeviceName);
@@ -235,16 +192,17 @@ VOID EvtCleanupCallback(
 
     pDeviceContext = GetCommonContext(Device);
 
-    WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
-    if (pDeviceContext->ViGEm.Available)
-    {
-        // "Unplug" emulated device
-        (*pDeviceContext->ViGEm.Interface.UnPlugTarget)(
-            pDeviceContext->ViGEm.Interface.Header.Context,
-            pDeviceContext->ViGEm.Serial
-            );
-    }
-    WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
+    // TODO: fix
+    //WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
+    //if (pDeviceContext->ViGEm.Available)
+    //{
+    //    // "Unplug" emulated device
+    //    (*pDeviceContext->ViGEm.Interface.UnPlugTarget)(
+    //        pDeviceContext->ViGEm.Interface.Header.Context,
+    //        pDeviceContext->ViGEm.Serial
+    //        );
+    //}
+    //WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
 
     WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
 
@@ -774,26 +732,11 @@ VOID AcquireViGEmInterface(WDFDEVICE Device, const UNICODE_STRING DeviceName)
     openParams.EvtIoTargetQueryRemove = EvtIoTargetQueryRemove;
 
     status = WdfIoTargetOpen(pDeviceContext->ViGEm.IoTarget, &openParams);
-    if (NT_SUCCESS(status))
+    if (!NT_SUCCESS(status))
     {
-        status = WdfIoTargetQueryForInterface(
-            pDeviceContext->ViGEm.IoTarget,
-            &GUID_VIGEM_INTERFACE_STANDARD,
-            (PINTERFACE)&pDeviceContext->ViGEm.Interface,
-            sizeof(VIGEM_INTERFACE_STANDARD),
-            1,
-            NULL);
-
-        WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
-        pDeviceContext->ViGEm.Available = NT_SUCCESS(status);
-        WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
-
-        if (!pDeviceContext->ViGEm.Available)
-        {
-            KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
-            WdfObjectDelete(pDeviceContext->ViGEm.IoTarget);
-            pDeviceContext->ViGEm.IoTarget = NULL;
-        }
+        KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
+        WdfObjectDelete(pDeviceContext->ViGEm.IoTarget);
+        pDeviceContext->ViGEm.IoTarget = NULL;
     }
 }
 
@@ -854,12 +797,14 @@ EvtIoTargetQueryRemove(
 
     device = WdfIoTargetGetDevice(IoTarget);
     pDeviceContext = GetCommonContext(device);
+    UNREFERENCED_PARAMETER(pDeviceContext);
 
-    WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
-
-    pDeviceContext->ViGEm.Available = FALSE;
-
-    WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
+    // TODO: fix
+    //WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
+    //
+    //pDeviceContext->ViGEm.Available = FALSE;
+    //
+    //WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
 
     return STATUS_SUCCESS;
 }

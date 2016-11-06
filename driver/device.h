@@ -38,24 +38,9 @@ SOFTWARE.
 typedef struct _VIGEM_META
 {
     //
-    // ViGEm's Driver-to-driver interface
-    // 
-    VIGEM_INTERFACE_STANDARD Interface;
-
-    //
-    // Is ViGEm available on this system
-    // 
-    BOOLEAN Available;
-
-    //
     // Occupied device serial reported by ViGEm
     // 
     ULONG Serial;
-
-    //
-    // Synchronization lock
-    // 
-    WDFWAITLOCK Lock;
 
     WDFIOTARGET IoTarget;
 
