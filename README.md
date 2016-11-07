@@ -18,6 +18,9 @@ If a DualShock 4 gets connected, it enables XInput-Support if [ViGEm] (../../../
 ## How to install
 Just download the [latest setup](../../releases/latest) and run it. It doesn't matter if you've got your controllers connected during the setup or connect them afterwards.
 
+### Supported systems
+Currently due to heavy development and testing, only Windows 10 x86/x64 is supported. More to come.
+
 ## Sources
  * http://eleccelerator.com/wiki/index.php?title=DualShock_3
  * https://github.com/felis/USB_Host_Shield_2.0/wiki/PS3-Information
