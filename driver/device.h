@@ -173,5 +173,3 @@ VOID FilterShutdown(WDFDEVICE Device);
 VOID AcquireViGEmInterface(WDFDEVICE Device, const UNICODE_STRING DeviceName);
 
 VOID ResetDeviceSettings(PDEVICE_CONTEXT Context);
-
-VOID XusbNotificationCallback(IN PVOID Context, IN UCHAR LargeMotor, IN UCHAR SmallMotor, IN UCHAR LedNumber);
