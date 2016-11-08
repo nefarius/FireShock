@@ -332,7 +332,7 @@ void BulkOrInterruptTransferCompleted(
     PDEVICE_CONTEXT             pDeviceContext;
     PDS3_DEVICE_CONTEXT         pDs3Context;
     PDS4_DEVICE_CONTEXT         pDs4Context;
-    XUSB_SUBMIT_REPORT          xusbReport;
+    PXUSB_SUBMIT_REPORT         pXusbReport;
     PDS4_REPORT                 pDs4Report;
 
     UNREFERENCED_PARAMETER(Target);
@@ -354,8 +354,9 @@ void BulkOrInterruptTransferCompleted(
     urb = URB_FROM_IRP(WdfRequestWdmGetIrp(Request));
     transferBuffer = (PUCHAR)urb->UrbBulkOrInterruptTransfer.TransferBuffer;
     transferBufferLength = urb->UrbBulkOrInterruptTransfer.TransferBufferLength;
+    pXusbReport = &pDeviceContext->ViGEm.XusbSubmitReport;
 
-    XUSB_SUBMIT_REPORT_INIT(&xusbReport, pDeviceContext->ViGEm.Serial);
+    XUSB_SUBMIT_REPORT_INIT(pXusbReport, pDeviceContext->ViGEm.Serial);
 
     switch (pDeviceContext->DeviceType)
     {
@@ -374,39 +375,39 @@ void BulkOrInterruptTransferCompleted(
         {
         case 0x10: // N
             pDs3Context->InputReport[5] |= 0 & 0xF;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
             break;
         case 0x30: // NE
             pDs3Context->InputReport[5] |= 1 & 0xF;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case 0x20: // E
             pDs3Context->InputReport[5] |= 2 & 0xF;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case 0x60: // SE
             pDs3Context->InputReport[5] |= 3 & 0xF;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case 0x40: // S
             pDs3Context->InputReport[5] |= 4 & 0xF;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
             break;
         case 0xC0: // SW
             pDs3Context->InputReport[5] |= 5 & 0xF;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         case 0x80: // W
             pDs3Context->InputReport[5] |= 6 & 0xF;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         case 0x90: // NW
             pDs3Context->InputReport[5] |= 7 & 0xF;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         default: // Released
             pDs3Context->InputReport[5] |= 8 & 0xF;
@@ -457,29 +458,29 @@ void BulkOrInterruptTransferCompleted(
         RtlCopyBytes(&pDs3Context->InputState, &pDs3Context->InputReport[1], sizeof(FS3_GAMEPAD_STATE));
 
         // Translate FS3 buttons to XUSB buttons
-        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_SELECT) xusbReport.Report.wButtons |= XUSB_GAMEPAD_BACK;
-        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_LEFT_THUMB) xusbReport.Report.wButtons |= XUSB_GAMEPAD_LEFT_THUMB;
-        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_RIGHT_THUMB) xusbReport.Report.wButtons |= XUSB_GAMEPAD_RIGHT_THUMB;
-        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_START) xusbReport.Report.wButtons |= XUSB_GAMEPAD_START;
-        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_LEFT_SHOULDER) xusbReport.Report.wButtons |= XUSB_GAMEPAD_LEFT_SHOULDER;
-        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_RIGHT_SHOULDER) xusbReport.Report.wButtons |= XUSB_GAMEPAD_RIGHT_SHOULDER;
-        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_TRIANGLE) xusbReport.Report.wButtons |= XUSB_GAMEPAD_Y;
-        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_CIRCLE) xusbReport.Report.wButtons |= XUSB_GAMEPAD_B;
-        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_CROSS) xusbReport.Report.wButtons |= XUSB_GAMEPAD_A;
-        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_SQUARE) xusbReport.Report.wButtons |= XUSB_GAMEPAD_X;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_SELECT) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_BACK;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_LEFT_THUMB) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_LEFT_THUMB;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_RIGHT_THUMB) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_RIGHT_THUMB;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_START) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_START;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_LEFT_SHOULDER) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_LEFT_SHOULDER;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_RIGHT_SHOULDER) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_RIGHT_SHOULDER;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_TRIANGLE) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_Y;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_CIRCLE) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_B;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_CROSS) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_A;
+        if (pDs3Context->InputState.Buttons & FS3_GAMEPAD_SQUARE) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_X;
 
         // PS to Guide button
-        if (pDs3Context->InputState.PsButton & 0x01) xusbReport.Report.wButtons |= XUSB_GAMEPAD_GUIDE;
+        if (pDs3Context->InputState.PsButton & 0x01) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_GUIDE;
 
         // FS3 to XUSB Trigger axes
-        xusbReport.Report.bLeftTrigger = pDs3Context->InputState.LeftTrigger;
-        xusbReport.Report.bRightTrigger = pDs3Context->InputState.RightTrigger;
+        pXusbReport->Report.bLeftTrigger = pDs3Context->InputState.LeftTrigger;
+        pXusbReport->Report.bRightTrigger = pDs3Context->InputState.RightTrigger;
 
         // FS3 to XUSB Thumb axes
-        xusbReport.Report.sThumbLX = ScaleAxis(pDs3Context->InputState.LeftThumbX, FALSE);
-        xusbReport.Report.sThumbLY = ScaleAxis(pDs3Context->InputState.LeftThumbY, TRUE);
-        xusbReport.Report.sThumbRX = ScaleAxis(pDs3Context->InputState.RightThumbX, FALSE);
-        xusbReport.Report.sThumbRY = ScaleAxis(pDs3Context->InputState.RightThumbY, TRUE);
+        pXusbReport->Report.sThumbLX = ScaleAxis(pDs3Context->InputState.LeftThumbX, FALSE);
+        pXusbReport->Report.sThumbLY = ScaleAxis(pDs3Context->InputState.LeftThumbY, TRUE);
+        pXusbReport->Report.sThumbRX = ScaleAxis(pDs3Context->InputState.RightThumbX, FALSE);
+        pXusbReport->Report.sThumbRY = ScaleAxis(pDs3Context->InputState.RightThumbY, TRUE);
 
         if (pDeviceContext->Settings.FsHidInputEnabled)
         {
@@ -503,59 +504,59 @@ void BulkOrInterruptTransferCompleted(
         switch (pDs4Report->wButtons & 0xF)
         {
         case Ds4DpadN:
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
             break;
         case Ds4DpadNE:
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case Ds4DpadE:
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case Ds4DpadSE:
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_RIGHT;
             break;
         case Ds4DpadS:
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
             break;
         case Ds4DpadSW:
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_DOWN;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         case Ds4DpadW:
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         case Ds4DpadNW:
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
-            xusbReport.Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_UP;
+            pXusbReport->Report.wButtons |= XUSB_GAMEPAD_DPAD_LEFT;
             break;
         }
 
         // Translate FS4 buttons to XUSB buttons
-        if (pDs4Report->wButtons & Ds4ThumbR) xusbReport.Report.wButtons |= XUSB_GAMEPAD_RIGHT_THUMB;
-        if (pDs4Report->wButtons & Ds4ThumbL) xusbReport.Report.wButtons |= XUSB_GAMEPAD_LEFT_THUMB;
-        if (pDs4Report->wButtons & Ds4Options) xusbReport.Report.wButtons |= XUSB_GAMEPAD_START;
-        if (pDs4Report->wButtons & Ds4Share) xusbReport.Report.wButtons |= XUSB_GAMEPAD_BACK;
-        if (pDs4Report->wButtons & Ds4ShoulderR) xusbReport.Report.wButtons |= XUSB_GAMEPAD_RIGHT_SHOULDER;
-        if (pDs4Report->wButtons & Ds4ShoulderL) xusbReport.Report.wButtons |= XUSB_GAMEPAD_LEFT_SHOULDER;
-        if (pDs4Report->wButtons & Ds4Triangle) xusbReport.Report.wButtons |= XUSB_GAMEPAD_Y;
-        if (pDs4Report->wButtons & Ds4Circle) xusbReport.Report.wButtons |= XUSB_GAMEPAD_B;
-        if (pDs4Report->wButtons & Ds4Cross) xusbReport.Report.wButtons |= XUSB_GAMEPAD_A;
-        if (pDs4Report->wButtons & Ds4Square) xusbReport.Report.wButtons |= XUSB_GAMEPAD_X;
+        if (pDs4Report->wButtons & Ds4ThumbR) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_RIGHT_THUMB;
+        if (pDs4Report->wButtons & Ds4ThumbL) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_LEFT_THUMB;
+        if (pDs4Report->wButtons & Ds4Options) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_START;
+        if (pDs4Report->wButtons & Ds4Share) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_BACK;
+        if (pDs4Report->wButtons & Ds4ShoulderR) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_RIGHT_SHOULDER;
+        if (pDs4Report->wButtons & Ds4ShoulderL) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_LEFT_SHOULDER;
+        if (pDs4Report->wButtons & Ds4Triangle) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_Y;
+        if (pDs4Report->wButtons & Ds4Circle) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_B;
+        if (pDs4Report->wButtons & Ds4Cross) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_A;
+        if (pDs4Report->wButtons & Ds4Square) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_X;
 
         // PS to Guide button
-        if (pDs4Report->bSpecial & Ds4Ps) xusbReport.Report.wButtons |= XUSB_GAMEPAD_GUIDE;
+        if (pDs4Report->bSpecial & Ds4Ps) pXusbReport->Report.wButtons |= XUSB_GAMEPAD_GUIDE;
 
         // FS4 to XUSB Trigger axes
-        xusbReport.Report.bLeftTrigger = pDs4Report->bTriggerL;
-        xusbReport.Report.bRightTrigger = pDs4Report->bTriggerR;
+        pXusbReport->Report.bLeftTrigger = pDs4Report->bTriggerL;
+        pXusbReport->Report.bRightTrigger = pDs4Report->bTriggerR;
 
         // FS4 to XUSB Thumb axes
-        xusbReport.Report.sThumbLX = ScaleAxis(pDs4Report->bThumbLX, FALSE);
-        xusbReport.Report.sThumbLY = ScaleAxis(pDs4Report->bThumbLY, TRUE);
-        xusbReport.Report.sThumbRX = ScaleAxis(pDs4Report->bThumbRX, FALSE);
-        xusbReport.Report.sThumbRY = ScaleAxis(pDs4Report->bThumbRY, TRUE);
+        pXusbReport->Report.sThumbLX = ScaleAxis(pDs4Report->bThumbLX, FALSE);
+        pXusbReport->Report.sThumbLY = ScaleAxis(pDs4Report->bThumbLY, TRUE);
+        pXusbReport->Report.sThumbRX = ScaleAxis(pDs4Report->bThumbRX, FALSE);
+        pXusbReport->Report.sThumbRY = ScaleAxis(pDs4Report->bThumbRY, TRUE);
 
         if (pDeviceContext->Settings.FsHidInputEnabled)
         {
@@ -573,14 +574,13 @@ void BulkOrInterruptTransferCompleted(
 
     if (pDeviceContext->ViGEm.IoTarget)
     {
-        WDF_MEMORY_DESCRIPTOR xBuffer;
-        WDF_MEMORY_DESCRIPTOR_INIT_BUFFER(&xBuffer, &xusbReport, xusbReport.Size);
+        WDF_MEMORY_DESCRIPTOR_INIT_BUFFER(&pDeviceContext->ViGEm.XusbSubmitReportBuffer, pXusbReport, pXusbReport->Size);
 
         status = WdfIoTargetSendInternalIoctlSynchronously(
             pDeviceContext->ViGEm.IoTarget,
             NULL,
             IOCTL_XUSB_SUBMIT_REPORT,
-            &xBuffer,
+            &pDeviceContext->ViGEm.XusbSubmitReportBuffer,
             NULL,
             NULL,
             NULL

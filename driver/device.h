@@ -44,6 +44,10 @@ typedef struct _VIGEM_META
 
     WDFIOTARGET IoTarget;
 
+    XUSB_SUBMIT_REPORT XusbSubmitReport;
+
+    WDF_MEMORY_DESCRIPTOR XusbSubmitReportBuffer;
+
 } VIGEM_META, *PVIGEM_META;
 
 //

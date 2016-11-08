@@ -19,10 +19,10 @@
     <ROW Property="AiFeatIcoPCSX2" Value="PCSX2Icon.exe" Type="8"/>
     <ROW Property="IAgree" Value="Yes" Type="4" MsiKey="IAgree"/>
     <ROW Property="Manufacturer" Value="Nefarius Software Solutions"/>
-    <ROW Property="ProductCode" Value="1033:{7F6267D7-24DA-463F-8C17-84AE690D18B2} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{4DF01F40-CFD1-4183-8369-DE648E4C730E} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="FireShock Device Driver"/>
-    <ROW Property="ProductVersion" Value="1.1.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.1.1" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
     <ROW Property="UpgradeCode" Value="{C7E914CC-7843-46C6-9DF8-3F1E040B4722}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
