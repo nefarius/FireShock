@@ -42,9 +42,26 @@ Return Value:
 --*/
 {
     WDF_OBJECT_ATTRIBUTES   deviceAttributes;
-    PDEVICE_CONTEXT deviceContext;
-    WDFDEVICE device;
-    NTSTATUS status;
+    PDEVICE_CONTEXT         deviceContext;
+    WDFDEVICE               device;
+    NTSTATUS                status;
+    WDF_FILEOBJECT_CONFIG   fileConfig;
+
+    WdfFdoInitSetFilter(DeviceInit);
+
+    WDF_OBJECT_ATTRIBUTES_INIT(&deviceAttributes);
+    deviceAttributes.SynchronizationScope = WdfSynchronizationScopeNone;
+    WDF_FILEOBJECT_CONFIG_INIT(
+        &fileConfig,
+        EvtDeviceFileCreate,
+        WDF_NO_EVENT_CALLBACK,
+        WDF_NO_EVENT_CALLBACK // No cleanup callback function
+    );
+    WdfDeviceInitSetFileObjectConfig(
+        DeviceInit,
+        &fileConfig,
+        &deviceAttributes
+    );
 
     WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&deviceAttributes, DEVICE_CONTEXT);
 
@@ -88,4 +105,15 @@ Return Value:
     return status;
 }
 
+VOID EvtDeviceFileCreate(
+    _In_ WDFDEVICE     Device,
+    _In_ WDFREQUEST    Request,
+    _In_ WDFFILEOBJECT FileObject
+)
+{
+    UNREFERENCED_PARAMETER(Device);
+    UNREFERENCED_PARAMETER(FileObject);
+
+    WdfRequestComplete(Request, STATUS_ACCESS_DENIED);
+}
 

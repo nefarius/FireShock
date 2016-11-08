@@ -44,9 +44,9 @@ Return Value:
 
 --*/
 {
-    WDFQUEUE queue;
-    NTSTATUS status;
-    WDF_IO_QUEUE_CONFIG    queueConfig;
+    WDFQUEUE                queue;
+    NTSTATUS                status;
+    WDF_IO_QUEUE_CONFIG     queueConfig;
 
     
     //
