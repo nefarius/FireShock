@@ -19,10 +19,10 @@
     <ROW Property="AiFeatIcoPCSX2" Value="PCSX2Icon.exe" Type="8"/>
     <ROW Property="IAgree" Value="Yes" Type="4" MsiKey="IAgree"/>
     <ROW Property="Manufacturer" Value="Nefarius Software Solutions"/>
-    <ROW Property="ProductCode" Value="1033:{4DF01F40-CFD1-4183-8369-DE648E4C730E} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{9DA5EAF1-5F6D-437C-B9E9-F37CC7F61629} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="FireShock Device Driver"/>
-    <ROW Property="ProductVersion" Value="1.1.1" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.1.2" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
     <ROW Property="UpgradeCode" Value="{C7E914CC-7843-46C6-9DF8-3F1E040B4722}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -50,12 +50,14 @@
     <ROW Component="AI_ExePath" ComponentId="{3FB0ACBF-A1DD-45DB-ABF7-7CE5EE0469F5}" Directory_="APPDIR" Attributes="260" KeyPath="AI_ExePath"/>
     <ROW Component="LilyPad.dll" ComponentId="{6A4EB386-2DC4-4676-A2C4-ABB45FFD9602}" Directory_="Plugins_Dir" Attributes="0" KeyPath="LilyPad.dll"/>
     <ROW Component="ProductInformation" ComponentId="{4D87BAB6-A275-4D4D-87F1-2DD36D9D735C}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
+    <ROW Component="fireshock.cat" ComponentId="{8B993CB6-4789-412B-9D90-9769D1417FA5}" Directory_="AI_Bin32_Dir" Attributes="0" KeyPath="fireshock.inf_1" Type="0"/>
+    <ROW Component="fireshock.cat_1" ComponentId="{5016686B-EDB7-4976-A05D-205A4C04054A}" Directory_="AI_Bin32_Dir" Attributes="0" KeyPath="fireshock.cat_1"/>
     <ROW Component="fireshock.inf" ComponentId="{7CFB77BD-D3BA-4023-92D9-C273AECB7B6B}" Directory_="APPDIR" Attributes="256" Condition="VersionNT64" KeyPath="fireshock.inf"/>
     <ROW Component="fireshock.sys_1" ComponentId="{1941DFCC-898E-4DA4-9558-7DB03E184AC2}" Directory_="AI_Bin32_Dir" Attributes="0" Condition="NOT VersionNT64" KeyPath="fireshock.sys_1"/>
     <ROW Component="updater.exe" ComponentId="{B562FB45-2266-47C1-BE00-F9B0C05B34A9}" Directory_="APPDIR" Attributes="0" KeyPath="updater.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="AI32BitFiles" Title="32-bit" Description="32-bit Executables and Libraries" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_ExePath fireshock.sys_1"/>
+    <ROW Feature="AI32BitFiles" Title="32-bit" Description="32-bit Executables and Libraries" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_ExePath fireshock.cat fireshock.cat_1 fireshock.sys_1"/>
     <ROW Feature="AI64BitFiles" Title="64-bit" Description="64-bit Executables and Libraries" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_ExePath"/>
     <ROW Feature="AIOtherFiles" Title="FireShock Device Driver" Description="Shared Resource and Regular Files" Display="7" Level="1" Directory_="APPDIR" Attributes="16" Components="AI_ExePath updater.exe"/>
     <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_ExePath ProductInformation"/>
@@ -67,10 +69,12 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="LilyPad.dll" Component_="LilyPad.dll" FileName="LilyPad.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\..\pcsx2\bin\plugins\LilyPad.dll" SelfReg="false" NextFile="updater.exe"/>
     <ROW File="fireshock.cat" Component_="fireshock.inf" FileName="FIRESH~1.CAT|fireshock.cat" Attributes="0" SourcePath="..\driver\x64\Release\fireshock\fireshock.cat" SelfReg="false" NextFile="fireshock.inf"/>
+    <ROW File="fireshock.cat_1" Component_="fireshock.cat_1" FileName="FIRESH~1.CAT|fireshock.cat" Attributes="0" SourcePath="..\driver\Release\fireshock\fireshock.cat" SelfReg="false" NextFile="fireshock.inf_1"/>
     <ROW File="fireshock.inf" Component_="fireshock.inf" FileName="FIRESH~1.INF|fireshock.inf" Attributes="0" SourcePath="..\driver\x64\Release\fireshock\fireshock.inf" SelfReg="false" NextFile="fireshock.sys_1"/>
+    <ROW File="fireshock.inf_1" Component_="fireshock.cat" FileName="FIRESH~1.INF|fireshock.inf" Attributes="0" SourcePath="..\driver\Release\fireshock\fireshock.inf" SelfReg="false"/>
     <ROW File="fireshock.sys" Component_="fireshock.inf" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="..\driver\x64\Release\fireshock\fireshock.sys" SelfReg="false" NextFile="fireshock.cat"/>
     <ROW File="fireshock.sys_1" Component_="fireshock.sys_1" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="..\driver\Release\fireshock\fireshock.sys" SelfReg="false" NextFile="LilyPad.dll"/>
-    <ROW File="updater.exe" Component_="updater.exe" FileName="FIRESH~1.EXE|FireShock Updater.exe" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;AI_STUBS&gt;updater.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="updater.exe" Component_="updater.exe" FileName="FIRESH~1.EXE|FireShock Updater.exe" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;AI_STUBS&gt;updater.exe" SelfReg="false" NextFile="fireshock.cat_1" DigSign="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Setup Files" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="FireShock.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" ExtUI="true" UseLargeSchema="true" ExeName="FireShock_Setup_[|ProductVersion]" MsiPackageType="AI_ALL"/>
