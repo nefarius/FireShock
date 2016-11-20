@@ -183,26 +183,12 @@ VOID EvtCleanupCallback(
     _In_ WDFOBJECT Device
 )
 {
-    ULONG               count;
-    PDEVICE_CONTEXT     pDeviceContext;
+    ULONG                   count;
+    
 
     PAGED_CODE();
 
     KdPrint((DRIVERNAME "Entered FilterEvtDeviceContextCleanup\n"));
-
-    pDeviceContext = GetCommonContext(Device);
-
-    // TODO: fix
-    //WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
-    //if (pDeviceContext->ViGEm.Available)
-    //{
-    //    // "Unplug" emulated device
-    //    (*pDeviceContext->ViGEm.Interface.UnPlugTarget)(
-    //        pDeviceContext->ViGEm.Interface.Header.Context,
-    //        pDeviceContext->ViGEm.Serial
-    //        );
-    //}
-    //WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
 
     WdfWaitLockAcquire(FilterDeviceCollectionLock, NULL);
 

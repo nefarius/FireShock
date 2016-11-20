@@ -586,7 +586,9 @@ void BulkOrInterruptTransferCompleted(
             NULL
         );
 
-        KdPrint((DRIVERNAME "WdfIoTargetSendIoctlSynchronously failed with status 0x%X\n", status));
+        if (!NT_SUCCESS(status)) {
+            KdPrint((DRIVERNAME "WdfIoTargetSendIoctlSynchronously failed with status 0x%X\n", status));
+        }
     }
 
     // Complete upper request

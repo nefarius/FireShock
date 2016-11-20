@@ -268,9 +268,43 @@ NTSTATUS FireShockEvtDeviceD0Exit(
     _In_ WDF_POWER_DEVICE_STATE TargetState
 )
 {
+    PDEVICE_CONTEXT         pDeviceContext;
+    NTSTATUS                status;
+    VIGEM_UNPLUG_TARGET     unPlug;
+    WDF_MEMORY_DESCRIPTOR   inBuffer;
+
     UNREFERENCED_PARAMETER(TargetState);
 
+    KdPrint((DRIVERNAME "FireShockEvtDeviceD0Exit called\n"));
+
     PAGED_CODE();
+
+    pDeviceContext = GetCommonContext(Device);
+
+    //
+    // Unplug ViGEm device
+    // 
+    if (pDeviceContext->ViGEm.IoTarget)
+    {
+        VIGEM_UNPLUG_TARGET_INIT(&unPlug, pDeviceContext->ViGEm.Serial);
+        WDF_MEMORY_DESCRIPTOR_INIT_BUFFER(&inBuffer, &unPlug, unPlug.Size);
+
+        KdPrint((DRIVERNAME "pDeviceContext->ViGEm.Serial = %d", pDeviceContext->ViGEm.Serial));
+
+        status = WdfIoTargetSendInternalIoctlSynchronously(
+            pDeviceContext->ViGEm.IoTarget,
+            NULL,
+            IOCTL_VIGEM_UNPLUG_TARGET,
+            &inBuffer,
+            NULL,
+            NULL,
+            NULL);
+
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint((DRIVERNAME "IOCTL_VIGEM_UNPLUG_TARGET failed with status: 0x%X", status));
+        }
+    }
 
     // Perform clean-up tasks
     FilterShutdown(Device);
