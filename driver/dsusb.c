@@ -334,6 +334,7 @@ void BulkOrInterruptTransferCompleted(
     PDS4_DEVICE_CONTEXT         pDs4Context;
     PXUSB_SUBMIT_REPORT         pXusbReport;
     PDS4_REPORT                 pDs4Report;
+    BOOLEAN                     ret;
 
     UNREFERENCED_PARAMETER(Target);
     UNREFERENCED_PARAMETER(Params);
@@ -574,24 +575,73 @@ void BulkOrInterruptTransferCompleted(
 
     if (pDeviceContext->ViGEm.IoTarget)
     {
-        WDF_MEMORY_DESCRIPTOR_INIT_BUFFER(&pDeviceContext->ViGEm.XusbSubmitReportBuffer, pXusbReport, pXusbReport->Size);
+        status = WdfMemoryCopyFromBuffer(
+            pDeviceContext->ViGEm.XusbSubmitReportBuffer,
+            0,
+            pXusbReport,
+            pXusbReport->Size);
 
-        status = WdfIoTargetSendInternalIoctlSynchronously(
+        if (!NT_SUCCESS(status)) {
+            KdPrint((DRIVERNAME "WdfMemoryCopyFromBuffer failed with status 0x%X\n", status));
+        }
+
+        status = WdfIoTargetFormatRequestForInternalIoctl(
             pDeviceContext->ViGEm.IoTarget,
-            NULL,
+            pDeviceContext->ViGEm.XusbSubmitReportRequest,
             IOCTL_XUSB_SUBMIT_REPORT,
-            &pDeviceContext->ViGEm.XusbSubmitReportBuffer,
+            pDeviceContext->ViGEm.XusbSubmitReportBuffer,
             NULL,
             NULL,
             NULL
         );
 
         if (!NT_SUCCESS(status)) {
-            KdPrint((DRIVERNAME "WdfIoTargetSendIoctlSynchronously failed with status 0x%X\n", status));
+            KdPrint((DRIVERNAME "WdfIoTargetFormatRequestForInternalIoctl failed with status 0x%X\n", status));
+        }
+
+        WdfRequestSetCompletionRoutine(
+            pDeviceContext->ViGEm.XusbSubmitReportRequest,
+            ViGEmRequestCompleted,
+            NULL);
+
+        ret = WdfRequestSend(pDeviceContext->ViGEm.XusbSubmitReportRequest,
+            pDeviceContext->ViGEm.IoTarget,
+            WDF_NO_SEND_OPTIONS);
+
+        if (ret == FALSE) {
+            status = WdfRequestGetStatus(pDeviceContext->ViGEm.XusbSubmitReportRequest);
+            WdfRequestComplete(pDeviceContext->ViGEm.XusbSubmitReportRequest, status);
         }
     }
 
     // Complete upper request
     WdfRequestComplete(Request, status);
+}
+
+VOID ViGEmRequestCompleted(
+    _In_ WDFREQUEST                     Request,
+    _In_ WDFIOTARGET                    Target,
+    _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
+    _In_ WDFCONTEXT                     Context
+)
+{
+    WDF_REQUEST_REUSE_PARAMS    params;
+    NTSTATUS                    status;
+
+    UNREFERENCED_PARAMETER(Target);
+    UNREFERENCED_PARAMETER(Params);
+    UNREFERENCED_PARAMETER(Context);
+
+    WDF_REQUEST_REUSE_PARAMS_INIT(
+        &params,
+        WDF_REQUEST_REUSE_NO_FLAGS,
+        STATUS_SUCCESS
+    );
+
+    status = WdfRequestReuse(
+        Request,
+        &params
+    );
+    ASSERT(NT_SUCCESS(status));
 }
 

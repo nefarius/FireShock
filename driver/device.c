@@ -38,7 +38,6 @@ WDFDEVICE       ControlDevice = NULL;
 #pragma alloc_text(PAGE, FilterEvtIoDeviceControl)
 #pragma alloc_text(PAGE, FilterShutdown)
 #pragma alloc_text(PAGE, EvtCleanupCallback)
-#pragma alloc_text(PAGE, EvtIoTargetQueryRemove)
 #endif
 
 
@@ -183,8 +182,7 @@ VOID EvtCleanupCallback(
     _In_ WDFOBJECT Device
 )
 {
-    ULONG                   count;
-    
+    ULONG   count;
 
     PAGED_CODE();
 
@@ -703,6 +701,7 @@ VOID AcquireViGEmInterface(WDFDEVICE Device, const UNICODE_STRING DeviceName)
     NTSTATUS                        status;
     WDF_IO_TARGET_OPEN_PARAMS       openParams;
     PDEVICE_CONTEXT                 pDeviceContext;
+    WDF_OBJECT_ATTRIBUTES           attributes;
 
     pDeviceContext = GetCommonContext(Device);
 
@@ -715,12 +714,45 @@ VOID AcquireViGEmInterface(WDFDEVICE Device, const UNICODE_STRING DeviceName)
 
     WDF_IO_TARGET_OPEN_PARAMS_INIT_CREATE_BY_NAME(&openParams, &DeviceName, STANDARD_RIGHTS_ALL);
 
-    openParams.EvtIoTargetQueryRemove = EvtIoTargetQueryRemove;
-
     status = WdfIoTargetOpen(pDeviceContext->ViGEm.IoTarget, &openParams);
     if (!NT_SUCCESS(status))
     {
         KdPrint((DRIVERNAME "ViGEm interface not available: 0x%X\n", status));
+        WdfObjectDelete(pDeviceContext->ViGEm.IoTarget);
+        pDeviceContext->ViGEm.IoTarget = NULL;
+        return;
+    }
+
+    WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
+    attributes.ParentObject = Device;
+
+    //
+    // Create request for XUSB submission
+    // 
+    status = WdfRequestCreate(&attributes, pDeviceContext->ViGEm.IoTarget, &pDeviceContext->ViGEm.XusbSubmitReportRequest);
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint((DRIVERNAME "WdfRequestCreate failed with status 0x%X\n", status));
+        WdfObjectDelete(pDeviceContext->ViGEm.IoTarget);
+        pDeviceContext->ViGEm.IoTarget = NULL;
+    }
+
+    WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
+    attributes.ParentObject = Device;
+
+    //
+    // Create memory for XUSB submission
+    // 
+    status = WdfMemoryCreate(
+        &attributes, 
+        NonPagedPool, 
+        0, 
+        sizeof(XUSB_SUBMIT_REPORT),
+        &pDeviceContext->ViGEm.XusbSubmitReportBuffer, 
+        NULL);
+    if (!NT_SUCCESS(status))
+    {
+        KdPrint((DRIVERNAME "WdfMemoryCreate failed with status 0x%X\n", status));
         WdfObjectDelete(pDeviceContext->ViGEm.IoTarget);
         pDeviceContext->ViGEm.IoTarget = NULL;
     }
@@ -763,35 +795,5 @@ VOID XusbNotificationCallback(IN PVOID Context, IN UCHAR LargeMotor, IN UCHAR Sm
     default:
         return;
     }
-}
-
-//
-// Gets called when the remote target (ViGEm) gets removed.
-// 
-_Use_decl_annotations_
-NTSTATUS
-EvtIoTargetQueryRemove(
-    WDFIOTARGET  IoTarget
-)
-{
-    WDFDEVICE           device;
-    PDEVICE_CONTEXT     pDeviceContext;
-
-    PAGED_CODE();
-
-    KdPrint((DRIVERNAME "EvtIoTargetQueryRemove called\n"));
-
-    device = WdfIoTargetGetDevice(IoTarget);
-    pDeviceContext = GetCommonContext(device);
-    UNREFERENCED_PARAMETER(pDeviceContext);
-
-    // TODO: fix
-    //WdfWaitLockAcquire(pDeviceContext->ViGEm.Lock, NULL);
-    //
-    //pDeviceContext->ViGEm.Available = FALSE;
-    //
-    //WdfWaitLockRelease(pDeviceContext->ViGEm.Lock);
-
-    return STATUS_SUCCESS;
 }
 

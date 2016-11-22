@@ -32,6 +32,8 @@ EVT_WDF_REQUEST_COMPLETION_ROUTINE Ds3OutputRequestCompleted;
 
 EVT_WDF_REQUEST_COMPLETION_ROUTINE BulkOrInterruptTransferCompleted;
 
+EVT_WDF_REQUEST_COMPLETION_ROUTINE ViGEmRequestCompleted;
+
 NTSTATUS SendControlRequest(
     WDFDEVICE Device,
     BYTE Request,
