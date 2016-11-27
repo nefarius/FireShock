@@ -36,20 +36,22 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetVersion>Windows10</TargetVersion>
+    <TargetVersion>Windows7</TargetVersion>
     <UseDebugLibraries>False</UseDebugLibraries>
-    <DriverTargetPlatform>Universal</DriverTargetPlatform>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
     <DriverType>KMDF</DriverType>
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
+    <KMDF_VERSION_MINOR>9</KMDF_VERSION_MINOR>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetVersion>Windows10</TargetVersion>
+    <TargetVersion>Windows7</TargetVersion>
     <UseDebugLibraries>True</UseDebugLibraries>
-    <DriverTargetPlatform>Universal</DriverTargetPlatform>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
     <DriverType>KMDF</DriverType>
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
+    <KMDF_VERSION_MINOR>9</KMDF_VERSION_MINOR>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Windows 7)|x64'" Label="Configuration">
     <TargetVersion>Windows7</TargetVersion>
@@ -58,22 +60,25 @@
     <DriverType>KMDF</DriverType>
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
+    <KMDF_VERSION_MINOR>9</KMDF_VERSION_MINOR>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetVersion>Windows10</TargetVersion>
+    <TargetVersion>Windows7</TargetVersion>
     <UseDebugLibraries>False</UseDebugLibraries>
-    <DriverTargetPlatform>Universal</DriverTargetPlatform>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
     <DriverType>KMDF</DriverType>
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
+    <KMDF_VERSION_MINOR>9</KMDF_VERSION_MINOR>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetVersion>Windows10</TargetVersion>
+    <TargetVersion>Windows7</TargetVersion>
     <UseDebugLibraries>True</UseDebugLibraries>
-    <DriverTargetPlatform>Universal</DriverTargetPlatform>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
     <DriverType>KMDF</DriverType>
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
+    <KMDF_VERSION_MINOR>9</KMDF_VERSION_MINOR>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (Windows 7)|Win32'" Label="Configuration">
     <TargetVersion>Windows7</TargetVersion>
@@ -82,6 +87,7 @@
     <DriverType>KMDF</DriverType>
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
+    <KMDF_VERSION_MINOR>9</KMDF_VERSION_MINOR>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup>
@@ -158,8 +164,12 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Inf>
-      <TimeStamp>1.1.2.0</TimeStamp>
+      <TimeStamp>1.1.3.0</TimeStamp>
     </Inf>
+    <DriverSign>
+      <FileDigestAlgorithm>
+      </FileDigestAlgorithm>
+    </DriverSign>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
@@ -215,8 +225,12 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Inf>
-      <TimeStamp>1.1.2.0</TimeStamp>
+      <TimeStamp>1.1.3.0</TimeStamp>
     </Inf>
+    <DriverSign>
+      <FileDigestAlgorithm>
+      </FileDigestAlgorithm>
+    </DriverSign>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>

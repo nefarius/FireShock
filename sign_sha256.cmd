@@ -1,0 +1,4 @@
+@echo off
+"C:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe" sign /ph /v /fd sha256 /ac "C:\Program Files (x86)\Windows Kits\10\CrossCertificates\Certum Trusted Network CA.crt" /sha1 61197CF2F78F4B9107667B1FFE4FD7A313EDCF86 /tr http://sha256timestamp.ws.symantec.com/sha256/timestamp "D:\Development\C++\FireShock\driver\x64\Release\fireshock.sys"
+rem "C:\Program Files (x86)\Windows Kits\10\bin\x86\signtool.exe" sign /ph /fd sha256 /ac "C:\Program Files (x86)\Windows Kits\10\CrossCertificates\Certum Trusted Network CA.crt" /sha1 61197CF2F78F4B9107667B1FFE4FD7A313EDCF86 /tr http://sha256timestamp.ws.symantec.com/sha256/timestamp "D:\Development\C++\FireShock\driver\Release\fireshock.sys"
+pause
