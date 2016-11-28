@@ -326,8 +326,8 @@ void BulkOrInterruptTransferCompleted(
 {
     NTSTATUS                    status;
     WDFDEVICE                   device = Context;
-    PURB                        urb;
-    PUCHAR                      transferBuffer;
+    PURB                        pUrb;
+    PUCHAR                      pTransferBuffer;
     ULONG                       transferBufferLength;
     PDEVICE_CONTEXT             pDeviceContext;
     PDS3_DEVICE_CONTEXT         pDs3Context;
@@ -352,9 +352,9 @@ void BulkOrInterruptTransferCompleted(
 
     // Get context, URB and buffers
     pDeviceContext = GetCommonContext(device);
-    urb = URB_FROM_IRP(WdfRequestWdmGetIrp(Request));
-    transferBuffer = (PUCHAR)urb->UrbBulkOrInterruptTransfer.TransferBuffer;
-    transferBufferLength = urb->UrbBulkOrInterruptTransfer.TransferBufferLength;
+    pUrb = URB_FROM_IRP(WdfRequestWdmGetIrp(Request));
+    pTransferBuffer = (PUCHAR)pUrb->UrbBulkOrInterruptTransfer.TransferBuffer;
+    transferBufferLength = pUrb->UrbBulkOrInterruptTransfer.TransferBufferLength;
     pXusbReport = &pDeviceContext->ViGEm.XusbSubmitReport;
 
     XUSB_SUBMIT_REPORT_INIT(pXusbReport, pDeviceContext->ViGEm.Serial);
@@ -366,13 +366,13 @@ void BulkOrInterruptTransferCompleted(
         pDs3Context = Ds3GetContext(device);
 
         // Report ID
-        pDs3Context->InputReport[0] = transferBuffer[0];
+        pDs3Context->InputReport[0] = pTransferBuffer[0];
 
         // Prepare D-Pad
         pDs3Context->InputReport[5] &= ~0xF; // Clear lower 4 bits
 
         // Translate D-Pad to HAT format
-        switch (transferBuffer[2] & ~0xF)
+        switch (pTransferBuffer[2] & ~0xF)
         {
         case 0x10: // N
             pDs3Context->InputReport[5] |= 0 & 0xF;
@@ -418,41 +418,41 @@ void BulkOrInterruptTransferCompleted(
         // Prepare face buttons
         pDs3Context->InputReport[5] &= ~0xF0; // Clear upper 4 bits
         // Set face buttons
-        pDs3Context->InputReport[5] |= transferBuffer[3] & 0xF0;
+        pDs3Context->InputReport[5] |= pTransferBuffer[3] & 0xF0;
 
         // Thumb axes
-        pDs3Context->InputReport[1] = transferBuffer[6]; // LTX
-        pDs3Context->InputReport[2] = transferBuffer[7]; // LTY
-        pDs3Context->InputReport[3] = transferBuffer[8]; // RTX
-        pDs3Context->InputReport[4] = transferBuffer[9]; // RTY
+        pDs3Context->InputReport[1] = pTransferBuffer[6]; // LTX
+        pDs3Context->InputReport[2] = pTransferBuffer[7]; // LTY
+        pDs3Context->InputReport[3] = pTransferBuffer[8]; // RTX
+        pDs3Context->InputReport[4] = pTransferBuffer[9]; // RTY
 
         // Remaining buttons
         pDs3Context->InputReport[6] &= ~0xFF; // Clear all 8 bits
-        pDs3Context->InputReport[6] |= (transferBuffer[2] & 0xF);
-        pDs3Context->InputReport[6] |= (transferBuffer[3] & 0xF) << 4;
+        pDs3Context->InputReport[6] |= (pTransferBuffer[2] & 0xF);
+        pDs3Context->InputReport[6] |= (pTransferBuffer[3] & 0xF) << 4;
 
         // Trigger axes
-        pDs3Context->InputReport[8] = transferBuffer[18];
-        pDs3Context->InputReport[9] = transferBuffer[19];
+        pDs3Context->InputReport[8] = pTransferBuffer[18];
+        pDs3Context->InputReport[9] = pTransferBuffer[19];
 
         // PS button
-        pDs3Context->InputReport[7] = transferBuffer[4];
+        pDs3Context->InputReport[7] = pTransferBuffer[4];
 
         // D-Pad (pressure)
-        pDs3Context->InputReport[10] = transferBuffer[14];
-        pDs3Context->InputReport[11] = transferBuffer[15];
-        pDs3Context->InputReport[12] = transferBuffer[16];
-        pDs3Context->InputReport[13] = transferBuffer[17];
+        pDs3Context->InputReport[10] = pTransferBuffer[14];
+        pDs3Context->InputReport[11] = pTransferBuffer[15];
+        pDs3Context->InputReport[12] = pTransferBuffer[16];
+        pDs3Context->InputReport[13] = pTransferBuffer[17];
 
         // Shoulders (pressure)
-        pDs3Context->InputReport[14] = transferBuffer[20];
-        pDs3Context->InputReport[15] = transferBuffer[21];
+        pDs3Context->InputReport[14] = pTransferBuffer[20];
+        pDs3Context->InputReport[15] = pTransferBuffer[21];
 
         // Face buttons (pressure)
-        pDs3Context->InputReport[16] = transferBuffer[22];
-        pDs3Context->InputReport[17] = transferBuffer[23];
-        pDs3Context->InputReport[18] = transferBuffer[24];
-        pDs3Context->InputReport[19] = transferBuffer[25];
+        pDs3Context->InputReport[16] = pTransferBuffer[22];
+        pDs3Context->InputReport[17] = pTransferBuffer[23];
+        pDs3Context->InputReport[18] = pTransferBuffer[24];
+        pDs3Context->InputReport[19] = pTransferBuffer[25];
 
         /* Cache gamepad state for sideband communication
          * Skip first byte since it's the report ID we don't need */
@@ -493,13 +493,13 @@ void BulkOrInterruptTransferCompleted(
         }
 
         // Copy back modified buffer to request buffer
-        RtlCopyBytes(transferBuffer, pDs3Context->InputReport, transferBufferLength);
+        RtlCopyBytes(pTransferBuffer, pDs3Context->InputReport, transferBufferLength);
 
         break;
     case DualShock4:
 
         pDs4Context = Ds4GetContext(device);
-        pDs4Report = (PDS4_REPORT)&transferBuffer[1];
+        pDs4Report = (PDS4_REPORT)&pTransferBuffer[1];
 
         // Translate FS4 D-Pad to XUSB format
         switch (pDs4Report->wButtons & 0xF)
