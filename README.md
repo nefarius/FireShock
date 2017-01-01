@@ -1,3 +1,5 @@
+![Icon](https://raw.githubusercontent.com/nefarius/FireShock/master/Installer/FireShock.png)
+
 # FireShock
 HIDUSB filter driver for Sony DualShock controllers
 
