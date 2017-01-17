@@ -250,3 +250,6 @@ ModelManifest.xml
 /Installer/FireShock Installer-cache
 /Installer/FireShock Installer.back (1).aip
 /Installer/FireShock Installer.back (2).aip
+/driver/Signing/disk1
+/driver/Signing/setup.inf
+/driver/Signing/setup.rpt
