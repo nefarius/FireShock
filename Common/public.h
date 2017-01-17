@@ -24,6 +24,7 @@ SOFTWARE.
 
 
 // {2409EA50-9ECA-410E-AC9E-F9AC798C4D9C}
+// ReSharper disable once CppMissingIncludeGuard
 DEFINE_GUID(GUID_DEVINTERFACE_FIRESHOCK,
     0x2409ea50, 0x9eca, 0x410e, 0xac, 0x9e, 0xf9, 0xac, 0x79, 0x8c, 0x4d, 0x9c);
 

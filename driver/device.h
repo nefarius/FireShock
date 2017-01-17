@@ -23,6 +23,8 @@ SOFTWARE.
 */
 
 
+#pragma once
+
 #include "ds.h"
 #include "ViGEmBusDriver.h"
 
