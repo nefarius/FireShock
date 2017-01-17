@@ -24,7 +24,7 @@ SOFTWARE.
 
 
 #include "ds.h"
-#include "driver.h"
+#include "ViGEmBusDriver.h"
 
 //
 // Control device name
