@@ -220,6 +220,7 @@ FireShockEvtDevicePrepareHardware(
 
             KdPrint((DRIVERNAME "pDeviceContext->ViGEm.Serial = %d", pDeviceContext->ViGEm.Serial));
 
+            // TODO: replace with async call!
             status = WdfIoTargetSendInternalIoctlSynchronously(
                 pDeviceContext->ViGEm.IoTarget,
                 NULL,
@@ -291,6 +292,7 @@ NTSTATUS FireShockEvtDeviceD0Exit(
 
         KdPrint((DRIVERNAME "pDeviceContext->ViGEm.Serial = %d", pDeviceContext->ViGEm.Serial));
 
+        // TODO: replace with async call!
         status = WdfIoTargetSendInternalIoctlSynchronously(
             pDeviceContext->ViGEm.IoTarget,
             NULL,
