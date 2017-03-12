@@ -453,6 +453,8 @@ VOID EvtIoInternalDeviceControl(
                 }
 
                 break;
+            default:
+                break;
             }
 
             break;
@@ -477,8 +479,12 @@ VOID EvtIoInternalDeviceControl(
             }
 
             break;
+        default:
+            break;
         }
 
+        break;
+    default:
         break;
     }
 
@@ -744,11 +750,11 @@ VOID AcquireViGEmInterface(WDFDEVICE Device, const UNICODE_STRING DeviceName)
     // Create memory for XUSB submission
     // 
     status = WdfMemoryCreate(
-        &attributes, 
-        NonPagedPool, 
-        0, 
+        &attributes,
+        NonPagedPool,
+        0,
         sizeof(XUSB_SUBMIT_REPORT),
-        &pDeviceContext->ViGEm.XusbSubmitReportBuffer, 
+        &pDeviceContext->ViGEm.XusbSubmitReportBuffer,
         NULL);
     if (!NT_SUCCESS(status))
     {
