@@ -25,37 +25,18 @@ SOFTWARE.
 
 #pragma once
 
-#include <ntddk.h>
-#include <wdf.h>
-#define NTSTRSAFE_LIB
-#include <ntstrsafe.h>
-#include <initguid.h>
-#include <wdmguid.h>
-#include <wdmsec.h> // for SDDLs
-#include <usb.h>
-#include <wdfusb.h>
+_Must_inspect_result_
+_Success_(return == STATUS_SUCCESS)
+_IRQL_requires_max_(PASSIVE_LEVEL)
+NTSTATUS
+FilterCreateControlDevice(
+    _In_ WDFDEVICE Device
+);
 
-// Our drivers modules includes
-#include "public.h"
-#include "device.h"
-#include "power.h"
-#include "ds.h"
-#include "dsusb.h"
-#include "sideband.h"
+_IRQL_requires_max_(PASSIVE_LEVEL)
+VOID
+FilterDeleteControlDevice(
+    _In_ WDFDEVICE Device
+);
 
-
-#define DRIVERNAME              "FireShock: "
-#define FIRESHOCK_POOL_TAG      0x44465346
-
-extern WDFCOLLECTION   FilterDeviceCollection;
-extern WDFWAITLOCK     FilterDeviceCollectionLock;
-extern WDFDEVICE       ControlDevice;
-
-//
-// WDFDRIVER Object Events
-//
-
-DRIVER_INITIALIZE DriverEntry;
-
-EVT_WDF_DRIVER_DEVICE_ADD FireShockEvtDeviceAdd;
-
+EVT_WDF_IO_QUEUE_IO_DEVICE_CONTROL SidebandEvtIoDeviceControl;

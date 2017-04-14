@@ -276,6 +276,7 @@
     <ClCompile Include="ds.c" />
     <ClCompile Include="dsusb.c" />
     <ClCompile Include="power.c" />
+    <ClCompile Include="sideband.c" />
     <ResourceCompile Include="fireshock.rc" />
   </ItemGroup>
   <ItemGroup>
@@ -295,6 +296,7 @@
     <ClInclude Include="fireshock.h" />
     <ClInclude Include="power.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="sideband.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

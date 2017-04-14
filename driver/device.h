@@ -154,23 +154,8 @@ WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DS4_DEVICE_CONTEXT, Ds4GetContext)
 
 EVT_WDF_DEVICE_CONTEXT_CLEANUP EvtDeviceContextCleanup;
 EVT_WDF_IO_QUEUE_IO_INTERNAL_DEVICE_CONTROL EvtIoInternalDeviceControl;
-EVT_WDF_IO_QUEUE_IO_DEVICE_CONTROL FilterEvtIoDeviceControl;
 EVT_WDF_OBJECT_CONTEXT_CLEANUP EvtCleanupCallback;
 
-
-_Must_inspect_result_
-_Success_(return == STATUS_SUCCESS)
-_IRQL_requires_max_(PASSIVE_LEVEL)
-NTSTATUS
-FilterCreateControlDevice(
-    _In_ WDFDEVICE Device
-);
-
-_IRQL_requires_max_(PASSIVE_LEVEL)
-VOID
-FilterDeleteControlDevice(
-    _In_ WDFDEVICE Device
-);
 
 VOID FilterShutdown(WDFDEVICE Device);
 
