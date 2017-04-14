@@ -164,7 +164,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Inf>
-      <TimeStamp>1.2.0.0</TimeStamp>
+      <TimeStamp>1.3.0.0</TimeStamp>
     </Inf>
     <DriverSign>
       <FileDigestAlgorithm>
@@ -225,7 +225,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Inf>
-      <TimeStamp>1.2.0.0</TimeStamp>
+      <TimeStamp>1.3.0.0</TimeStamp>
     </Inf>
     <DriverSign>
       <FileDigestAlgorithm>

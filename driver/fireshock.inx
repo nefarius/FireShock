@@ -3,11 +3,12 @@ Signature="$Windows NT$"
 Class=HIDClass
 ClassGUID={745a17a0-74d3-11d0-b6fe-00a0c90f57da}
 Provider=%Provider%
-DriverVer=03/17/2001,1.0.0.1
+DriverVer=
 CatalogFile=fireshock.cat
 
 [DestinationDirs]
 DefaultDestDir = 12 ; DIRID_DRIVERS
+FireShock_Inst_CoInstaller_CopyFiles = 11
 
 [ControlFlags]
 ; We don't want our device to be installable via the non-PnP hardware dialogs
@@ -68,13 +69,11 @@ ServiceBinary  = %12%\FireShock.sys
 
 [SourceDisksFiles]
 FireShock.sys = 1
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
 
 ;
 ;--- FireShock_Inst WDF Coinstaller installation ------
 ;
-
-[DestinationDirs]
-FireShock_Inst_CoInstaller_CopyFiles = 11
 
 [FireShock_Inst.NT.CoInstallers]
 AddReg=FireShock_Inst_CoInstaller_AddReg
@@ -85,9 +84,6 @@ HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfC
 
 [FireShock_Inst_CoInstaller_CopyFiles]
 WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
-
-[SourceDisksFiles]
-WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
 
 [FireShock_Inst.NT.Wdf]
 KmdfService = FireShock, FireShock_wdfsect
