@@ -33,3 +33,4 @@ The driver is built for and tested with Windows 7 up to Windows 10 x86 and amd64
  * https://msdn.microsoft.com/en-us/library/windows/hardware/dn265671(v=vs.85).aspx
  * http://eleccelerator.com/usbdescreqparser/
  * http://www.psdevwiki.com/ps4/DS4-USB
+ * https://patchwork.kernel.org/patch/9367441/
