@@ -21,7 +21,7 @@ If a DualShock 4 gets connected, it enables XInput-Support if [ViGEm](../../../V
 Just download the [latest setup](../../releases/latest) and run it. It doesn't matter if you've got your controllers connected during the setup or connect them afterwards.
 
 ### Supported systems
-Currently due to heavy development and testing, only Windows 10 x86/x64 is supported. More to come.
+The driver is built for and tested with Windows 7 up to Windows 10 x86 and amd64.
 
 ## Sources
  * http://eleccelerator.com/wiki/index.php?title=DualShock_3
