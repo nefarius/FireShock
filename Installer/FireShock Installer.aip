@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="13.1" version="13.5" Modules="enterprise" RootPath="." Language="en" Id="{3D8808BD-9F88-4356-BA62-C91F2D2504A3}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="13.1" version="14.0.1" Modules="enterprise" RootPath="." Language="en" Id="{3D8808BD-9F88-4356-BA62-C91F2D2504A3}">
   <COMPONENT cid="caphyon.advinst.msicomp.ProjectOptionsComponent">
-    <ROW Name="HiddenItems" Value="ActSyncAppComponent;GameUxComponent;UserAccountsComponent;MsiClassComponent;WebApplicationsComponent;MsiOdbcDataSrcComponent;SqlConnectionComponent;SharePointSlnComponent;SilverlightSlnComponent;AppXAppDetailsComponent;AppXCapabilitiesComponent;AppXDependenciesComponent;AppXProductDetailsComponent;AppXVisualAssetsComponent;AppXAppDeclarationsComponent;AppXUriRulesComponent"/>
+    <ROW Name="HiddenItems" Value="SerValComponent;MultipleInstancesComponent;AppXProductDetailsComponent;AppXDependenciesComponent;AppXAppDetailsComponent;AppXVisualAssetsComponent;AppXCapabilitiesComponent;AppXAppDeclarationsComponent;AppXUriRulesComponent;ActSyncAppComponent;GameUxComponent;UserAccountsComponent;MsiClassComponent;WebApplicationsComponent;MsiOdbcDataSrcComponent;SqlConnectionComponent;SharePointSlnComponent;SilverlightSlnComponent"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
@@ -19,10 +19,10 @@
     <ROW Property="AiFeatIcoPCSX2" Value="PCSX2Icon.exe" Type="8"/>
     <ROW Property="IAgree" Value="Yes" Type="4" MsiKey="IAgree"/>
     <ROW Property="Manufacturer" Value="Nefarius Software Solutions"/>
-    <ROW Property="ProductCode" Value="1033:{C762D8FC-4D6F-4963-BBB9-369C0F1D20E6} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{6F3279DC-63F7-49F9-89CE-9FEBF2C540BE} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="FireShock Device Driver"/>
-    <ROW Property="ProductVersion" Value="1.2.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.3.1.0" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
     <ROW Property="UpgradeCode" Value="{C7E914CC-7843-46C6-9DF8-3F1E040B4722}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -56,12 +56,11 @@
     <ROW Component="fireshock.cat_1" ComponentId="{5016686B-EDB7-4976-A05D-205A4C04054A}" Directory_="AI_Bin32_Dir" Attributes="0" KeyPath="fireshock.cat_1"/>
     <ROW Component="fireshock.inf" ComponentId="{7CFB77BD-D3BA-4023-92D9-C273AECB7B6B}" Directory_="APPDIR" Attributes="256" Condition="VersionNT64" KeyPath="fireshock.inf"/>
     <ROW Component="fireshock.sys_1" ComponentId="{1941DFCC-898E-4DA4-9558-7DB03E184AC2}" Directory_="AI_Bin32_Dir" Attributes="0" Condition="NOT VersionNT64" KeyPath="fireshock.sys_1"/>
-    <ROW Component="updater.exe" ComponentId="{B562FB45-2266-47C1-BE00-F9B0C05B34A9}" Directory_="APPDIR" Attributes="0" KeyPath="updater.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="AI32BitFiles" Title="32-bit" Description="32-bit Executables and Libraries" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_ExePath WdfCoinstaller01009.dll_1 fireshock.cat fireshock.cat_1 fireshock.sys_1"/>
     <ROW Feature="AI64BitFiles" Title="64-bit" Description="64-bit Executables and Libraries" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_ExePath"/>
-    <ROW Feature="AIOtherFiles" Title="FireShock Device Driver" Description="Shared Resource and Regular Files" Display="7" Level="1" Directory_="APPDIR" Attributes="16" Components="AI_ExePath updater.exe"/>
+    <ROW Feature="AIOtherFiles" Title="FireShock Device Driver" Description="Shared Resource and Regular Files" Display="7" Level="1" Directory_="APPDIR" Attributes="16" Components="AI_ExePath"/>
     <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_ExePath ProductInformation"/>
     <ROW Feature="PCSX2" Title="PCSX2 Modifications" Description="Description" Display="9" Level="0" Directory_="APPDIR" Attributes="0" Components="AI_ExePath LilyPad.dll"/>
     <ROW Feature="fireshock" Feature_Parent="AIOtherFiles" Title="fireshock" Description="Description" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_ExePath WdfCoinstaller01009.dll"/>
@@ -69,26 +68,25 @@
     <ATTRIBUTE name="CurrentFeature" value="AI64BitFiles"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="LilyPad.dll" Component_="LilyPad.dll" FileName="LilyPad.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\..\pcsx2\bin\plugins\LilyPad.dll" SelfReg="false" NextFile="updater.exe"/>
-    <ROW File="WdfCoinstaller01009.dll" Component_="WdfCoinstaller01009.dll" FileName="WDFCOI~1.DLL|WdfCoinstaller01009.dll" Attributes="0" SourcePath="..\driver\x64\Release\fireshock\WdfCoinstaller01009.dll" SelfReg="false" NextFile="WdfCoinstaller01009.dll_1"/>
-    <ROW File="WdfCoinstaller01009.dll_1" Component_="WdfCoinstaller01009.dll_1" FileName="WDFCOI~1.DLL|WdfCoinstaller01009.dll" Attributes="0" SourcePath="..\driver\Release\fireshock\WdfCoinstaller01009.dll" SelfReg="false"/>
-    <ROW File="fireshock.cat" Component_="fireshock.inf" FileName="FIRESH~1.CAT|fireshock.cat" Attributes="0" SourcePath="..\driver\x64\Release\fireshock\fireshock.cat" SelfReg="false" NextFile="fireshock.inf"/>
-    <ROW File="fireshock.cat_1" Component_="fireshock.cat_1" FileName="FIRESH~1.CAT|fireshock.cat" Attributes="0" SourcePath="..\driver\Release\fireshock\fireshock.cat" SelfReg="false" NextFile="fireshock.inf_1"/>
-    <ROW File="fireshock.inf" Component_="fireshock.inf" FileName="FIRESH~1.INF|fireshock.inf" Attributes="0" SourcePath="..\driver\x64\Release\fireshock\fireshock.inf" SelfReg="false" NextFile="fireshock.sys_1"/>
-    <ROW File="fireshock.inf_1" Component_="fireshock.cat" FileName="FIRESH~1.INF|fireshock.inf" Attributes="0" SourcePath="..\driver\Release\fireshock\fireshock.inf" SelfReg="false" NextFile="WdfCoinstaller01009.dll"/>
-    <ROW File="fireshock.sys" Component_="fireshock.inf" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="..\driver\x64\Release\fireshock\fireshock.sys" SelfReg="false" NextFile="fireshock.cat"/>
-    <ROW File="fireshock.sys_1" Component_="fireshock.sys_1" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="..\driver\Release\fireshock\fireshock.sys" SelfReg="false" NextFile="LilyPad.dll"/>
-    <ROW File="updater.exe" Component_="updater.exe" FileName="FIRESH~1.EXE|FireShock Updater.exe" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;AI_STUBS&gt;updater.exe" SelfReg="false" NextFile="fireshock.cat_1" DigSign="true"/>
+    <ROW File="LilyPad.dll" Component_="LilyPad.dll" FileName="LilyPad.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\..\pcsx2\bin\plugins\LilyPad.dll" SelfReg="false" NextFile="fireshock.cat_1"/>
+    <ROW File="WdfCoinstaller01009.dll" Component_="WdfCoinstaller01009.dll" FileName="WDFCOI~1.DLL|WdfCoinstaller01009.dll" Attributes="0" SourcePath="Signed\x64\WdfCoinstaller01009.dll" SelfReg="false" NextFile="WdfCoinstaller01009.dll_1"/>
+    <ROW File="WdfCoinstaller01009.dll_1" Component_="WdfCoinstaller01009.dll_1" FileName="WDFCOI~1.DLL|WdfCoinstaller01009.dll" Attributes="0" SourcePath="Signed\x86\WdfCoinstaller01009.dll" SelfReg="false"/>
+    <ROW File="fireshock.cat" Component_="fireshock.inf" FileName="FIRESH~1.CAT|fireshock.cat" Attributes="0" SourcePath="Signed\x64\fireshock.cat" SelfReg="false" NextFile="fireshock.inf"/>
+    <ROW File="fireshock.cat_1" Component_="fireshock.cat_1" FileName="FIRESH~1.CAT|fireshock.cat" Attributes="0" SourcePath="Signed\x86\fireshock.cat" SelfReg="false" NextFile="fireshock.inf_1"/>
+    <ROW File="fireshock.inf" Component_="fireshock.inf" FileName="FIRESH~1.INF|fireshock.inf" Attributes="0" SourcePath="Signed\x64\fireshock.inf" SelfReg="false" NextFile="fireshock.sys_1"/>
+    <ROW File="fireshock.inf_1" Component_="fireshock.cat" FileName="FIRESH~1.INF|fireshock.inf" Attributes="0" SourcePath="Signed\x86\fireshock.inf" SelfReg="false" NextFile="WdfCoinstaller01009.dll"/>
+    <ROW File="fireshock.sys" Component_="fireshock.inf" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="Signed\x64\fireshock.sys" SelfReg="false" NextFile="fireshock.cat"/>
+    <ROW File="fireshock.sys_1" Component_="fireshock.sys_1" FileName="FIRESH~1.SYS|fireshock.sys" Attributes="0" SourcePath="Signed\x86\fireshock.sys" SelfReg="false" NextFile="LilyPad.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Setup Files" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="FireShock.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" ExtUI="true" UseLargeSchema="true" ExeName="FireShock_Setup_[|ProductVersion]" MsiPackageType="AI_ALL"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Setup Files" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="FireShock.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" UseLargeSchema="true" ExeName="FireShock_Setup_[|ProductVersion]" MsiPackageType="AI_ALL"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
     <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
-    <ROW TimeStampUrl="http://timestamp.digicert.com" SignerDescription="[|ProductName]" SignOptions="7" SignTool="0" UseSha256="1" Thumbprint="61197cf2f78f4b9107667b1ffe4fd7a313edcf86 Subject: Open Source Developer, Benjamin Höglinger-Stelzer&#10;Issuer: Certum Code Signing CA SHA2&#10;Valid from 03/12/2016 to 03/12/2017"/>
+    <ROW TimeStampUrl="http://timestamp.digicert.com" SignerDescription="[|ProductName]" SignOptions="7" SignTool="0" UseSha256="1" Thumbprint="96a8d8621d30800a839d96d93c7e44160e71a00a Subject: Wohlfeil.IT e.U.&#10;Issuer: GlobalSign Extended Validation CodeSigning CA - SHA256 - G3&#10;Valid from 01/03/2017 to 01/04/2020"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
@@ -112,16 +110,6 @@
     <ROW Action="AI_DeleteRLzma" Description="Deleting files extracted from archive" DescriptionLocId="ActionText.Description.AI_DeleteLzma" TemplateLocId="-"/>
     <ROW Action="AI_ExtractFiles" Description="Extracting files from archive" DescriptionLocId="ActionText.Description.AI_ExtractLzma" TemplateLocId="-"/>
     <ROW Action="AI_ExtractLzma" Description="Extracting files from archive" DescriptionLocId="ActionText.Description.AI_ExtractLzma" TemplateLocId="-"/>
-    <ROW Action="AI_ProcessTasks" Description="Generating actions to schedule tasks on the local computer:" Template="Task Name: [1]" DescriptionLocId="ActionText.Description.AI_ProcessTasks" TemplateLocId="ActionText.Template.AI_ProcessTasks"/>
-    <ROW Action="AI_ProcessTasks2" Description="Generating actions to schedule tasks on the local computer:" Template="Task Name: [1]" DescriptionLocId="ActionText.Description.AI_ProcessTasks" TemplateLocId="ActionText.Template.AI_ProcessTasks"/>
-    <ROW Action="AI_RemoveTasks" Description="Removing scheduled task from the local computer" Template="Task Name: [1]" DescriptionLocId="ActionText.Description.AI_RemoveTasks" TemplateLocId="ActionText.Template.AI_RemoveTasks"/>
-    <ROW Action="AI_RemoveTasks2" Description="Removing scheduled task from the local computer" Template="Task Name: [1]" DescriptionLocId="ActionText.Description.AI_RemoveTasks" TemplateLocId="ActionText.Template.AI_RemoveTasks"/>
-    <ROW Action="AI_RollbackTasks" Description="Rolling back scheduled task on the local computer" Template="Task Name: [1]" DescriptionLocId="ActionText.Description.AI_RollbackTasks" TemplateLocId="ActionText.Template.AI_RollbackTasks"/>
-    <ROW Action="AI_RollbackTasks2" Description="Rolling back scheduled task on the local computer" Template="Task Name: [1]" DescriptionLocId="ActionText.Description.AI_RollbackTasks" TemplateLocId="ActionText.Template.AI_RollbackTasks"/>
-    <ROW Action="AI_ScheduleTasks" Description="Scheduling task on the local computer" Template="Task Name: [1]" DescriptionLocId="ActionText.Description.AI_ScheduleTasks" TemplateLocId="ActionText.Template.AI_ScheduleTasks"/>
-    <ROW Action="AI_ScheduleTasks2" Description="Scheduling task on the local computer" Template="Task Name: [1]" DescriptionLocId="ActionText.Description.AI_ScheduleTasks" TemplateLocId="ActionText.Template.AI_ScheduleTasks"/>
-    <ROW Action="AI_UninstallTasks" Description="Generating actions to remove scheduled tasks from the local computer:" DescriptionLocId="ActionText.Description.AI_UninstallTasks"/>
-    <ROW Action="AI_UninstallTasks2" Description="Generating actions to remove scheduled tasks from the local computer:" DescriptionLocId="ActionText.Description.AI_UninstallTasks"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiAppSearchComponent">
     <ROW Property="AI_SETUPEXEPATH" Signature_="AI_EXE_PATH_CU" Builds="DefaultBuild"/>
@@ -131,8 +119,6 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
-    <ROW Name="aischeduler.dll" SourcePath="&lt;AI_CUSTACTS&gt;aischeduler.dll"/>
-    <ROW Name="aischeduler2.dll" SourcePath="&lt;AI_CUSTACTS&gt;aischeduler2.dll"/>
     <ROW Name="lzmaextractor.dll" SourcePath="&lt;AI_CUSTACTS&gt;lzmaextractor.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
@@ -190,26 +176,15 @@
     <ROW Action="AI_FindExeLzma" Type="1" Source="lzmaextractor.dll" Target="FindEXE"/>
     <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
-    <ROW Action="AI_ProcessTasks" Type="1" Source="aischeduler.dll" Target="ProcessTasks"/>
-    <ROW Action="AI_ProcessTasks2" Type="1" Source="aischeduler2.dll" Target="ProcessTasks"/>
     <ROW Action="AI_REDIRECT_32BIT_FOLDER" Type="51" Source="AI_Bin32_Dir" Target="[APPDIR]"/>
     <ROW Action="AI_REDIRECT_32BIT_SH_FOLDER" Type="51" Source="AI_Sh32_Dir" Target="[SHORTCUTDIR]"/>
     <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH" Target="[AI_SETUPEXEPATH_ORIGINAL]"/>
     <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
-    <ROW Action="AI_RemoveTasks" Type="11265" Source="aischeduler.dll" Target="DeleteTasks" WithoutSeq="true"/>
-    <ROW Action="AI_RemoveTasks2" Type="11265" Source="aischeduler2.dll" Target="DeleteTasks" WithoutSeq="true"/>
     <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
-    <ROW Action="AI_RollbackTasks" Type="11521" Source="aischeduler.dll" Target="DeleteTasks" WithoutSeq="true"/>
-    <ROW Action="AI_RollbackTasks2" Type="11521" Source="aischeduler2.dll" Target="DeleteTasks" WithoutSeq="true"/>
     <ROW Action="AI_SETPROGRAMFILES" Type="51" Source="AI_ProgramFiles" Target="[ProgramFilesFolder]"/>
     <ROW Action="AI_SETPROGRAMFILES64" Type="51" Source="AI_ProgramFiles" Target="[ProgramFiles64Folder]"/>
     <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
-    <ROW Action="AI_ScheduleTasks" Type="11265" Source="aischeduler.dll" Target="ScheduleTasks" WithoutSeq="true"/>
-    <ROW Action="AI_ScheduleTasks2" Type="11265" Source="aischeduler2.dll" Target="ScheduleTasks" WithoutSeq="true"/>
-    <ROW Action="AI_UPDATER_UNINSTALL" Type="82" Source="updater.exe" Target="/clean silent"/>
-    <ROW Action="AI_UninstallTasks" Type="1" Source="aischeduler.dll" Target="UninstallTasks"/>
-    <ROW Action="AI_UninstallTasks2" Type="1" Source="aischeduler2.dll" Target="UninstallTasks"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[AI_ProgramFiles][Manufacturer]\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
@@ -220,18 +195,6 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="FireShock.exe" SourcePath="FireShock.ico" Index="0"/>
     <ROW Name="PCSX2Icon.exe" SourcePath="PCSX2-Icon.ico" Index="0"/>
-  </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.MsiIniFileComponent">
-    <ROW IniFile="AppDir" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="AppDir" Value="[APPDIR]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="ApplicationName" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="ApplicationName" Value="[ProductName]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="ApplicationVersion" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="ApplicationVersion" Value="[ProductVersion]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="CheckFrequency" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="CheckFrequency" Value="1" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="CompanyName" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="CompanyName" Value="[Manufacturer]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="DefaultCommandLine" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="DefaultCommandLine" Value="/checknow" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="DownloadsFolder" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="DownloadsFolder" Value="[CommonAppDataFolder][Manufacturer]\[ProductName]\updates\" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="Flags" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="Flags" Value="PerMachine|ShowConfigOptionsButton|VerifyDigitalSignature" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="ID" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="ID" Value="[UpgradeCode]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="URL" FileName="FIRESH~1.INI|FireShock Updater.ini" DirProperty="APPDIR" Section="General" Key="URL" Value="https://raw.githubusercontent.com/nefarius/FireShock/master/updates.txt" Action="0" Component_="updater.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
@@ -256,11 +219,6 @@
     <ROW Action="AI_ExtractFiles" Sequence="3998" Builds="DefaultBuild"/>
     <ROW Action="AI_DATA_SETTER" Sequence="3997"/>
     <ROW Action="AI_EstimateExtractFiles" Sequence="3999" Builds="DefaultBuild"/>
-    <ROW Action="AI_UPDATER_UNINSTALL" Condition="($updater.exe = 2) AND (?updater.exe = 3) AND NOT (UPGRADINGPRODUCTCODE)" Sequence="1551"/>
-    <ROW Action="AI_ProcessTasks" Condition="REMOVE&lt;&gt;&quot;ALL&quot;" Sequence="1623"/>
-    <ROW Action="AI_UninstallTasks" Condition="REMOVE=&quot;ALL&quot;" Sequence="1698"/>
-    <ROW Action="AI_ProcessTasks2" Condition="(VersionNT &gt;= 600) AND (REMOVE&lt;&gt;&quot;ALL&quot;)" Sequence="1624"/>
-    <ROW Action="AI_UninstallTasks2" Condition="(VersionNT &gt;= 600) AND (REMOVE=&quot;ALL&quot;)" Sequence="1699"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="747"/>
@@ -300,11 +258,5 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="0.0.1" VersionMax="[|ProductVersion]" Attributes="257" ActionProperty="OLDPRODUCTS"/>
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
-  </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.ScheduledTasksComponent">
-    <ROW TaskId="AI_updater" TaskName="FireShock Updater" Run="[#updater.exe]" CmdLine="/silent" WorkDir="[APPDIR]" UserProp="[%UserDomain]\[LogonUser]" StartTime="34816" Flags="9216" Trigger="1|1|1|1|0|0|0|" Condition="1" TaskVersion="1.0"/>
-  </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.UpdaterComponent">
-    <ROW Updater="updater.exe" URL="URL" SearchFreq="CheckFrequency" DownloadsFolder="DownloadsFolder" ID="ID" TargetDir="AppDir" AppName="ApplicationName" AppVersion="ApplicationVersion" CompanyName="CompanyName" DefCommandLine="DefaultCommandLine" Flags="Flags" IconPath="Icons8-Windows-8-User-Interface-Downloading-Updates.ico" IconIndex="0" UnistallCASeq="AI_UPDATER_UNINSTALL" TaskId="AI_updater" Description="[|UpdaterName] [|ProductVersion] © [|Manufacturer], Inc, 2016"/>
   </COMPONENT>
 </DOCUMENT>
