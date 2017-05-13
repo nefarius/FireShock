@@ -417,7 +417,7 @@ VOID AcquireViGEmInterface(WDFDEVICE Device, const UNICODE_STRING DeviceName)
     //
     // Create request for XUSB submission
     // 
-    status = WdfRequestCreate(&attributes, pDeviceContext->ViGEm.IoTarget, &pDeviceContext->ViGEm.XusbSubmitReportRequest);
+    status = WdfRequestCreate(&attributes, pDeviceContext->ViGEm.IoTarget, &pDeviceContext->ViGEm.XusbSubmit.ReportRequest);
     if (!NT_SUCCESS(status))
     {
         KdPrint((DRIVERNAME "WdfRequestCreate failed with status 0x%X\n", status));
@@ -436,7 +436,7 @@ VOID AcquireViGEmInterface(WDFDEVICE Device, const UNICODE_STRING DeviceName)
         NonPagedPool,
         0,
         sizeof(XUSB_SUBMIT_REPORT),
-        &pDeviceContext->ViGEm.XusbSubmitReportBuffer,
+        &pDeviceContext->ViGEm.XusbSubmit.ReportBuffer,
         NULL);
     if (!NT_SUCCESS(status))
     {

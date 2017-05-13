@@ -34,6 +34,26 @@ SOFTWARE.
 #define NTDEVICE_NAME_STRING      L"\\Device\\FireShockFilter"
 #define SYMBOLIC_NAME_STRING      L"\\DosDevices\\FireShockFilter"
 
+typedef struct _VIGEM_PLUGIN_TARGET_META
+{
+    VIGEM_PLUGIN_TARGET Plugin;
+
+    WDFMEMORY PluginBuffer;
+
+    WDFREQUEST PluginRequest;
+
+} VIGEM_PLUGIN_TARGET_META, *PVIGEM_PLUGIN_TARGET_META;
+
+typedef struct _VIGEM_XUSB_SUBMIT_META
+{
+    XUSB_SUBMIT_REPORT Report;
+
+    WDFMEMORY ReportBuffer;
+
+    WDFREQUEST ReportRequest;
+
+} VIGEM_XUSB_SUBMIT_META, *PVIGEM_XUSB_SUBMIT_META;
+
 //
 // Data used in ViGEm interaction
 // 
@@ -46,11 +66,7 @@ typedef struct _VIGEM_META
 
     WDFIOTARGET IoTarget;
 
-    XUSB_SUBMIT_REPORT XusbSubmitReport;
-
-    WDFMEMORY XusbSubmitReportBuffer;
-
-    WDFREQUEST XusbSubmitReportRequest;
+    VIGEM_XUSB_SUBMIT_META XusbSubmit;
 
 } VIGEM_META, *PVIGEM_META;
 

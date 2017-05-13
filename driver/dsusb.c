@@ -355,7 +355,7 @@ void BulkOrInterruptTransferCompleted(
     pUrb = URB_FROM_IRP(WdfRequestWdmGetIrp(Request));
     pTransferBuffer = (PUCHAR)pUrb->UrbBulkOrInterruptTransfer.TransferBuffer;
     transferBufferLength = pUrb->UrbBulkOrInterruptTransfer.TransferBufferLength;
-    pXusbReport = &pDeviceContext->ViGEm.XusbSubmitReport;
+    pXusbReport = &pDeviceContext->ViGEm.XusbSubmit.Report;
 
     XUSB_SUBMIT_REPORT_INIT(pXusbReport, pDeviceContext->ViGEm.Serial);
 
@@ -576,7 +576,7 @@ void BulkOrInterruptTransferCompleted(
     if (pDeviceContext->ViGEm.IoTarget)
     {
         status = WdfMemoryCopyFromBuffer(
-            pDeviceContext->ViGEm.XusbSubmitReportBuffer,
+            pDeviceContext->ViGEm.XusbSubmit.ReportBuffer,
             0,
             pXusbReport,
             pXusbReport->Size);
@@ -587,9 +587,9 @@ void BulkOrInterruptTransferCompleted(
 
         status = WdfIoTargetFormatRequestForInternalIoctl(
             pDeviceContext->ViGEm.IoTarget,
-            pDeviceContext->ViGEm.XusbSubmitReportRequest,
+            pDeviceContext->ViGEm.XusbSubmit.ReportRequest,
             IOCTL_XUSB_SUBMIT_REPORT,
-            pDeviceContext->ViGEm.XusbSubmitReportBuffer,
+            pDeviceContext->ViGEm.XusbSubmit.ReportBuffer,
             NULL,
             NULL,
             NULL
@@ -600,17 +600,17 @@ void BulkOrInterruptTransferCompleted(
         }
 
         WdfRequestSetCompletionRoutine(
-            pDeviceContext->ViGEm.XusbSubmitReportRequest,
+            pDeviceContext->ViGEm.XusbSubmit.ReportRequest,
             ViGEmRequestCompleted,
             NULL);
 
-        ret = WdfRequestSend(pDeviceContext->ViGEm.XusbSubmitReportRequest,
+        ret = WdfRequestSend(pDeviceContext->ViGEm.XusbSubmit.ReportRequest,
             pDeviceContext->ViGEm.IoTarget,
             WDF_NO_SEND_OPTIONS);
 
         if (ret == FALSE) {
-            status = WdfRequestGetStatus(pDeviceContext->ViGEm.XusbSubmitReportRequest);
-            WdfRequestComplete(pDeviceContext->ViGEm.XusbSubmitReportRequest, status);
+            status = WdfRequestGetStatus(pDeviceContext->ViGEm.XusbSubmit.ReportRequest);
+            WdfRequestComplete(pDeviceContext->ViGEm.XusbSubmit.ReportRequest, status);
         }
     }
 
