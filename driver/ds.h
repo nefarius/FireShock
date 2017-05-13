@@ -47,6 +47,7 @@ SOFTWARE.
 #define DS4_HID_OUTPUT_REPORT_SIZE              0x20
 #define DS4_VENDOR_ID                           0x054C
 #define DS4_PRODUCT_ID                          0x05C4
+#define DS4_2_PRODUCT_ID                        0x09CC
 #define DS4_WIRELESS_ADAPTER_PRODUCT_ID         0x0BA0
 
 #define PS_MOVE_NAVI_PRODUCT_ID                 0x042F
