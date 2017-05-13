@@ -50,11 +50,23 @@ FireShockEvtDeviceAdd(
     WDF_PNPPOWER_EVENT_CALLBACKS    pnpPowerCallbacks;
     WDF_IO_QUEUE_CONFIG             ioQueueConfig;
     PDEVICE_CONTEXT                 pDeviceContext;
+    WDFKEY                          keyParams;
+    ULONG                           useViGEm = 0;
+    DECLARE_CONST_UNICODE_STRING(valueUseViGEm, L"UseViGEm");
 
 
     UNREFERENCED_PARAMETER(Driver);
 
     PAGED_CODE();
+
+    //
+    // Get the filter drivers Parameter key
+    // 
+    status = WdfDriverOpenParametersRegistryKey(WdfGetDriver(), STANDARD_RIGHTS_ALL, WDF_NO_OBJECT_ATTRIBUTES, &keyParams);
+    if (!NT_SUCCESS(status)) {
+        KdPrint((DRIVERNAME "WdfDriverOpenParametersRegistryKey failed: 0x%x\n", status));
+        return status;
+    }
 
     //
     // Configure the device as a filter driver
@@ -143,9 +155,17 @@ FireShockEvtDeviceAdd(
     WdfWaitLockRelease(FilterDeviceCollectionLock);
 
     //
-    // Get ViGEm interface
+    // Check registry is ViGEm should be used (if available)
     // 
-    AcquireViGEmInterface(device, VigemDosDeviceName);
+    status = WdfRegistryQueryULong(keyParams, &valueUseViGEm, &useViGEm);
+    if (NT_SUCCESS(status) && useViGEm > 0) {
+        WdfRegistryClose(keyParams);
+
+        //
+        // Get ViGEm interface
+        // 
+        AcquireViGEmInterface(device, VigemDosDeviceName);
+    }
 
     // 
     // Default settings
