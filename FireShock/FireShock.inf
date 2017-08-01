@@ -1,87 +1,171 @@
-;
-; FireShock.inf
-;
-
 [Version]
-Signature="$WINDOWS NT$"
-Class=USBDevice
-ClassGuid={88BAE032-5A81-49f0-BC3D-A4FF138216D6}
-Provider=%ManufacturerName%
-CatalogFile=FireShock.cat
-DriverVer=
+Signature   = "$WINDOWS NT$"
+Class       = HIDClass
+ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Provider    = %ProviderName%
+DriverVer   = 
+CatalogFile = FireShock.cat
 
-[DestinationDirs]
-DefaultDestDir = 12
-FireShock_Device_CoInstaller_CopyFiles = 11
-
-[SourceDisksNames]
-1 = %DiskName%,,,""
+;
+;   In order to use IHV drivers, the SourceDisksNames section must list the 
+;   disk(s) containing the drivers and the SourceDisksFiles section must list 
+;   which disk number each file to be copied is found on.
+;
+;   Files used in a driver installation need to be digitally signed otherwise 
+;   installation may fail.  See documentation elsewhere in the DDK regarding 
+;   driver signing.
 
 [SourceDisksFiles]
-FireShock.sys  = 1,,
-WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+FireShock.sys   = 99
+hidkmdf.sys     = 99
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=99
 
-;*****************************************
-; Install Section
-;*****************************************
+[SourceDisksNames]
+99 = %DISK_NAME%,,,""
+
+[DestinationDirs]
+CopyFunctionDriver                   = 12
+CopyFilterDriver                     = 12
+FireShock.Inst_CoInstaller_CopyFiles = 11
 
 [Manufacturer]
-%ManufacturerName%=Standard,NT$ARCH$
+%ManufacturerName%  = Standard,NT$ARCH$,NT$ARCH$.6.1
 
+; For XP and later
 [Standard.NT$ARCH$]
-%FireShock.DeviceDesc%=FireShock_Device, USB\VID_vvvv&PID_pppp
+%Ds3DeviceName%         = FireShock.Inst, USB\VID_054C&PID_0268&REV_0100
+%Ds3DeviceName%         = FireShock.Inst, USB\VID_054C&PID_0268
+%Ps3MoveNaviDeviceName% = FireShock.Inst, USB\VID_054C&PID_042F&REV_0100
+%Ps3MoveNaviDeviceName% = FireShock.Inst, USB\VID_054C&PID_042F
 
-[FireShock_Device.NT]
-CopyFiles=Drivers_Dir
+; For Win7 and later so that we can use inbox HID-KMDF mapper
+[Standard.NT$ARCH$.6.1]
+%Ds3DeviceName%         = FireShock.Inst.Win7, USB\VID_054C&PID_0268&REV_0100
+%Ds3DeviceName%         = FireShock.Inst.Win7, USB\VID_054C&PID_0268
+%Ps3MoveNaviDeviceName% = FireShock.Inst.Win7, USB\VID_054C&PID_042F&REV_0100
+%Ps3MoveNaviDeviceName% = FireShock.Inst.Win7, USB\VID_054C&PID_042F
 
-[Drivers_Dir]
+;===============================================================
+;   Install section for XP thru Vista
+;===============================================================
+[FireShock.Inst.NT]
+CopyFiles = CopyFunctionDriver, CopyFilterDriver
+
+[FireShock.Inst.NT.HW]
+AddReg = FireShock_Parameters.AddReg 
+
+;
+; hidkmdf is the function driver and FireShock is the lower filter
+;
+[FireShock.Inst.NT.Services]
+AddService = hidkmdf,0x00000002,hidkmdf_Service_Inst,
+AddService = FireShock,, FireShock_Service_Inst
+
+[CopyFunctionDriver]
+hidkmdf.sys
+
+[FireShock_Parameters.AddReg]
+HKR,,"LowerFilters",0x00010000,"FireShock"
+
+[hidkmdf_Service_Inst]
+DisplayName    = %hidkmdf.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START 
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\hidkmdf.sys
+
+;===============================================================
+;   Install section for Win7 and later
+;   Use the inbox mshidkmdf.sys as the shim
+;===============================================================
+[FireShock.Inst.Win7.NT]
+; Just copy the driver. No neeed to copy other system binaries.
+CopyFiles = CopyFilterDriver
+
+[FireShock.Inst.Win7.NT.HW]
+AddReg = FireShock_Win7_Parameters.AddReg 
+
+;
+; mshidkmdf is the function driver and FireShock is the lower filter
+;
+[FireShock.Inst.Win7.NT.Services]
+AddService = FireShock,, FireShock_Service_Inst
+AddService = mshidkmdf, 0x000001fa, mshidkmdf.AddService ;flag 0x2 sets this as the service for the device
+
+[CopyFilterDriver]
 FireShock.sys
 
-[FireShock_Device.NT.HW]
-AddReg=FireShock_AddReg
+[mshidkmdf.AddService]
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 3                  ; SERVICE_DEMAND_START
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %10%\System32\Drivers\mshidkmdf.sys
 
-[FireShock_AddReg]
-; By default, USBDevice class uses iProduct descriptor to name the device in
-; Device Manager on Windows 8 and higher.
-; Uncomment for this device to use %DeviceName% on Windows 8 and higher:
-;HKR,,FriendlyName,,%FireShock.DeviceDesc%
+[FireShock_Win7_Parameters.AddReg]
+HKR,,"LowerFilters",0x00010000,"FireShock"
+HKR,,"AllowIdleIrpInD3",0x00010001,0x1
 
-;-------------- Service installation
-[FireShock_Device.NT.Services]
-AddService = FireShock,%SPSVCINST_ASSOCSERVICE%, FireShock_Service_Inst
+;===============================================================
+;   Service section (common to all OS versions)
+;===============================================================
 
-; -------------- FireShock driver install sections
 [FireShock_Service_Inst]
-DisplayName    = %FireShock.SVCDESC%
-ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
-StartType      = 3               ; SERVICE_DEMAND_START
-ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %12%\FireShock.sys
+DisplayName    = %FireShock.SvcDesc%
+ServiceType    = %SERVICE_KERNEL_DRIVER% 
+StartType      = %SERVICE_DEMAND_START% 
+ErrorControl   = %SERVICE_ERROR_IGNORE% 
+ServiceBinary  = %12%\FireShock.sys 
 
-;
-;--- FireShock_Device Coinstaller installation ------
-;
+;================================================================
+; WDF Coinstaller installation
+;===============================================================
 
-[FireShock_Device.NT.CoInstallers]
-AddReg=FireShock_Device_CoInstaller_AddReg
-CopyFiles=FireShock_Device_CoInstaller_CopyFiles
+[FireShock.Inst.NT.CoInstallers]
+AddReg=FireShock.Inst_CoInstaller_AddReg
+CopyFiles=FireShock.Inst_CoInstaller_CopyFiles
 
-[FireShock_Device_CoInstaller_AddReg]
+[FireShock.Inst_CoInstaller_AddReg]
 HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
 
-[FireShock_Device_CoInstaller_CopyFiles]
-WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+[FireShock.Inst_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,,,0x00000010    ;COPYFLG_NO_OVERWRITE (for win2k)
 
-[FireShock_Device.NT.Wdf]
-KmdfService =  FireShock, FireShock_wdfsect
+[FireShock.Inst.NT.Wdf]
+KmdfService = FireShock, FireShock_wdfsect
+
 [FireShock_wdfsect]
 KmdfLibraryVersion = $KMDFVERSION$
 
-[Strings]
-SPSVCINST_ASSOCSERVICE= 0x00000002
-ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
-ClassName="Universal Serial Bus devices"
-DiskName = "FireShock Installation Disk"
-FireShock.DeviceDesc = "FireShock Device"
-FireShock.SVCDESC = "FireShock Service"
-REG_MULTI_SZ = 0x00010000
+;================================================================
+; Strings section
+;===============================================================
+
+[Strings] 
+;Localizable
+ProviderName           = "Benjamin Höglinger-Stelzer"
+ManufacturerName       = "Benjamin Höglinger-Stelzer"
+FireShock.SvcDesc      = "FireShock Service"
+DISK_NAME              = "FireShock Install Disk"
+hidkmdf.SVCDESC        = "Filter Driver Service for HID-KMDF Interface layer"
+; HID device IDs
+Ds3DeviceName          = "FireShock 3 Device"
+Ps3MoveNaviDeviceName  = "FireShock 3 Move Navigation Device"
+
+;Non-Localizable
+SERVICE_BOOT_START     = 0x0 
+SERVICE_SYSTEM_START   = 0x1 
+SERVICE_AUTO_START     = 0x2 
+SERVICE_DEMAND_START   = 0x3 
+SERVICE_DISABLED       = 0x4 
+
+SERVICE_KERNEL_DRIVER  = 0x1 
+SERVICE_ERROR_IGNORE   = 0x0 
+SERVICE_ERROR_NORMAL   = 0x1 
+SERVICE_ERROR_SEVERE   = 0x2 
+SERVICE_ERROR_CRITICAL = 0x3 
+
+REG_EXPAND_SZ          = 0x00020000 
+REG_DWORD              = 0x00010001 
+REG_MULTI_SZ           = 0x00010000
+REG_BINARY             = 0x00000001
+REG_SZ                 = 0x00000000
