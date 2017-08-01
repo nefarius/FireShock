@@ -1,0 +1,87 @@
+;
+; FireShock.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=USBDevice
+ClassGuid={88BAE032-5A81-49f0-BC3D-A4FF138216D6}
+Provider=%ManufacturerName%
+CatalogFile=FireShock.cat
+DriverVer=
+
+[DestinationDirs]
+DefaultDestDir = 12
+FireShock_Device_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+FireShock.sys  = 1,,
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%FireShock.DeviceDesc%=FireShock_Device, USB\VID_vvvv&PID_pppp
+
+[FireShock_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+FireShock.sys
+
+[FireShock_Device.NT.HW]
+AddReg=FireShock_AddReg
+
+[FireShock_AddReg]
+; By default, USBDevice class uses iProduct descriptor to name the device in
+; Device Manager on Windows 8 and higher.
+; Uncomment for this device to use %DeviceName% on Windows 8 and higher:
+;HKR,,FriendlyName,,%FireShock.DeviceDesc%
+
+;-------------- Service installation
+[FireShock_Device.NT.Services]
+AddService = FireShock,%SPSVCINST_ASSOCSERVICE%, FireShock_Service_Inst
+
+; -------------- FireShock driver install sections
+[FireShock_Service_Inst]
+DisplayName    = %FireShock.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\FireShock.sys
+
+;
+;--- FireShock_Device Coinstaller installation ------
+;
+
+[FireShock_Device.NT.CoInstallers]
+AddReg=FireShock_Device_CoInstaller_AddReg
+CopyFiles=FireShock_Device_CoInstaller_CopyFiles
+
+[FireShock_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[FireShock_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[FireShock_Device.NT.Wdf]
+KmdfService =  FireShock, FireShock_wdfsect
+[FireShock_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+ClassName="Universal Serial Bus devices"
+DiskName = "FireShock Installation Disk"
+FireShock.DeviceDesc = "FireShock Device"
+FireShock.SVCDESC = "FireShock Service"
+REG_MULTI_SZ = 0x00010000
