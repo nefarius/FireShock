@@ -20,6 +20,8 @@ Environment:
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text (PAGE, FireShockCreateDevice)
 #pragma alloc_text (PAGE, FireShockEvtDevicePrepareHardware)
+#pragma alloc_text (PAGE, FireShockEvtDeviceD0Entry)
+#pragma alloc_text (PAGE, FireShockEvtDeviceD0Exit)
 #endif
 
 
@@ -53,8 +55,17 @@ Return Value:
 
     PAGED_CODE();
 
+    //
+    // Tell framework this is a filter driver. Filter drivers by default are  
+    // not power policy owners. This works well for this driver because
+    // HIDclass driver is the power policy owner for HID minidrivers.
+    //
+    WdfFdoInitSetFilter(DeviceInit);
+
     WDF_PNPPOWER_EVENT_CALLBACKS_INIT(&pnpPowerCallbacks);
     pnpPowerCallbacks.EvtDevicePrepareHardware = FireShockEvtDevicePrepareHardware;
+    pnpPowerCallbacks.EvtDeviceD0Entry = FireShockEvtDeviceD0Entry;
+    pnpPowerCallbacks.EvtDeviceD0Exit = FireShockEvtDeviceD0Exit;
     WdfDeviceInitSetPnpPowerEventCallbacks(DeviceInit, &pnpPowerCallbacks);
 
     WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&deviceAttributes, DEVICE_CONTEXT);
@@ -196,4 +207,30 @@ Return Value:
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Exit");
 
     return status;
+}
+
+NTSTATUS FireShockEvtDeviceD0Entry(
+    _In_ WDFDEVICE              Device,
+    _In_ WDF_POWER_DEVICE_STATE PreviousState
+)
+{
+    UNREFERENCED_PARAMETER(Device);
+    UNREFERENCED_PARAMETER(PreviousState);
+
+    PAGED_CODE();
+
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS FireShockEvtDeviceD0Exit(
+    _In_ WDFDEVICE              Device,
+    _In_ WDF_POWER_DEVICE_STATE TargetState
+)
+{
+    UNREFERENCED_PARAMETER(Device);
+    UNREFERENCED_PARAMETER(TargetState);
+
+    PAGED_CODE();
+
+    return STATUS_SUCCESS;
 }
