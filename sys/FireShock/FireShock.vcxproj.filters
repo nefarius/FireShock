@@ -18,7 +18,7 @@
       <Extensions>inf;inv;inx;mof;mc;</Extensions>
     </Filter>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup>    
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -26,20 +26,17 @@
       <Filter>Driver Files</Filter>
     </Inf>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup>    
     <ClInclude Include="Device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Driver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Public.h">
+    <ClInclude Include="Trace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Queue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Trace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,14 +10,13 @@ Abstract:
 
 Environment:
 
-    Kernel-mode Driver Framework
+    User-mode Driver Framework 2
 
 --*/
 
-#include <ntddk.h>
+#include <windows.h>
 #include <wdf.h>
 #include <usb.h>
-#include <usbdlib.h>
 #include <wdfusb.h>
 #include <initguid.h>
 

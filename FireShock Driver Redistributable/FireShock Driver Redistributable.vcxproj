@@ -35,9 +35,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FireShock\FireShock.vcxproj">
-      <Project>{96e56e35-00f0-418b-ba10-fd6bf88e0cb6}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\hidkmdf\hidkmdf.vcxproj">
       <Project>{ec5dcaf5-3514-4e61-8201-10f5f060e096}</Project>
     </ProjectReference>

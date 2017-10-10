@@ -10,16 +10,12 @@ Abstract:
 
 Environment:
 
-    Kernel-mode Driver Framework
+    User-mode Driver Framework 2
 
 --*/
 
 #include "driver.h"
 #include "queue.tmh"
-
-#ifdef ALLOC_PRAGMA
-#pragma alloc_text (PAGE, FireShockQueueInitialize)
-#endif
 
 NTSTATUS
 FireShockQueueInitialize(
@@ -50,8 +46,6 @@ Return Value:
     WDFQUEUE queue;
     NTSTATUS status;
     WDF_IO_QUEUE_CONFIG    queueConfig;
-
-    PAGED_CODE();
     
     //
     // Configure a default queue so that requests that are not

@@ -10,19 +10,13 @@ Abstract:
     
 Environment:
 
-    Kernel-mode Driver Framework
+    User-mode Driver Framework 2
 
 --*/
 
 #include "driver.h"
 #include "device.tmh"
 
-#ifdef ALLOC_PRAGMA
-#pragma alloc_text (PAGE, FireShockCreateDevice)
-#pragma alloc_text (PAGE, FireShockEvtDevicePrepareHardware)
-#pragma alloc_text (PAGE, FireShockEvtDeviceD0Entry)
-#pragma alloc_text (PAGE, FireShockEvtDeviceD0Exit)
-#endif
 
 
 NTSTATUS
@@ -53,19 +47,8 @@ Return Value:
     WDFDEVICE device;
     NTSTATUS status;
 
-    PAGED_CODE();
-
-    //
-    // Tell framework this is a filter driver. Filter drivers by default are  
-    // not power policy owners. This works well for this driver because
-    // HIDclass driver is the power policy owner for HID minidrivers.
-    //
-    WdfFdoInitSetFilter(DeviceInit);
-
     WDF_PNPPOWER_EVENT_CALLBACKS_INIT(&pnpPowerCallbacks);
     pnpPowerCallbacks.EvtDevicePrepareHardware = FireShockEvtDevicePrepareHardware;
-    pnpPowerCallbacks.EvtDeviceD0Entry = FireShockEvtDeviceD0Entry;
-    pnpPowerCallbacks.EvtDeviceD0Exit = FireShockEvtDeviceD0Exit;
     WdfDeviceInitSetPnpPowerEventCallbacks(DeviceInit, &pnpPowerCallbacks);
 
     WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&deviceAttributes, DEVICE_CONTEXT);
@@ -142,8 +125,6 @@ Return Value:
     UNREFERENCED_PARAMETER(ResourceList);
     UNREFERENCED_PARAMETER(ResourceListTranslated);
 
-    PAGED_CODE();
-
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Entry");
 
     status = STATUS_SUCCESS;
@@ -161,16 +142,6 @@ Return Value:
     // restart.
     //
     if (pDeviceContext->UsbDevice == NULL) {
-
-        //
-        // Specifying a client contract version of 602 enables us to query for
-        // and use the new capabilities of the USB driver stack for Windows 8.
-        // It also implies that we conform to rules mentioned in MSDN
-        // documentation for WdfUsbTargetDeviceCreateWithParameters.
-        //
-        WDF_USB_DEVICE_CREATE_CONFIG_INIT(&createParams,
-                                         USBD_CLIENT_CONTRACT_VERSION_602
-                                         );
 
         status = WdfUsbTargetDeviceCreateWithParameters(Device,
                                                     &createParams,
@@ -207,30 +178,4 @@ Return Value:
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Exit");
 
     return status;
-}
-
-NTSTATUS FireShockEvtDeviceD0Entry(
-    _In_ WDFDEVICE              Device,
-    _In_ WDF_POWER_DEVICE_STATE PreviousState
-)
-{
-    UNREFERENCED_PARAMETER(Device);
-    UNREFERENCED_PARAMETER(PreviousState);
-
-    PAGED_CODE();
-
-    return STATUS_SUCCESS;
-}
-
-NTSTATUS FireShockEvtDeviceD0Exit(
-    _In_ WDFDEVICE              Device,
-    _In_ WDF_POWER_DEVICE_STATE TargetState
-)
-{
-    UNREFERENCED_PARAMETER(Device);
-    UNREFERENCED_PARAMETER(TargetState);
-
-    PAGED_CODE();
-
-    return STATUS_SUCCESS;
 }

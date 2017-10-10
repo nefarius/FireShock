@@ -3,6 +3,7 @@
 ========================================================================
 
 This file contains a summary of what you will find in each of the files that make up your project.
+The project supports UMDF 2.15 on Windows 10.
 
 FireShock.vcxproj
     This is the main project file for projects generated using an Application Wizard. 
@@ -36,20 +37,3 @@ IoQueue.cpp & IoQueue.h
 
 Trace.h
     Definitions for WPP tracing.
-
-/////////////////////////////////////////////////////////////////////////////
-
-Learn more about Kernel Mode Driver Framework here:
-
-http://msdn.microsoft.com/en-us/library/ff544296(v=VS.85).aspx
-
-Learn more about KMDF USB APIs here:
-
-http://msdn.microsoft.com/en-us/library/ff544752(v=vs.85).aspx
-
-Related WDK samples and what they demonstrate:
-
-    osrusbfx2 - bulk/interrupt transfers, continuous readers
-    usbsamp - isochronous transfers
-
-/////////////////////////////////////////////////////////////////////////////

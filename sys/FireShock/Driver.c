@@ -10,18 +10,12 @@ Abstract:
 
 Environment:
 
-    Kernel-mode Driver Framework
+    User-mode Driver Framework 2
 
 --*/
 
 #include "driver.h"
 #include "driver.tmh"
-
-#ifdef ALLOC_PRAGMA
-#pragma alloc_text (INIT, DriverEntry)
-#pragma alloc_text (PAGE, FireShockEvtDeviceAdd)
-#pragma alloc_text (PAGE, FireShockEvtDriverContextCleanup)
-#endif
 
 
 NTSTATUS
@@ -122,9 +116,7 @@ Return Value:
     NTSTATUS status;
 
     UNREFERENCED_PARAMETER(Driver);
-
-    PAGED_CODE();
-
+    
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Entry");
 
     status = FireShockCreateDevice(DeviceInit);
@@ -154,8 +146,6 @@ Return Value:
 --*/
 {
     UNREFERENCED_PARAMETER(DriverObject);
-
-    PAGED_CODE ();
 
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Entry");
 
