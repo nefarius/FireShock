@@ -39,6 +39,10 @@
       <HintPath>..\packages\Costura.Fody.1.6.2\lib\dotnet\Costura.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Nefarius.Devcon, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nefarius.Devcon.1.0.0\lib\net45\Nefarius.Devcon.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Nefarius.Sub.Kinbaku">
       <HintPath>..\Kinbaku\bin\Nefarius.Sub.Kinbaku.dll</HintPath>
     </Reference>
