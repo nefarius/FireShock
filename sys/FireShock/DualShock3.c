@@ -24,16 +24,7 @@ SOFTWARE.
 
 
 #include "Driver.h"
-
-//
-// Periodically sends the DS3 enable control request until successful.
-// 
-VOID Ds3EnableEvtTimerFunc(
-    _In_ WDFTIMER Timer
-)
-{
-    UNREFERENCED_PARAMETER(Timer);
-}
+#include "DualShock3.tmh"
 
 //
 // Sends output report updates to the DS3 via control endpoint.
@@ -42,5 +33,47 @@ VOID Ds3OutputEvtTimerFunc(
     _In_ WDFTIMER Timer
 )
 {
-    UNREFERENCED_PARAMETER(Timer);
+    WDFDEVICE   hDevice;
+    NTSTATUS    status;
+
+    hDevice = WdfTimerGetParentObject(Timer);
+
+    status = SendControlRequest(
+        DeviceGetContext(hDevice),
+        BmRequestClass,
+        SetReport,
+        USB_SETUP_VALUE(Output, One),
+        0,
+        Ds3GetContext(hDevice)->OutputReportBuffer,
+        DS3_HID_OUTPUT_REPORT_SIZE
+    );
+
+    if (!NT_SUCCESS(status))
+    {
+        TraceEvents(TRACE_LEVEL_ERROR, TRACE_DUALSHOCK3,
+            "SendControlRequest failed with status %!STATUS!",
+            status);
+    }
+}
+
+//
+// Sends the "magic packet" to the DS3 so it starts its interrupt endpoint.
+// 
+NTSTATUS Ds3Init(PDEVICE_CONTEXT Context)
+{
+    // "Magic packet"
+    UCHAR hidCommandEnable[DS3_HID_COMMAND_ENABLE_SIZE] =
+    {
+        0x42, 0x0C, 0x00, 0x00
+    };
+
+    return SendControlRequest(
+        Context,
+        BmRequestClass,
+        SetReport,
+        Ds3StartDevice,
+        0,
+        hidCommandEnable,
+        DS3_HID_COMMAND_ENABLE_SIZE
+    );
 }

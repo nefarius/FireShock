@@ -21,8 +21,8 @@ Environment:
 #include <initguid.h>
 
 #include "DualShock.h"
-#include "Power.h"
 #include "device.h"
+#include "Power.h"
 #include "DsUsb.h"
 #include "queue.h"
 #include "trace.h"

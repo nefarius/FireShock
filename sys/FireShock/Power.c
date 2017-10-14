@@ -25,6 +25,7 @@ SOFTWARE.
 
 #include "Driver.h"
 #include "power.tmh"
+#include <evntrace.h>
 
 #ifdef _KERNEL_MODE
 #ifdef ALLOC_PRAGMA
@@ -43,15 +44,18 @@ FireShockEvtDevicePrepareHardware(
     WDFCMRESLIST  ResourcesTranslated
 )
 {
-    NTSTATUS status;
-    PDEVICE_CONTEXT pDeviceContext;
-    WDF_USB_DEVICE_SELECT_CONFIG_PARAMS configParams;
-    USB_DEVICE_DESCRIPTOR deviceDescriptor;
-    PDS3_DEVICE_CONTEXT             pDs3Context;
-    PDS4_DEVICE_CONTEXT             pDs4Context;
-    WDF_OBJECT_ATTRIBUTES           attributes;
-    WDF_TIMER_CONFIG                timerCfg;
-    BOOLEAN                         supported = FALSE;
+    NTSTATUS                                status;
+    PDEVICE_CONTEXT                         pDeviceContext;
+    WDF_USB_DEVICE_SELECT_CONFIG_PARAMS     configParams;
+    USB_DEVICE_DESCRIPTOR                   deviceDescriptor;
+    PDS3_DEVICE_CONTEXT                     pDs3Context;
+    PDS4_DEVICE_CONTEXT                     pDs4Context;
+    WDF_OBJECT_ATTRIBUTES                   attributes;
+    WDF_TIMER_CONFIG                        timerCfg;
+    BOOLEAN                                 supported = FALSE;
+    UCHAR                                   index;
+    WDFUSBPIPE                              pipe;
+    WDF_USB_PIPE_INFORMATION                pipeInfo;
 
     UNREFERENCED_PARAMETER(pDs4Context);
     UNREFERENCED_PARAMETER(ResourcesRaw);
@@ -62,17 +66,6 @@ FireShockEvtDevicePrepareHardware(
     status = STATUS_SUCCESS;
     pDeviceContext = DeviceGetContext(Device);
 
-    //
-    // Create a USB device handle so that we can communicate with the
-    // underlying USB stack. The WDFUSBDEVICE handle is used to query,
-    // configure, and manage all aspects of the USB device.
-    // These aspects include device properties, bus properties,
-    // and I/O creation and synchronization. We only create the device the first time
-    // PrepareHardware is called. If the device is restarted by pnp manager
-    // for resource rebalance, we will use the same device handle but then select
-    // the interfaces again because the USB stack could reconfigure the device on
-    // restart.
-    //
     if (pDeviceContext->UsbDevice == NULL) {
 
         status = WdfUsbTargetDeviceCreate(Device,
@@ -82,7 +75,7 @@ FireShockEvtDevicePrepareHardware(
 
         if (!NT_SUCCESS(status)) {
             TraceEvents(TRACE_LEVEL_ERROR, TRACE_POWER,
-                "WdfUsbTargetDeviceCreateWithParameters failed 0x%x", status);
+                "WdfUsbTargetDeviceCreateWithParameters failed %!STATUS!", status);
             return status;
         }
     }
@@ -98,6 +91,9 @@ FireShockEvtDevicePrepareHardware(
     if (deviceDescriptor.idVendor == DS3_VENDOR_ID
         && (deviceDescriptor.idProduct == DS3_PRODUCT_ID || deviceDescriptor.idProduct == PS_MOVE_NAVI_PRODUCT_ID))
     {
+        TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER,
+            "PlayStation 3 compatible controller detected");
+
         pDeviceContext->DeviceType = DualShock3;
         supported = TRUE;
 
@@ -107,7 +103,8 @@ FireShockEvtDevicePrepareHardware(
         status = WdfObjectAllocateContext(Device, &attributes, (PVOID)&pDs3Context);
         if (!NT_SUCCESS(status))
         {
-            KdPrint((DRIVERNAME "WdfObjectAllocateContext failed status 0x%x\n", status));
+            TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER,
+                "WdfObjectAllocateContext failed status %!STATUS!", status);
             return status;
         }
 
@@ -156,24 +153,10 @@ FireShockEvtDevicePrepareHardware(
 
         status = WdfTimerCreate(&timerCfg, &attributes, &pDs3Context->OutputReportTimer);
         if (!NT_SUCCESS(status)) {
-            KdPrint((DRIVERNAME "Error creating output report timer 0x%x\n", status));
+            TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER,
+                "Error creating output report timer %!STATUS!", status);
             return status;
         }
-
-        // Initialize input enable timer
-        WDF_TIMER_CONFIG_INIT_PERIODIC(&timerCfg, Ds3EnableEvtTimerFunc, DS3_INPUT_ENABLE_SEND_DELAY);
-        WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
-
-        attributes.ParentObject = Device;
-
-        status = WdfTimerCreate(&timerCfg, &attributes, &pDs3Context->InputEnableTimer);
-        if (!NT_SUCCESS(status)) {
-            KdPrint((DRIVERNAME "Error creating input enable timer 0x%x\n", status));
-            return status;
-        }
-
-        // We can start the timer here since the callback is called again on failure
-        WdfTimerStart(pDs3Context->InputEnableTimer, WDF_REL_TIMEOUT_IN_MS(DS3_INPUT_ENABLE_SEND_DELAY));
     }
 
     WDF_USB_DEVICE_SELECT_CONFIG_PARAMS_INIT_SINGLE_INTERFACE(&configParams);
@@ -185,11 +168,58 @@ FireShockEvtDevicePrepareHardware(
 
     if (!NT_SUCCESS(status)) {
         TraceEvents(TRACE_LEVEL_ERROR, TRACE_POWER,
-            "WdfUsbTargetDeviceSelectConfig failed 0x%x", status);
+            "WdfUsbTargetDeviceSelectConfig failed %!STATUS!", status);
         return status;
     }
 
-    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER, "%!FUNC! Exit");
+    pDeviceContext->UsbInterface = configParams.Types.SingleInterface.ConfiguredUsbInterface;
+
+    //
+    // Get pipe handles
+    //
+    for (index = 0; index < WdfUsbInterfaceGetNumConfiguredPipes(pDeviceContext->UsbInterface); index++) {
+
+        WDF_USB_PIPE_INFORMATION_INIT(&pipeInfo);
+
+        pipe = WdfUsbInterfaceGetConfiguredPipe(
+            pDeviceContext->UsbInterface,
+            index, //PipeIndex,
+            &pipeInfo
+        );
+        //
+        // Tell the framework that it's okay to read less than
+        // MaximumPacketSize
+        //
+        WdfUsbTargetPipeSetNoMaximumPacketSizeCheck(pipe);
+
+        if (WdfUsbPipeTypeInterrupt == pipeInfo.PipeType &&
+            WdfUsbTargetPipeIsInEndpoint(pipe)) {
+            TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER,
+                "InterruptReadPipe is 0x%p\n", pipe);
+            pDeviceContext->InterruptReadPipe = pipe;
+        }
+
+        if (WdfUsbPipeTypeInterrupt == pipeInfo.PipeType &&
+            WdfUsbTargetPipeIsOutEndpoint(pipe)) {
+            TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER,
+                "InterruptWritePipe is 0x%p\n", pipe);
+            pDeviceContext->InterruptWritePipe = pipe;
+        }
+    }
+
+    if (!pDeviceContext->InterruptReadPipe || !pDeviceContext->InterruptWritePipe)
+    {
+        status = STATUS_INVALID_DEVICE_STATE;
+        TraceEvents(TRACE_LEVEL_ERROR, TRACE_POWER,
+            "Device is not configured properly %!STATUS!\n",
+            status);
+
+        return status;
+    }
+
+    status = DsUsbConfigContReaderForInterruptEndPoint(Device);
+
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER, "%!FUNC! Exit (%!STATUS!)", status);
 
     return status;
 }
@@ -199,10 +229,73 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     _In_ WDF_POWER_DEVICE_STATE PreviousState
 )
 {
-    UNREFERENCED_PARAMETER(Device);
+    PDEVICE_CONTEXT         pDeviceContext;
+    NTSTATUS                status;
+    BOOLEAN                 isTargetStarted;
+
+    pDeviceContext = DeviceGetContext(Device);
+    isTargetStarted = FALSE;
+
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER, "%!FUNC! Entry");
+
     UNREFERENCED_PARAMETER(PreviousState);
 
-    return STATUS_SUCCESS;
+    //
+    // Since continuous reader is configured for this interrupt-pipe, we must explicitly start
+    // the I/O target to get the framework to post read requests.
+    //
+    status = WdfIoTargetStart(WdfUsbTargetPipeGetIoTarget(pDeviceContext->InterruptReadPipe));
+    if (!NT_SUCCESS(status)) {
+        TraceEvents(TRACE_LEVEL_ERROR, TRACE_POWER, "Failed to start interrupt read pipe %!STATUS!\n", status);
+        goto End;
+    }
+
+    status = WdfIoTargetStart(WdfUsbTargetPipeGetIoTarget(pDeviceContext->InterruptWritePipe));
+    if (!NT_SUCCESS(status)) {
+        TraceEvents(TRACE_LEVEL_ERROR, TRACE_POWER, "Failed to start interrupt write pipe %!STATUS!\n", status);
+        goto End;
+    }
+
+    isTargetStarted = TRUE;
+
+End:
+
+    if (!NT_SUCCESS(status)) {
+        //
+        // Failure in D0Entry will lead to device being removed. So let us stop the continuous
+        // reader in preparation for the ensuing remove.
+        //
+        if (isTargetStarted) {
+            WdfIoTargetStop(WdfUsbTargetPipeGetIoTarget(pDeviceContext->InterruptReadPipe), WdfIoTargetCancelSentIo);
+            WdfIoTargetStop(WdfUsbTargetPipeGetIoTarget(pDeviceContext->InterruptWritePipe), WdfIoTargetCancelSentIo);
+        }
+    }
+
+    switch (pDeviceContext->DeviceType)
+    {
+    case DualShock3:
+
+        status = Ds3Init(pDeviceContext);
+
+        if (!NT_SUCCESS(status))
+        {
+            TraceEvents(TRACE_LEVEL_ERROR, TRACE_POWER,
+                "Ds3Init failed with status %!STATUS!",
+                status);
+        }
+        else
+        {
+            WdfTimerStart(Ds3GetContext(Device)->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(DS3_OUTPUT_REPORT_SEND_DELAY));
+        }
+        
+        break;
+    default:
+        break;
+    }
+
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER, "%!FUNC! Exit");
+
+    return status;
 }
 
 NTSTATUS FireShockEvtDeviceD0Exit(

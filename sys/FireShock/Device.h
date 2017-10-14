@@ -26,6 +26,12 @@ typedef struct _DEVICE_CONTEXT
     // USB Device object
     // 
     WDFUSBDEVICE UsbDevice;
+
+    WDFUSBINTERFACE UsbInterface;
+
+    WDFUSBPIPE InterruptReadPipe;
+
+    WDFUSBPIPE InterruptWritePipe;
     
     //
     // Device type
@@ -55,11 +61,6 @@ typedef struct _DS3_DEVICE_CONTEXT
     // Timer for re-occurring output reports
     // 
     WDFTIMER OutputReportTimer;
-
-    //
-    // Timer for magic packet
-    // 
-    WDFTIMER InputEnableTimer;
 
     //
     // Raw output report buffer
@@ -117,5 +118,7 @@ NTSTATUS
 FireShockCreateDevice(
     _Inout_ PWDFDEVICE_INIT DeviceInit
     );
+
+NTSTATUS Ds3Init(PDEVICE_CONTEXT Context);
 
 EXTERN_C_END

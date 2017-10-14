@@ -49,6 +49,8 @@ Return Value:
 
     WDF_PNPPOWER_EVENT_CALLBACKS_INIT(&pnpPowerCallbacks);
     pnpPowerCallbacks.EvtDevicePrepareHardware = FireShockEvtDevicePrepareHardware;
+    pnpPowerCallbacks.EvtDeviceD0Entry = FireShockEvtDeviceD0Entry;
+    pnpPowerCallbacks.EvtDeviceD0Exit = FireShockEvtDeviceD0Exit;
     WdfDeviceInitSetPnpPowerEventCallbacks(DeviceInit, &pnpPowerCallbacks);
 
     WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&deviceAttributes, DEVICE_CONTEXT);

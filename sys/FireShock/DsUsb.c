@@ -60,7 +60,7 @@ SendControlRequest(
     case BmRequestClass:
         WDF_USB_CONTROL_SETUP_PACKET_INIT_CLASS(&controlSetupPacket,
             BmRequestHostToDevice,
-            BmRequestToDevice,
+            BmRequestToInterface,
             Request,
             Value,
             Index);
@@ -89,4 +89,79 @@ SendControlRequest(
     }
 
     return status;
+}
+
+NTSTATUS
+DsUsbConfigContReaderForInterruptEndPoint(
+    _In_ WDFDEVICE Device
+)
+{
+    WDF_USB_CONTINUOUS_READER_CONFIG contReaderConfig;
+    NTSTATUS status;
+    PDEVICE_CONTEXT pDeviceContext;
+
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! Entry");
+
+    pDeviceContext = DeviceGetContext(Device);
+
+    WDF_USB_CONTINUOUS_READER_CONFIG_INIT(&contReaderConfig,
+        DsUsbEvtUsbInterruptPipeReadComplete,
+        Device,    // Context
+        INTERRUPT_IN_BUFFER_LENGTH);   // TransferLength
+
+    contReaderConfig.EvtUsbTargetPipeReadersFailed = DsUsbEvtUsbInterruptReadersFailed;
+
+    //
+    // Reader requests are not posted to the target automatically.
+    // Driver must explictly call WdfIoTargetStart to kick start the
+    // reader.  In this sample, it's done in D0Entry.
+    // By defaut, framework queues two requests to the target
+    // endpoint. Driver can configure up to 10 requests with CONFIG macro.
+    //
+    status = WdfUsbTargetPipeConfigContinuousReader(pDeviceContext->InterruptReadPipe,
+        &contReaderConfig);
+
+    if (!NT_SUCCESS(status)) {
+        TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
+            "WdfUsbTargetPipeConfigContinuousReader failed %x\n",
+            status);
+        return status;
+    }
+
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! Exit");
+
+    return status;
+}
+
+VOID
+DsUsbEvtUsbInterruptPipeReadComplete(
+    WDFUSBPIPE  Pipe,
+    WDFMEMORY   Buffer,
+    size_t      NumBytesTransferred,
+    WDFCONTEXT  Context
+)
+{
+    UNREFERENCED_PARAMETER(Pipe);
+    UNREFERENCED_PARAMETER(Buffer);
+    UNREFERENCED_PARAMETER(NumBytesTransferred);
+    UNREFERENCED_PARAMETER(Context);
+
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! called");
+}
+
+BOOLEAN
+DsUsbEvtUsbInterruptReadersFailed(
+    _In_ WDFUSBPIPE Pipe,
+    _In_ NTSTATUS Status,
+    _In_ USBD_STATUS UsbdStatus
+)
+{
+    UNREFERENCED_PARAMETER(UsbdStatus);
+    UNREFERENCED_PARAMETER(Pipe);
+
+    TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
+        "DsUsbEvtUsbInterruptReadersFailed called with status %x\n",
+        Status);
+
+    return TRUE;
 }

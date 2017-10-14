@@ -111,4 +111,3 @@ typedef enum _DS_DEVICE_TYPE
 
 EVT_WDF_TIMER Ds3OutputEvtTimerFunc;
 
-EVT_WDF_TIMER Ds3EnableEvtTimerFunc;
