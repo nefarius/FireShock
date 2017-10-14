@@ -20,6 +20,7 @@ Environment:
 #include <wdfusb.h>
 #include <initguid.h>
 
+#include "Power.h"
 #include "device.h"
 #include "queue.h"
 #include "trace.h"

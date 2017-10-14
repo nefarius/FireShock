@@ -18,7 +18,7 @@
       <Extensions>inf;inv;inx;mof;mc;</Extensions>
     </Filter>
   </ItemGroup>
-  <ItemGroup>    
+  <ItemGroup>
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -26,7 +26,7 @@
       <Filter>Driver Files</Filter>
     </Inf>
   </ItemGroup>
-  <ItemGroup>    
+  <ItemGroup>
     <ClInclude Include="Device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -39,6 +39,9 @@
     <ClInclude Include="Queue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Power.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Device.c">
@@ -47,7 +50,10 @@
     <ClCompile Include="Driver.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-   <ClCompile Include="Queue.c">
+    <ClCompile Include="Queue.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Power.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

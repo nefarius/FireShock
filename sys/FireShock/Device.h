@@ -42,10 +42,4 @@ FireShockCreateDevice(
     _Inout_ PWDFDEVICE_INIT DeviceInit
     );
 
-//
-// Function to select the device's USB configuration and get a WDFUSBDEVICE
-// handle
-//
-EVT_WDF_DEVICE_PREPARE_HARDWARE FireShockEvtDevicePrepareHardware;
-
 EXTERN_C_END
