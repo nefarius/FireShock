@@ -57,13 +57,11 @@ FireShockEvtDevicePrepareHardware(
     WDFUSBPIPE                              pipe;
     WDF_USB_PIPE_INFORMATION                pipeInfo;
 
-    UNREFERENCED_PARAMETER(pDs4Context);
     UNREFERENCED_PARAMETER(ResourcesRaw);
     UNREFERENCED_PARAMETER(ResourcesTranslated);
 
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER, "%!FUNC! Entry");
 
-    status = STATUS_SUCCESS;
     pDeviceContext = DeviceGetContext(Device);
 
     if (pDeviceContext->UsbDevice == NULL) {
@@ -84,6 +82,8 @@ FireShockEvtDevicePrepareHardware(
     // Use device descriptor to identify the device
     // 
     WdfUsbTargetDeviceGetDeviceDescriptor(pDeviceContext->UsbDevice, &deviceDescriptor);
+
+#pragma region DualShock 3, Navigation Controller detection
 
     // 
     // Device is a DualShock 3 or Move Navigation Controller
@@ -159,6 +159,56 @@ FireShockEvtDevicePrepareHardware(
         }
     }
 
+#pragma endregion
+
+#pragma region DualShock 4 (v1, v2), Wireless Adapter
+
+    // 
+    // Device is a DualShock 4 model 1, 2 or Wireless USB Adapter
+    // 
+    if (deviceDescriptor.idVendor == DS4_VENDOR_ID
+        && (deviceDescriptor.idProduct == DS4_PRODUCT_ID
+            || deviceDescriptor.idProduct == DS4_WIRELESS_ADAPTER_PRODUCT_ID
+            || deviceDescriptor.idProduct == DS4_2_PRODUCT_ID))
+    {
+        pDeviceContext->DeviceType = DualShock4;
+        supported = TRUE;
+
+        //
+        // Add DS4-specific context to device object
+        //  
+        WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS4_DEVICE_CONTEXT);
+
+        status = WdfObjectAllocateContext(Device, &attributes, (PVOID)&pDs4Context);
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint((DRIVERNAME "WdfObjectAllocateContext failed status 0x%x\n", status));
+            return status;
+        }
+
+        // 
+        // Initial output state (rumble & LEDs off)
+        // 
+        UCHAR DefaultOutputReport[DS4_HID_OUTPUT_REPORT_SIZE] =
+        {
+            0x05, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF,
+            0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        };
+
+        RtlCopyMemory(pDs4Context->OutputReportBuffer, DefaultOutputReport, DS4_HID_OUTPUT_REPORT_SIZE);
+    }
+
+#pragma endregion
+
+    if (!supported)
+    {
+        return STATUS_NOT_SUPPORTED;
+    }
+
+#pragma region USB Interface & Pipe settings
+
     WDF_USB_DEVICE_SELECT_CONFIG_PARAMS_INIT_SINGLE_INTERFACE(&configParams);
 
     status = WdfUsbTargetDeviceSelectConfig(pDeviceContext->UsbDevice,
@@ -216,6 +266,8 @@ FireShockEvtDevicePrepareHardware(
 
         return status;
     }
+
+#pragma endregion
 
     status = DsUsbConfigContReaderForInterruptEndPoint(Device);
 
@@ -285,6 +337,9 @@ End:
         }
         else
         {
+            //
+            // Frequently pushed output report state changes to the DS3
+            // 
             WdfTimerStart(Ds3GetContext(Device)->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(DS3_OUTPUT_REPORT_SEND_DELAY));
         }
         
@@ -305,6 +360,8 @@ NTSTATUS FireShockEvtDeviceD0Exit(
 {
     UNREFERENCED_PARAMETER(Device);
     UNREFERENCED_PARAMETER(TargetState);
+
+    // TODO: implement!
 
     return STATUS_SUCCESS;
 }
