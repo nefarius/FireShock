@@ -1,5 +1,6 @@
 ﻿using System;
 using FireShock.Chastity.Server.Properties;
+using PInvoke;
 
 namespace FireShock.Chastity.Server
 {
@@ -7,19 +8,36 @@ namespace FireShock.Chastity.Server
 
     public class FireShockDevice : IDisposable
     {
-        public static Guid ClassGuid => Guid.Parse(Settings.Default.ClassGuid);
-
         public FireShockDevice(string path)
         {
             DevicePath = path;
+
+            //
+            // Open device
+            // 
+            DeviceHandle = Kernel32.CreateFile(DevicePath,
+                Kernel32.ACCESS_MASK.GenericRight.GENERIC_READ | Kernel32.ACCESS_MASK.GenericRight.GENERIC_WRITE,
+                Kernel32.FileShare.FILE_SHARE_READ | Kernel32.FileShare.FILE_SHARE_WRITE,
+                IntPtr.Zero, Kernel32.CreationDisposition.OPEN_EXISTING,
+                Kernel32.CreateFileFlags.FILE_ATTRIBUTE_NORMAL | Kernel32.CreateFileFlags.FILE_FLAG_OVERLAPPED,
+                Kernel32.SafeObjectHandle.Null
+            );
+
+            if (DeviceHandle.IsInvalid)
+                throw new ArgumentException($"Couldn't open device {DevicePath}");
         }
 
-        public event FireShockDeviceDisconnectedEventHandler DeviceDisconnected;
+        public static Guid ClassGuid => Guid.Parse(Settings.Default.ClassGuid);
 
         public string DevicePath { get; }
 
+        public Kernel32.SafeObjectHandle DeviceHandle { get; }
+
+        public event FireShockDeviceDisconnectedEventHandler DeviceDisconnected;
+
         #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
+
+        private bool disposedValue; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
         {
@@ -51,6 +69,7 @@ namespace FireShock.Chastity.Server
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
+
         #endregion
     }
 }
