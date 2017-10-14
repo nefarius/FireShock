@@ -38,5 +38,7 @@ FireShockQueueInitialize(
 //
 EVT_WDF_IO_QUEUE_IO_DEVICE_CONTROL FireShockEvtIoDeviceControl;
 EVT_WDF_IO_QUEUE_IO_STOP FireShockEvtIoStop;
+EVT_WDF_IO_QUEUE_IO_READ FireShockEvtIoRead;
+EVT_WDF_IO_QUEUE_IO_WRITE FireShockEvtIoWrite;
 
 EXTERN_C_END

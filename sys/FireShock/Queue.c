@@ -59,6 +59,8 @@ Return Value:
 
     queueConfig.EvtIoDeviceControl = FireShockEvtIoDeviceControl;
     queueConfig.EvtIoStop = FireShockEvtIoStop;
+    queueConfig.EvtIoRead = FireShockEvtIoRead;
+    queueConfig.EvtIoWrite = FireShockEvtIoWrite;
 
     status = WdfIoQueueCreate(
                  Device,
@@ -177,4 +179,26 @@ Return Value:
     //
 
     return;
+}
+
+VOID FireShockEvtIoRead(
+    _In_ WDFQUEUE   Queue,
+    _In_ WDFREQUEST Request,
+    _In_ size_t     Length
+)
+{
+    UNREFERENCED_PARAMETER(Queue);
+    UNREFERENCED_PARAMETER(Request);
+    UNREFERENCED_PARAMETER(Length);
+}
+
+VOID FireShockEvtIoWrite(
+    _In_ WDFQUEUE   Queue,
+    _In_ WDFREQUEST Request,
+    _In_ size_t     Length
+)
+{
+    UNREFERENCED_PARAMETER(Queue);
+    UNREFERENCED_PARAMETER(Request);
+    UNREFERENCED_PARAMETER(Length);
 }
