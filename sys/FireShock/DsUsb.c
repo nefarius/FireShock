@@ -82,10 +82,10 @@ SendControlRequest(
         &memDesc,
         &bytesTransferred);
 
-    if (!NT_SUCCESS(status)) 
+    if (!NT_SUCCESS(status))
     {
         TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
-            "WdfUsbTargetDeviceSendControlTransferSynchronously failed with status %!STATUS! (%d)\n", 
+            "WdfUsbTargetDeviceSendControlTransferSynchronously failed with status %!STATUS! (%d)\n",
             status, bytesTransferred);
     }
 
@@ -142,12 +142,38 @@ DsUsbEvtUsbInterruptPipeReadComplete(
     WDFCONTEXT  Context
 )
 {
+    NTSTATUS            status;
+    PDEVICE_CONTEXT     pDeviceContext;
+    WDFREQUEST          request;
+    size_t              bufferLength;
+    LPVOID              reqBuffer;
+
     UNREFERENCED_PARAMETER(Pipe);
     UNREFERENCED_PARAMETER(Buffer);
     UNREFERENCED_PARAMETER(NumBytesTransferred);
     UNREFERENCED_PARAMETER(Context);
 
-    //TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! called");
+    pDeviceContext = DeviceGetContext(Context);
+
+    status = WdfIoQueueRetrieveNextRequest(pDeviceContext->IoReadQueue, &request);
+
+    if (NT_SUCCESS(status))
+    {
+        status = WdfRequestRetrieveOutputBuffer(request,
+            NumBytesTransferred, &reqBuffer, &bufferLength);
+
+        if (!NT_SUCCESS(status))
+        {
+            TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
+                "WdfRequestRetrieveOutputBuffer failed with status %!STATUS!", status);
+            WdfRequestComplete(request, status);
+            return;
+        }
+
+        RtlCopyMemory(reqBuffer, WdfMemoryGetBuffer(Buffer, NULL), bufferLength);
+
+        WdfRequestCompleteWithInformation(request, status, bufferLength);
+    }
 }
 
 BOOLEAN

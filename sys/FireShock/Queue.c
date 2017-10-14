@@ -20,7 +20,7 @@ Environment:
 NTSTATUS
 FireShockQueueInitialize(
     _In_ WDFDEVICE Device
-    )
+)
 /*++
 
 Routine Description:
@@ -46,16 +46,16 @@ Return Value:
     WDFQUEUE queue;
     NTSTATUS status;
     WDF_IO_QUEUE_CONFIG    queueConfig;
-    
+
     //
     // Configure a default queue so that requests that are not
     // configure-fowarded using WdfDeviceConfigureRequestDispatching to goto
     // other queues get dispatched here.
     //
     WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(
-         &queueConfig,
+        &queueConfig,
         WdfIoQueueDispatchParallel
-        );
+    );
 
     queueConfig.EvtIoDeviceControl = FireShockEvtIoDeviceControl;
     queueConfig.EvtIoStop = FireShockEvtIoStop;
@@ -63,13 +63,13 @@ Return Value:
     queueConfig.EvtIoWrite = FireShockEvtIoWrite;
 
     status = WdfIoQueueCreate(
-                 Device,
-                 &queueConfig,
-                 WDF_NO_OBJECT_ATTRIBUTES,
-                 &queue
-                 );
+        Device,
+        &queueConfig,
+        WDF_NO_OBJECT_ATTRIBUTES,
+        &queue
+    );
 
-    if( !NT_SUCCESS(status) ) {
+    if (!NT_SUCCESS(status)) {
         TraceEvents(TRACE_LEVEL_ERROR, TRACE_QUEUE, "WdfIoQueueCreate failed %!STATUS!", status);
         return status;
     }
@@ -77,7 +77,7 @@ Return Value:
     return status;
 }
 
-NTSTATUS 
+NTSTATUS
 FireShockIoReadQueueInitialize(
     WDFDEVICE Device
 )
@@ -92,7 +92,7 @@ FireShockIoReadQueueInitialize(
         &queueConfig,
         WdfIoQueueDispatchManual
     );
-        
+
     status = WdfIoQueueCreate(
         Device,
         &queueConfig,
@@ -115,7 +115,7 @@ FireShockEvtIoDeviceControl(
     _In_ size_t OutputBufferLength,
     _In_ size_t InputBufferLength,
     _In_ ULONG IoControlCode
-    )
+)
 /*++
 
 Routine Description:
@@ -141,10 +141,10 @@ Return Value:
 
 --*/
 {
-    TraceEvents(TRACE_LEVEL_INFORMATION, 
-                TRACE_QUEUE, 
-                "%!FUNC! Queue 0x%p, Request 0x%p OutputBufferLength %d InputBufferLength %d IoControlCode %d", 
-                Queue, Request, (int) OutputBufferLength, (int) InputBufferLength, IoControlCode);
+    TraceEvents(TRACE_LEVEL_INFORMATION,
+        TRACE_QUEUE,
+        "%!FUNC! Queue 0x%p, Request 0x%p OutputBufferLength %d InputBufferLength %d IoControlCode %d",
+        Queue, Request, (int)OutputBufferLength, (int)InputBufferLength, IoControlCode);
 
     WdfRequestComplete(Request, STATUS_SUCCESS);
 
@@ -180,10 +180,10 @@ Return Value:
 
 --*/
 {
-    TraceEvents(TRACE_LEVEL_INFORMATION, 
-                TRACE_QUEUE, 
-                "%!FUNC! Queue 0x%p, Request 0x%p ActionFlags %d", 
-                Queue, Request, ActionFlags);
+    TraceEvents(TRACE_LEVEL_INFORMATION,
+        TRACE_QUEUE,
+        "%!FUNC! Queue 0x%p, Request 0x%p ActionFlags %d",
+        Queue, Request, ActionFlags);
 
     //
     // In most cases, the EvtIoStop callback function completes, cancels, or postpones
@@ -218,9 +218,20 @@ VOID FireShockEvtIoRead(
     _In_ size_t     Length
 )
 {
-    UNREFERENCED_PARAMETER(Queue);
-    UNREFERENCED_PARAMETER(Request);
+    NTSTATUS            status;
+    PDEVICE_CONTEXT     pDeviceContext;
+
     UNREFERENCED_PARAMETER(Length);
+
+    pDeviceContext = DeviceGetContext(WdfIoQueueGetDevice(Queue));
+
+    status = WdfRequestForwardToIoQueue(Request, pDeviceContext->IoReadQueue);
+    if (!NT_SUCCESS(status))
+    {
+        TraceEvents(TRACE_LEVEL_ERROR,
+            TRACE_QUEUE, "WdfRequestForwardToIoQueue failed with status %!STATUS!", status);
+        WdfRequestComplete(Request, status);
+    }
 }
 
 VOID FireShockEvtIoWrite(
