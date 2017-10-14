@@ -1,21 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using Serilog;
+using System.Reflection;
 using Nefarius.Devcon;
+using Nefarius.Sub.Kinbaku.Core.Plugins;
+using Serilog;
 
 namespace FireShock.Chastity.Server
 {
     internal class ChastityService
     {
         private readonly IObservable<long> _deviceLookupSchedule = Observable.Interval(TimeSpan.FromSeconds(2));
+        private readonly ObservableCollection<FireShockDevice> _devices = new ObservableCollection<FireShockDevice>();
+
+        private readonly SinkPluginHost _sinkPluginHost = new SinkPluginHost(Path.Combine(Path.GetDirectoryName
+            (Assembly.GetExecutingAssembly().Location), "Plugins"));
+
         private IDisposable _deviceLookupTask;
-        private readonly List<FireShockDevice> _devices = new List<FireShockDevice>();
 
         public void Start()
         {
             Log.Information("FireShock Chastity Server started");
+
+            _devices.CollectionChanged += (sender, args) =>
+            {
+                switch (args.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        foreach (IDualShockDevice item in args.NewItems)
+                            _sinkPluginHost.DeviceArrived(item);
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        foreach (IDualShockDevice item in args.OldItems)
+                            _sinkPluginHost.DeviceRemoved(item);
+                        break;
+                }
+            };
 
             _deviceLookupTask = _deviceLookupSchedule.Subscribe(OnLookup);
         }
@@ -31,16 +54,19 @@ namespace FireShock.Chastity.Server
 
                 Log.Information($"Found FireShock device {path} ({instance})");
 
-                var host = new FireShockDevice(path);
+                var device = new FireShockDevice(path);
 
-                host.DeviceDisconnected += (sender, args) =>
+                device.DeviceDisconnected += (sender, args) =>
                 {
-                    var device = (FireShockDevice)sender;
-                    _devices.Remove(device);
-                    device.Dispose();
+                    var dev = (FireShockDevice) sender;
+                    _devices.Remove(dev);
+                    dev.Dispose();
                 };
 
-                _devices.Add(host);
+                device.InputReportReceived += (sender, args) =>
+                    _sinkPluginHost.InputReportReceived((IDualShockDevice) sender, args.Report);
+
+                _devices.Add(device);
             }
         }
 

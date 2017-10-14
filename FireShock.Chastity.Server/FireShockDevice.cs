@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using FireShock.Chastity.Server.Properties;
+using Nefarius.Sub.Kinbaku.Core.Plugins;
+using Nefarius.Sub.Kinbaku.Core.Reports.Common;
 using Nefarius.Sub.Kinbaku.Core.Reports.DualShock3;
 using Nefarius.Sub.Kinbaku.Util;
 using PInvoke;
@@ -11,12 +14,13 @@ using Serilog;
 namespace FireShock.Chastity.Server
 {
     public delegate void FireShockDeviceDisconnectedEventHandler(object sender, EventArgs e);
+    public delegate void FireShockInputReportReceivedEventHandler(object sender, InputReportEventArgs e);
 
-    public class FireShockDevice : IDisposable
+    public class FireShockDevice : IDisposable, IDualShockDevice
     {
         private readonly CancellationTokenSource _inputCancellationTokenSourcePrimary = new CancellationTokenSource();
         private readonly CancellationTokenSource _inputCancellationTokenSourceSecondary = new CancellationTokenSource();
-
+        
         public FireShockDevice(string path)
         {
             DevicePath = path;
@@ -47,9 +51,31 @@ namespace FireShock.Chastity.Server
             Task.Factory.StartNew(RequestInputReportWorker, _inputCancellationTokenSourceSecondary.Token);
         }
 
+        public static Guid ClassGuid => Guid.Parse(Settings.Default.ClassGuid);
+
+        public string DevicePath { get; }
+
+        public Kernel32.SafeObjectHandle DeviceHandle { get; }
+
+        public DualShockDeviceTypes DeviceType
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public PhysicalAddress ClientAddress
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         private void RequestInputReportWorker(object cancellationToken)
         {
-            var token = (CancellationToken)cancellationToken;
+            var token = (CancellationToken) cancellationToken;
             var buffer = new byte[512];
             var unmanagedBuffer = Marshal.AllocHGlobal(buffer.Length);
 
@@ -67,15 +93,8 @@ namespace FireShock.Chastity.Server
                     if (ret)
                     {
                         Marshal.Copy(unmanagedBuffer, buffer, 0, bytesReturned);
-
-                        var report = new DualShock3InputReport(buffer);
-
-                        Log.Information($"{report[DualShock3Axes.Cross]}");
-
-                        foreach (var button in report.EngagedButtons)
-                        {
-                            Log.Information($"{button}");
-                        }
+                        
+                        OnInputReport(new DualShock3InputReport(buffer));
                     }
                 }
             }
@@ -85,13 +104,14 @@ namespace FireShock.Chastity.Server
             }
         }
 
-        public static Guid ClassGuid => Guid.Parse(Settings.Default.ClassGuid);
-
-        public string DevicePath { get; }
-
-        public Kernel32.SafeObjectHandle DeviceHandle { get; }
+        private void OnInputReport(IInputReport report)
+        {
+            InputReportReceived?.Invoke(this, new InputReportEventArgs(report));
+        }
 
         public event FireShockDeviceDisconnectedEventHandler DeviceDisconnected;
+
+        public event FireShockInputReportReceivedEventHandler InputReportReceived;
 
         #region IDisposable Support
 
