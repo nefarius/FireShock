@@ -43,6 +43,8 @@ typedef struct _DEVICE_CONTEXT
     // 
     ULONG DeviceIndex;
 
+    WDFQUEUE IoReadQueue;
+
 } DEVICE_CONTEXT, *PDEVICE_CONTEXT;
 
 //

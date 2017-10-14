@@ -77,6 +77,37 @@ Return Value:
     return status;
 }
 
+NTSTATUS 
+FireShockIoReadQueueInitialize(
+    WDFDEVICE Device
+)
+{
+    PDEVICE_CONTEXT         pDeviceContext;
+    NTSTATUS                status;
+    WDF_IO_QUEUE_CONFIG     queueConfig;
+
+    pDeviceContext = DeviceGetContext(Device);
+
+    WDF_IO_QUEUE_CONFIG_INIT(
+        &queueConfig,
+        WdfIoQueueDispatchManual
+    );
+        
+    status = WdfIoQueueCreate(
+        Device,
+        &queueConfig,
+        WDF_NO_OBJECT_ATTRIBUTES,
+        &pDeviceContext->IoReadQueue
+    );
+
+    if (!NT_SUCCESS(status)) {
+        TraceEvents(TRACE_LEVEL_ERROR, TRACE_QUEUE, "WdfIoQueueCreate failed %!STATUS!", status);
+        return status;
+    }
+
+    return status;
+}
+
 VOID
 FireShockEvtIoDeviceControl(
     _In_ WDFQUEUE Queue,

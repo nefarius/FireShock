@@ -33,6 +33,11 @@ FireShockQueueInitialize(
     _In_ WDFDEVICE Device
     );
 
+NTSTATUS
+FireShockIoReadQueueInitialize(
+    _In_ WDFDEVICE Device
+);
+
 //
 // Events from the IoQueue object
 //
