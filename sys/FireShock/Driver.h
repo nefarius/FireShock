@@ -20,8 +20,10 @@ Environment:
 #include <wdfusb.h>
 #include <initguid.h>
 
+#include "DualShock.h"
 #include "Power.h"
 #include "device.h"
+#include "DsUsb.h"
 #include "queue.h"
 #include "trace.h"
 

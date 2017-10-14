@@ -42,6 +42,12 @@
     <ClInclude Include="Power.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DualShock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DsUsb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Device.c">
@@ -54,6 +60,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Power.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DualShock3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DsUsb.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

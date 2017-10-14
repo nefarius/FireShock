@@ -1,10 +1,12 @@
 ﻿#include "Driver.h"
 #include "power.tmh"
 
+#ifdef _KERNEL_MODE
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, FireShockEvtDevicePrepareHardware)
 #pragma alloc_text(PAGE, FireShockEvtDeviceD0Entry)
 #pragma alloc_text(PAGE, FireShockEvtDeviceD0Exit)
+#endif
 #endif
 
 
@@ -19,7 +21,14 @@ FireShockEvtDevicePrepareHardware(
     NTSTATUS status;
     PDEVICE_CONTEXT pDeviceContext;
     WDF_USB_DEVICE_SELECT_CONFIG_PARAMS configParams;
+    USB_DEVICE_DESCRIPTOR deviceDescriptor;
+    PDS3_DEVICE_CONTEXT             pDs3Context;
+    PDS4_DEVICE_CONTEXT             pDs4Context;
+    WDF_OBJECT_ATTRIBUTES           attributes;
+    WDF_TIMER_CONFIG                timerCfg;
+    BOOLEAN                         supported = FALSE;
 
+    UNREFERENCED_PARAMETER(pDs4Context);
     UNREFERENCED_PARAMETER(ResourcesRaw);
     UNREFERENCED_PARAMETER(ResourcesTranslated);
 
@@ -51,6 +60,95 @@ FireShockEvtDevicePrepareHardware(
                 "WdfUsbTargetDeviceCreateWithParameters failed 0x%x", status);
             return status;
         }
+    }
+
+    // 
+    // Use device descriptor to identify the device
+    // 
+    WdfUsbTargetDeviceGetDeviceDescriptor(pDeviceContext->UsbDevice, &deviceDescriptor);
+
+    // 
+    // Device is a DualShock 3 or Move Navigation Controller
+    // 
+    if (deviceDescriptor.idVendor == DS3_VENDOR_ID
+        && (deviceDescriptor.idProduct == DS3_PRODUCT_ID || deviceDescriptor.idProduct == PS_MOVE_NAVI_PRODUCT_ID))
+    {
+        pDeviceContext->DeviceType = DualShock3;
+        supported = TRUE;
+
+        // Add DS3-specific context to device object
+        WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS3_DEVICE_CONTEXT);
+
+        status = WdfObjectAllocateContext(Device, &attributes, (PVOID)&pDs3Context);
+        if (!NT_SUCCESS(status))
+        {
+            KdPrint((DRIVERNAME "WdfObjectAllocateContext failed status 0x%x\n", status));
+            return status;
+        }
+
+        // 
+        // Initial output state (rumble & LEDs off)
+        // 
+        // Note: no report ID because sent over control endpoint
+        // 
+        UCHAR DefaultOutputReport[DS3_HID_OUTPUT_REPORT_SIZE] =
+        {
+            0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0xFF, 0x27, 0x10, 0x00, 0x32, 0xFF,
+            0x27, 0x10, 0x00, 0x32, 0xFF, 0x27, 0x10, 0x00,
+            0x32, 0xFF, 0x27, 0x10, 0x00, 0x32, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        };
+
+        RtlCopyMemory(pDs3Context->OutputReportBuffer, DefaultOutputReport, DS3_HID_OUTPUT_REPORT_SIZE);
+
+        // Set initial LED index to device arrival index (max. 4 possible for DS3)
+        switch (pDeviceContext->DeviceIndex)
+        {
+        case 0:
+            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_0;
+            break;
+        case 1:
+            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_1;
+            break;
+        case 2:
+            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_2;
+            break;
+        case 3:
+            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_3;
+            break;
+        default:
+            // TODO: what do we do in this case? Light animation?
+            break;
+        }
+
+        // Initialize output report timer
+        WDF_TIMER_CONFIG_INIT_PERIODIC(&timerCfg, Ds3OutputEvtTimerFunc, DS3_OUTPUT_REPORT_SEND_DELAY);
+        WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
+
+        attributes.ParentObject = Device;
+
+        status = WdfTimerCreate(&timerCfg, &attributes, &pDs3Context->OutputReportTimer);
+        if (!NT_SUCCESS(status)) {
+            KdPrint((DRIVERNAME "Error creating output report timer 0x%x\n", status));
+            return status;
+        }
+
+        // Initialize input enable timer
+        WDF_TIMER_CONFIG_INIT_PERIODIC(&timerCfg, Ds3EnableEvtTimerFunc, DS3_INPUT_ENABLE_SEND_DELAY);
+        WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
+
+        attributes.ParentObject = Device;
+
+        status = WdfTimerCreate(&timerCfg, &attributes, &pDs3Context->InputEnableTimer);
+        if (!NT_SUCCESS(status)) {
+            KdPrint((DRIVERNAME "Error creating input enable timer 0x%x\n", status));
+            return status;
+        }
+
+        // We can start the timer here since the callback is called again on failure
+        WdfTimerStart(pDs3Context->InputEnableTimer, WDF_REL_TIMEOUT_IN_MS(DS3_INPUT_ENABLE_SEND_DELAY));
     }
 
     WDF_USB_DEVICE_SELECT_CONFIG_PARAMS_INIT_SINGLE_INTERFACE(&configParams);

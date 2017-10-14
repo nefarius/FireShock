@@ -37,6 +37,8 @@ DEFINE_GUID(GUID_DEVINTERFACE_FireShock,
         WPP_DEFINE_BIT(TRACE_DEVICE)                                   \
         WPP_DEFINE_BIT(TRACE_QUEUE)                                    \
         WPP_DEFINE_BIT(TRACE_POWER)                                    \
+        WPP_DEFINE_BIT(TRACE_DSUSB)                                    \
+        WPP_DEFINE_BIT(TRACE_DUALSHOCK3)                                    \
         )                             
 
 #define WPP_FLAG_LEVEL_LOGGER(flag, level)                                  \

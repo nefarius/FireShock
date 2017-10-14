@@ -22,8 +22,20 @@ EXTERN_C_START
 //
 typedef struct _DEVICE_CONTEXT
 {
+    //
+    // USB Device object
+    // 
     WDFUSBDEVICE UsbDevice;
-    ULONG PrivateDeviceData;  // just a placeholder
+    
+    //
+    // Device type
+    // 
+    DS_DEVICE_TYPE DeviceType;
+
+    //
+    // Device instance index
+    // 
+    ULONG DeviceIndex;
 
 } DEVICE_CONTEXT, *PDEVICE_CONTEXT;
 
@@ -33,6 +45,70 @@ typedef struct _DEVICE_CONTEXT
 // in a type safe manner.
 //
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DEVICE_CONTEXT, DeviceGetContext)
+
+//
+// DualShock 3-specific context
+// 
+typedef struct _DS3_DEVICE_CONTEXT
+{
+    //
+    // Timer for re-occurring output reports
+    // 
+    WDFTIMER OutputReportTimer;
+
+    //
+    // Timer for magic packet
+    // 
+    WDFTIMER InputEnableTimer;
+
+    //
+    // Raw output report buffer
+    // 
+    UCHAR OutputReportBuffer[DS3_HID_OUTPUT_REPORT_SIZE];
+
+    //
+    // Translated input state
+    // 
+    //FS3_GAMEPAD_STATE InputState;
+
+    //
+    // Cached input report
+    // 
+    UCHAR LastReport[DS3_ORIGINAL_HID_REPORT_SIZE];
+
+    //
+    // Raw input report
+    // 
+    UCHAR InputReport[DS3_ORIGINAL_HID_REPORT_SIZE];
+
+} DS3_DEVICE_CONTEXT, *PDS3_DEVICE_CONTEXT;
+
+WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DS3_DEVICE_CONTEXT, Ds3GetContext)
+
+//
+// DualShock 4-specific context
+// 
+typedef struct _DS4_DEVICE_CONTEXT
+{
+    //
+    // Timer for re-occurring output reports
+    // 
+    WDFTIMER OutputReportTimer;
+
+    //
+    // Raw output report buffer
+    // 
+    UCHAR OutputReportBuffer[DS4_HID_OUTPUT_REPORT_SIZE];
+
+    //
+    // Cached input report
+    // 
+    //DS4_REPORT LastReport;
+
+} DS4_DEVICE_CONTEXT, *PDS4_DEVICE_CONTEXT;
+
+WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DS4_DEVICE_CONTEXT, Ds4GetContext)
+
 
 //
 // Function to initialize the device's queues and callbacks

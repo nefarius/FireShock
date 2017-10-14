@@ -67,10 +67,6 @@ Return Value:
         //
         deviceContext = DeviceGetContext(device);
 
-        //
-        // Initialize the context.
-        //
-        deviceContext->PrivateDeviceData = 0;
 
         //
         // Create a device interface so that applications can find and talk
