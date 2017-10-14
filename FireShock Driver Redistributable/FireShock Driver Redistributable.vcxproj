@@ -34,11 +34,6 @@
       <Platform>ARM64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\hidkmdf\hidkmdf.vcxproj">
-      <Project>{ec5dcaf5-3514-4e61-8201-10f5f060e096}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{32DE4A83-31A8-45FA-A9AD-041FD12C5434}</ProjectGuid>
     <TemplateGuid>{4605da2c-74a5-4865-98e1-152ef136825f}</TemplateGuid>
