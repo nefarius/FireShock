@@ -42,7 +42,7 @@ VOID Ds3OutputEvtTimerFunc(
         DeviceGetContext(hDevice),
         BmRequestClass,
         SetReport,
-        USB_SETUP_VALUE(Output, One),
+        USB_SETUP_VALUE(HidReportRequestTypeOutput, HidReportRequestIdOne),
         0,
         Ds3GetContext(hDevice)->OutputReportBuffer,
         DS3_HID_OUTPUT_REPORT_SIZE

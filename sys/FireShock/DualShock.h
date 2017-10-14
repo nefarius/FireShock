@@ -72,18 +72,21 @@ typedef enum _USB_HID_REQUEST
     // Standard Requests
     GetDescriptor = 0x06,
     SetDescriptor = 0x07
+
 } USB_HID_REQUEST;
 
 typedef enum _USB_HID_REPORT_REQUEST_TYPE
 {
-    Input = 0x01,
-    Output = 0x02,
-    Feature = 0x03
+    HidReportRequestTypeInput = 0x01,
+    HidReportRequestTypeOutput = 0x02,
+    HidReportRequestTypeFeature = 0x03
+
 } USB_HID_REPORT_REQUEST_TYPE;
 
 typedef enum _USB_HID_REPORT_REQUEST_ID
 {
-    One = 0x01
+    HidReportRequestIdOne = 0x01
+
 } USB_HID_REPORT_REQUEST_ID;
 
 typedef enum _USB_HID_CLASS_DESCRIPTOR_TYPE
@@ -91,13 +94,15 @@ typedef enum _USB_HID_CLASS_DESCRIPTOR_TYPE
     Hid = 0x21,
     Report = 0x22,
     PhysicalDescriptor = 0x23
+
 } USB_HID_CLASS_DESCRIPTOR_TYPE;
 
 typedef enum _DS3_FEATURE_VALUE
 {
     Ds3GetDeviceAddress = 0x03F2,
     Ds3StartDevice = 0x03F4,
-    Ds3SetHostAddress = 0x03F5,
+    Ds3SetHostAddress = 0x03F5
+
 } DS3_FEATURE_VALUE;
 
 #define USB_SETUP_VALUE(_type_, _id_) (USHORT)((_type_ << 8) | _id_)
@@ -107,6 +112,7 @@ typedef enum _DS_DEVICE_TYPE
     DsTypeUnknown,
     DualShock3,
     DualShock4
+
 } DS_DEVICE_TYPE, *PDS_DEVICE_TYPE;
 
 EVT_WDF_TIMER Ds3OutputEvtTimerFunc;
