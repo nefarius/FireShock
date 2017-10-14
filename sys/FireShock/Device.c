@@ -76,7 +76,7 @@ Return Value:
         //
         status = WdfDeviceCreateDeviceInterface(
             device,
-            &GUID_DEVINTERFACE_FireShock,
+            &GUID_DEVINTERFACE_FIRESHOCK,
             NULL // ReferenceString
             );
 
