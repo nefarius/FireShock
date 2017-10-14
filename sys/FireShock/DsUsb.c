@@ -147,7 +147,7 @@ DsUsbEvtUsbInterruptPipeReadComplete(
     UNREFERENCED_PARAMETER(NumBytesTransferred);
     UNREFERENCED_PARAMETER(Context);
 
-    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! called");
+    //TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! called");
 }
 
 BOOLEAN
