@@ -149,8 +149,6 @@ DsUsbEvtUsbInterruptPipeReadComplete(
     LPVOID              reqBuffer;
 
     UNREFERENCED_PARAMETER(Pipe);
-    UNREFERENCED_PARAMETER(Buffer);
-    UNREFERENCED_PARAMETER(NumBytesTransferred);
     UNREFERENCED_PARAMETER(Context);
 
     pDeviceContext = DeviceGetContext(Context);
@@ -170,9 +168,9 @@ DsUsbEvtUsbInterruptPipeReadComplete(
             return;
         }
 
-        RtlCopyMemory(reqBuffer, WdfMemoryGetBuffer(Buffer, NULL), bufferLength);
+        RtlCopyMemory(reqBuffer, WdfMemoryGetBuffer(Buffer, NULL), NumBytesTransferred);
 
-        WdfRequestCompleteWithInformation(request, status, bufferLength);
+        WdfRequestCompleteWithInformation(request, status, NumBytesTransferred);
     }
 }
 

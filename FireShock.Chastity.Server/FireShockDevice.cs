@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using FireShock.Chastity.Server.Properties;
+using Nefarius.Sub.Kinbaku.Util;
 using PInvoke;
+using Serilog;
 
 namespace FireShock.Chastity.Server
 {
@@ -8,6 +13,9 @@ namespace FireShock.Chastity.Server
 
     public class FireShockDevice : IDisposable
     {
+        private readonly CancellationTokenSource _inputCancellationTokenSourcePrimary = new CancellationTokenSource();
+        private readonly CancellationTokenSource _inputCancellationTokenSourceSecondary = new CancellationTokenSource();
+
         public FireShockDevice(string path)
         {
             DevicePath = path;
@@ -25,6 +33,48 @@ namespace FireShock.Chastity.Server
 
             if (DeviceHandle.IsInvalid)
                 throw new ArgumentException($"Couldn't open device {DevicePath}");
+
+            //
+            // Start two tasks requesting input reports in parallel.
+            // 
+            // While on threads request gets completed, another request can be
+            // queued by the other thread. This way no input can get lost because
+            // there's always at least one pending request in the driver to get
+            // completed. Each thread uses inverted calls for maximum performance.
+            // 
+            Task.Factory.StartNew(RequestInputReportWorker, _inputCancellationTokenSourcePrimary.Token);
+            Task.Factory.StartNew(RequestInputReportWorker, _inputCancellationTokenSourceSecondary.Token);
+        }
+
+        private void RequestInputReportWorker(object cancellationToken)
+        {
+            var token = (CancellationToken)cancellationToken;
+            var buffer = new byte[512];
+            var unmanagedBuffer = Marshal.AllocHGlobal(buffer.Length);
+
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    int bytesReturned;
+
+                    var ret = DeviceHandle.OverlappedReadFile(
+                        unmanagedBuffer,
+                        buffer.Length,
+                        out bytesReturned);
+
+                    if (ret)
+                    {
+                        Marshal.Copy(unmanagedBuffer, buffer, 0, bytesReturned);
+
+                        Log.Information($"{buffer[6]}");
+                    }
+                }
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(unmanagedBuffer);
+            }
         }
 
         public static Guid ClassGuid => Guid.Parse(Settings.Default.ClassGuid);
