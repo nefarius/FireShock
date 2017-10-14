@@ -145,20 +145,23 @@ DsUsbEvtUsbInterruptPipeReadComplete(
     NTSTATUS            status;
     PDEVICE_CONTEXT     pDeviceContext;
     WDFREQUEST          request;
-    size_t              bufferLength;
+    size_t              reqBufferLength;
     LPVOID              reqBuffer;
+    size_t              rdrBufferLength;
+    LPVOID              rdrBuffer;
 
     UNREFERENCED_PARAMETER(Pipe);
-    UNREFERENCED_PARAMETER(Context);
+    UNREFERENCED_PARAMETER(NumBytesTransferred);
 
     pDeviceContext = DeviceGetContext(Context);
+    rdrBuffer = WdfMemoryGetBuffer(Buffer, &rdrBufferLength);
 
     status = WdfIoQueueRetrieveNextRequest(pDeviceContext->IoReadQueue, &request);
 
     if (NT_SUCCESS(status))
     {
         status = WdfRequestRetrieveOutputBuffer(request,
-            NumBytesTransferred, &reqBuffer, &bufferLength);
+            rdrBufferLength, &reqBuffer, &reqBufferLength);
 
         if (!NT_SUCCESS(status))
         {
@@ -168,9 +171,9 @@ DsUsbEvtUsbInterruptPipeReadComplete(
             return;
         }
 
-        RtlCopyMemory(reqBuffer, WdfMemoryGetBuffer(Buffer, NULL), NumBytesTransferred);
+        RtlCopyMemory(reqBuffer, rdrBuffer, rdrBufferLength);
 
-        WdfRequestCompleteWithInformation(request, status, NumBytesTransferred);
+        WdfRequestCompleteWithInformation(request, status, rdrBufferLength);
     }
 }
 

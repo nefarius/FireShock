@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using FireShock.Chastity.Server.Properties;
+using Nefarius.Sub.Kinbaku.Core.Reports.DualShock3;
 using Nefarius.Sub.Kinbaku.Util;
 using PInvoke;
 using Serilog;
@@ -67,7 +68,14 @@ namespace FireShock.Chastity.Server
                     {
                         Marshal.Copy(unmanagedBuffer, buffer, 0, bytesReturned);
 
-                        Log.Information($"{buffer[6]}");
+                        var report = new DualShock3InputReport(buffer);
+
+                        Log.Information($"{report[DualShock3Axes.Cross]}");
+
+                        foreach (var button in report.EngagedButtons)
+                        {
+                            Log.Information($"{button}");
+                        }
                     }
                 }
             }
