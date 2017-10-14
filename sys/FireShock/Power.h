@@ -25,7 +25,6 @@ SOFTWARE.
 
 #pragma once
 
-
 EVT_WDF_DEVICE_PREPARE_HARDWARE FireShockEvtDevicePrepareHardware;
 EVT_WDF_DEVICE_D0_ENTRY FireShockEvtDeviceD0Entry;
 EVT_WDF_DEVICE_D0_EXIT FireShockEvtDeviceD0Exit;
