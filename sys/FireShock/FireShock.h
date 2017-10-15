@@ -28,17 +28,17 @@ SOFTWARE.
 #define IOCTL_INDEX             0x801
 #define FILE_DEVICE_FIRESHOCK   32768U
 
-#define IOCTL_FIRESHOCK_GET_HOST_BD_ADDR        CTL_CODE(FILE_DEVICE_AIRBENDER, \
+#define IOCTL_FIRESHOCK_GET_HOST_BD_ADDR        CTL_CODE(FILE_DEVICE_FIRESHOCK, \
                                                             IOCTL_INDEX + 0x00, \
                                                             METHOD_BUFFERED,    \
                                                             FILE_READ_ACCESS)
 
-#define IOCTL_FIRESHOCK_GET_DEVICE_BD_ADDR      CTL_CODE(FILE_DEVICE_AIRBENDER, \
+#define IOCTL_FIRESHOCK_GET_DEVICE_BD_ADDR      CTL_CODE(FILE_DEVICE_FIRESHOCK, \
                                                             IOCTL_INDEX + 0x01, \
                                                             METHOD_BUFFERED,    \
                                                             FILE_READ_ACCESS)
 
-#define IOCTL_FIRESHOCK_SET_HOST_BD_ADDR        CTL_CODE(FILE_DEVICE_AIRBENDER, \
+#define IOCTL_FIRESHOCK_SET_HOST_BD_ADDR        CTL_CODE(FILE_DEVICE_FIRESHOCK, \
                                                             IOCTL_INDEX + 0x02, \
                                                             METHOD_BUFFERED,    \
                                                             FILE_WRITE_ACCESS)
