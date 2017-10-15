@@ -20,13 +20,10 @@ namespace FireShock.Chastity.Server
     {
         private readonly CancellationTokenSource _inputCancellationTokenSourcePrimary = new CancellationTokenSource();
         private readonly CancellationTokenSource _inputCancellationTokenSourceSecondary = new CancellationTokenSource();
-        private const int ErrorOperationAborted = 0x3E3;
 
         public FireShockDevice(string path)
         {
             DevicePath = path;
-            DeviceType = DualShockDeviceType.DualShock3;
-            ClientAddress = PhysicalAddress.None;
 
             //
             // Open device
@@ -41,6 +38,79 @@ namespace FireShock.Chastity.Server
 
             if (DeviceHandle.IsInvalid)
                 throw new ArgumentException($"Couldn't open device {DevicePath}");
+
+            var length = Marshal.SizeOf(typeof(FireshockGetDeviceBdAddr));
+            var pData = Marshal.AllocHGlobal(length);
+
+            try
+            {
+                var bytesReturned = 0;
+                var ret = DeviceHandle.OverlappedDeviceIoControl(
+                    IoctlFireshockGetDeviceBdAddr,
+                    IntPtr.Zero, 0, pData, length,
+                    out bytesReturned);
+
+                if (!ret)
+                    throw new Exception("Failed to request device address");
+
+                var resp = Marshal.PtrToStructure<FireshockGetDeviceBdAddr>(pData);
+
+                ClientAddress = new PhysicalAddress(resp.Device.Address);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(pData);
+            }
+
+            length = Marshal.SizeOf(typeof(FireshockGetDeviceType));
+            pData = Marshal.AllocHGlobal(length);
+
+            try
+            {
+                var bytesReturned = 0;
+                var ret = DeviceHandle.OverlappedDeviceIoControl(
+                    IoctlFireshockGetDeviceType,
+                    IntPtr.Zero, 0, pData, length,
+                    out bytesReturned);
+
+                if (!ret)
+                    throw new Exception("Failed to request device type");
+
+                var resp = Marshal.PtrToStructure<FireshockGetDeviceType>(pData);
+
+                DeviceType = resp.DeviceType;
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(pData);
+            }
+
+            length = Marshal.SizeOf(typeof(FireshockGetHostBdAddr));
+            pData = Marshal.AllocHGlobal(length);
+
+            try
+            {
+                var bytesReturned = 0;
+                var ret = DeviceHandle.OverlappedDeviceIoControl(
+                    IoctlFireshockGetHostBdAddr,
+                    IntPtr.Zero, 0, pData, length,
+                    out bytesReturned);
+
+                if (!ret)
+                    throw new Exception("Failed to request host address");
+
+                var resp = Marshal.PtrToStructure<FireshockGetHostBdAddr>(pData);
+
+                HostAddress = new PhysicalAddress(resp.Host.Address);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(pData);
+            }
+
+            Log.Information($"Device is {DeviceType} " +
+                            $"with address {ClientAddress.AsFriendlyName()} " +
+                            $"currently paired to {HostAddress.AsFriendlyName()}");
 
             //
             // Start two tasks requesting input reports in parallel.
@@ -63,6 +133,8 @@ namespace FireShock.Chastity.Server
         public DualShockDeviceType DeviceType { get; }
 
         public PhysicalAddress ClientAddress { get; }
+
+        public PhysicalAddress HostAddress { get; }
 
         private void RequestInputReportWorker(object cancellationToken)
         {
@@ -130,6 +202,8 @@ namespace FireShock.Chastity.Server
 
         public event FireShockInputReportReceivedEventHandler InputReportReceived;
 
+        #region Equals Support
+
         public override bool Equals(object obj)
         {
             return base.Equals(obj);
@@ -154,6 +228,8 @@ namespace FireShock.Chastity.Server
         {
             return !Equals(left, right);
         }
+
+        #endregion
 
         #region IDisposable Support
 

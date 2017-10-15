@@ -14,6 +14,12 @@ namespace FireShock.Chastity.Server
 
         #endregion
 
+        #region Error constants
+
+        private const int ErrorOperationAborted = 0x3E3;
+
+        #endregion
+
         #region Managed to unmanaged structs
 
         [StructLayout(LayoutKind.Sequential)]
