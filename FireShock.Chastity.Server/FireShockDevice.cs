@@ -203,6 +203,11 @@ namespace FireShock.Chastity.Server
 
         public event FireShockInputReportReceivedEventHandler InputReportReceived;
 
+        public override string ToString()
+        {
+            return $"{DeviceType} ({ClientAddress})";
+        }
+
         #region Equals Support
 
         public override bool Equals(object obj)
