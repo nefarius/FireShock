@@ -26,36 +26,6 @@ SOFTWARE.
 #include "Driver.h"
 #include "DualShock3.tmh"
 
-//
-// Sends output report updates to the DS3 via control endpoint.
-// 
-VOID Ds3OutputEvtTimerFunc(
-    _In_ WDFTIMER Timer
-)
-{
-    WDFDEVICE   hDevice;
-    NTSTATUS    status;
-
-    hDevice = WdfTimerGetParentObject(Timer);
-
-    status = SendControlRequest(
-        DeviceGetContext(hDevice),
-        BmRequestHostToDevice,
-        BmRequestClass,
-        SetReport,
-        USB_SETUP_VALUE(HidReportRequestTypeOutput, HidReportRequestIdOne),
-        0,
-        Ds3GetContext(hDevice)->OutputReportBuffer,
-        DS3_HID_OUTPUT_REPORT_SIZE
-    );
-
-    if (!NT_SUCCESS(status))
-    {
-        TraceEvents(TRACE_LEVEL_ERROR, TRACE_DUALSHOCK3,
-            "SendControlRequest failed with status %!STATUS!",
-            status);
-    }
-}
 
 //
 // Sends the "magic packet" to the DS3 so it starts its interrupt endpoint.

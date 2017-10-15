@@ -59,40 +59,6 @@ typedef struct _DEVICE_CONTEXT
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DEVICE_CONTEXT, DeviceGetContext)
 
 //
-// DualShock 3-specific context
-// 
-typedef struct _DS3_DEVICE_CONTEXT
-{
-    //
-    // Timer for re-occurring output reports
-    // 
-    WDFTIMER OutputReportTimer;
-
-    //
-    // Raw output report buffer
-    // 
-    UCHAR OutputReportBuffer[DS3_HID_OUTPUT_REPORT_SIZE];
-
-    //
-    // Translated input state
-    // 
-    //FS3_GAMEPAD_STATE InputState;
-
-    //
-    // Cached input report
-    // 
-    UCHAR LastReport[DS3_ORIGINAL_HID_REPORT_SIZE];
-
-    //
-    // Raw input report
-    // 
-    UCHAR InputReport[DS3_ORIGINAL_HID_REPORT_SIZE];
-
-} DS3_DEVICE_CONTEXT, *PDS3_DEVICE_CONTEXT;
-
-WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DS3_DEVICE_CONTEXT, Ds3GetContext)
-
-//
 // DualShock 4-specific context
 // 
 typedef struct _DS4_DEVICE_CONTEXT

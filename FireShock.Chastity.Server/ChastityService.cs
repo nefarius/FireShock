@@ -59,7 +59,7 @@ namespace FireShock.Chastity.Server
 
                 Log.Information($"Found FireShock device {path} ({instance})");
 
-                var device = new FireShockDevice(path);
+                var device = FireShockDevice.CreateDevice(path);
 
                 device.DeviceDisconnected += (sender, args) =>
                 {

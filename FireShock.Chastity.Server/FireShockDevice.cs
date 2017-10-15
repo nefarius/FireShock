@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.NetworkInformation;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,28 +18,18 @@ namespace FireShock.Chastity.Server
 
     public delegate void FireShockInputReportReceivedEventHandler(object sender, InputReportEventArgs e);
 
-    public partial class FireShockDevice : IDisposable, IDualShockDevice
+    public abstract partial class FireShockDevice : IDisposable, IDualShockDevice
     {
         private readonly CancellationTokenSource _inputCancellationTokenSourcePrimary = new CancellationTokenSource();
         private readonly CancellationTokenSource _inputCancellationTokenSourceSecondary = new CancellationTokenSource();
+        private readonly IObservable<long> _outputReportSchedule = Observable.Interval(TimeSpan.FromMilliseconds(10));
+        private readonly IDisposable _outputReportTask;
 
-        public FireShockDevice(string path)
+        protected FireShockDevice(string path, Kernel32.SafeObjectHandle handle)
         {
             DevicePath = path;
-
-            //
-            // Open device
-            // 
-            DeviceHandle = Kernel32.CreateFile(DevicePath,
-                Kernel32.ACCESS_MASK.GenericRight.GENERIC_READ | Kernel32.ACCESS_MASK.GenericRight.GENERIC_WRITE,
-                Kernel32.FileShare.FILE_SHARE_READ | Kernel32.FileShare.FILE_SHARE_WRITE,
-                IntPtr.Zero, Kernel32.CreationDisposition.OPEN_EXISTING,
-                Kernel32.CreateFileFlags.FILE_ATTRIBUTE_NORMAL | Kernel32.CreateFileFlags.FILE_FLAG_OVERLAPPED,
-                Kernel32.SafeObjectHandle.Null
-            );
-
-            if (DeviceHandle.IsInvalid)
-                throw new ArgumentException($"Couldn't open device {DevicePath}");
+            DeviceType = DualShockDeviceType.DualShock3;
+            DeviceHandle = handle;
 
             var length = Marshal.SizeOf(typeof(FireshockGetDeviceBdAddr));
             var pData = Marshal.AllocHGlobal(length);
@@ -57,29 +48,6 @@ namespace FireShock.Chastity.Server
                 var resp = Marshal.PtrToStructure<FireshockGetDeviceBdAddr>(pData);
 
                 ClientAddress = new PhysicalAddress(resp.Device.Address);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(pData);
-            }
-
-            length = Marshal.SizeOf(typeof(FireshockGetDeviceType));
-            pData = Marshal.AllocHGlobal(length);
-
-            try
-            {
-                var bytesReturned = 0;
-                var ret = DeviceHandle.OverlappedDeviceIoControl(
-                    IoctlFireshockGetDeviceType,
-                    IntPtr.Zero, 0, pData, length,
-                    out bytesReturned);
-
-                if (!ret)
-                    throw new Exception("Failed to request device type");
-
-                var resp = Marshal.PtrToStructure<FireshockGetDeviceType>(pData);
-
-                DeviceType = resp.DeviceType;
             }
             finally
             {
@@ -113,6 +81,8 @@ namespace FireShock.Chastity.Server
                             $"with address {ClientAddress.AsFriendlyName()} " +
                             $"currently paired to {HostAddress.AsFriendlyName()}");
 
+            _outputReportTask = _outputReportSchedule.Subscribe(OnOutputReport);
+
             //
             // Start two tasks requesting input reports in parallel.
             // 
@@ -137,9 +107,91 @@ namespace FireShock.Chastity.Server
 
         public PhysicalAddress ClientAddress { get; }
 
+        protected virtual byte[] HidOutputReport { get; }
+
+        public void Rumble(byte largeMotor, byte smallMotor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PairTo(PhysicalAddress host)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Factors a FireShock wrapper depending on the device type.
+        /// </summary>
+        /// <param name="path">Path of the device to open.</param>
+        /// <returns>A <see cref="FireShockDevice"/> implementation.</returns>
+        public static FireShockDevice CreateDevice(string path)
+        {
+            //
+            // Open device
+            // 
+            var deviceHandle = Kernel32.CreateFile(path,
+                Kernel32.ACCESS_MASK.GenericRight.GENERIC_READ | Kernel32.ACCESS_MASK.GenericRight.GENERIC_WRITE,
+                Kernel32.FileShare.FILE_SHARE_READ | Kernel32.FileShare.FILE_SHARE_WRITE,
+                IntPtr.Zero, Kernel32.CreationDisposition.OPEN_EXISTING,
+                Kernel32.CreateFileFlags.FILE_ATTRIBUTE_NORMAL | Kernel32.CreateFileFlags.FILE_FLAG_OVERLAPPED,
+                Kernel32.SafeObjectHandle.Null
+            );
+
+            if (deviceHandle.IsInvalid)
+                throw new ArgumentException($"Couldn't open device {path}");
+
+            var length = Marshal.SizeOf(typeof(FireshockGetDeviceType));
+            var pData = Marshal.AllocHGlobal(length);
+
+            try
+            {
+                var bytesReturned = 0;
+                var ret = deviceHandle.OverlappedDeviceIoControl(
+                    IoctlFireshockGetDeviceType,
+                    IntPtr.Zero, 0, pData, length,
+                    out bytesReturned);
+
+                if (!ret)
+                    throw new Exception("Failed to request device type");
+
+                var resp = Marshal.PtrToStructure<FireshockGetDeviceType>(pData);
+
+                switch (resp.DeviceType)
+                {
+                    case DualShockDeviceType.DualShock3:
+                        return new FireShock3Device(path, deviceHandle);
+                }
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(pData);
+            }
+
+            return null;
+        }
+
+        private void OnOutputReport(long l)
+        {
+            var buffer = Marshal.AllocHGlobal(HidOutputReport.Length);
+            Marshal.Copy(HidOutputReport, 0, buffer, HidOutputReport.Length);
+
+            try
+            {
+                int bytesReturned;
+                var ret = DeviceHandle.OverlappedWriteFile(
+                    buffer,
+                    Ds3HidOutputReportSize,
+                    out bytesReturned);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(buffer);
+            }
+        }
+
         private void RequestInputReportWorker(object cancellationToken)
         {
-            var token = (CancellationToken) cancellationToken;
+            var token = (CancellationToken)cancellationToken;
             var buffer = new byte[512];
             var unmanagedBuffer = Marshal.AllocHGlobal(buffer.Length);
 
@@ -208,14 +260,23 @@ namespace FireShock.Chastity.Server
             return $"{DeviceType} ({ClientAddress})";
         }
 
-        public void Rumble(byte largeMotor, byte smallMotor)
+        private class FireShock3Device : FireShockDevice
         {
-            throw new NotImplementedException();
-        }
+            private readonly Lazy<byte[]> _hidOutputReportLazy = new Lazy<byte[]>(() => new byte[]
+            {
+                0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0xFF, 0x27, 0x10, 0x00, 0x32, 0xFF,
+                0x27, 0x10, 0x00, 0x32, 0xFF, 0x27, 0x10, 0x00,
+                0x32, 0xFF, 0x27, 0x10, 0x00, 0x32, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+            });
 
-        public void PairTo(PhysicalAddress host)
-        {
-            throw new NotImplementedException();
+            protected override byte[] HidOutputReport => _hidOutputReportLazy.Value;
+
+            public FireShock3Device(string path, Kernel32.SafeObjectHandle handle) : base(path, handle)
+            {
+            }
         }
 
         #region Equals Support

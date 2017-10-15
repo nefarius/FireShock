@@ -48,10 +48,8 @@ FireShockEvtDevicePrepareHardware(
     PDEVICE_CONTEXT                         pDeviceContext;
     WDF_USB_DEVICE_SELECT_CONFIG_PARAMS     configParams;
     USB_DEVICE_DESCRIPTOR                   deviceDescriptor;
-    PDS3_DEVICE_CONTEXT                     pDs3Context;
     PDS4_DEVICE_CONTEXT                     pDs4Context;
     WDF_OBJECT_ATTRIBUTES                   attributes;
-    WDF_TIMER_CONFIG                        timerCfg;
     BOOLEAN                                 supported = FALSE;
     UCHAR                                   index;
     WDFUSBPIPE                              pipe;
@@ -96,67 +94,6 @@ FireShockEvtDevicePrepareHardware(
 
         pDeviceContext->DeviceType = DualShock3;
         supported = TRUE;
-
-        // Add DS3-specific context to device object
-        WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, DS3_DEVICE_CONTEXT);
-
-        status = WdfObjectAllocateContext(Device, &attributes, (PVOID)&pDs3Context);
-        if (!NT_SUCCESS(status))
-        {
-            TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER,
-                "WdfObjectAllocateContext failed status %!STATUS!", status);
-            return status;
-        }
-
-        // 
-        // Initial output state (rumble & LEDs off)
-        // 
-        // Note: no report ID because sent over control endpoint
-        // 
-        UCHAR DefaultOutputReport[DS3_HID_OUTPUT_REPORT_SIZE] =
-        {
-            0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0xFF, 0x27, 0x10, 0x00, 0x32, 0xFF,
-            0x27, 0x10, 0x00, 0x32, 0xFF, 0x27, 0x10, 0x00,
-            0x32, 0xFF, 0x27, 0x10, 0x00, 0x32, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-        };
-
-        RtlCopyMemory(pDs3Context->OutputReportBuffer, DefaultOutputReport, DS3_HID_OUTPUT_REPORT_SIZE);
-
-        // Set initial LED index to device arrival index (max. 4 possible for DS3)
-        switch (pDeviceContext->DeviceIndex)
-        {
-        case 0:
-            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_0;
-            break;
-        case 1:
-            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_1;
-            break;
-        case 2:
-            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_2;
-            break;
-        case 3:
-            pDs3Context->OutputReportBuffer[DS3_OFFSET_LED_INDEX] |= DS3_OFFSET_LED_3;
-            break;
-        default:
-            // TODO: what do we do in this case? Light animation?
-            break;
-        }
-
-        // Initialize output report timer
-        WDF_TIMER_CONFIG_INIT_PERIODIC(&timerCfg, Ds3OutputEvtTimerFunc, DS3_OUTPUT_REPORT_SEND_DELAY);
-        WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
-
-        attributes.ParentObject = Device;
-
-        status = WdfTimerCreate(&timerCfg, &attributes, &pDs3Context->OutputReportTimer);
-        if (!NT_SUCCESS(status)) {
-            TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER,
-                "Error creating output report timer %!STATUS!", status);
-            return status;
-        }
     }
 
 #pragma endregion
@@ -381,11 +318,6 @@ End:
                 &pDeviceContext->HostAddress,
                 &controlTransferBuffer[2],
                 sizeof(BD_ADDR));
-
-            //
-            // Frequently pushed output report state changes to the DS3
-            // 
-            WdfTimerStart(Ds3GetContext(Device)->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(DS3_OUTPUT_REPORT_SEND_DELAY));
         }
 
         break;
@@ -404,21 +336,12 @@ NTSTATUS FireShockEvtDeviceD0Exit(
 )
 {
     PDEVICE_CONTEXT         pDeviceContext;
-    PDS3_DEVICE_CONTEXT     pDs3DeviceContext;
 
     UNREFERENCED_PARAMETER(TargetState);
 
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER, "%!FUNC! Entry");
 
     pDeviceContext = DeviceGetContext(Device);
-
-    switch (pDeviceContext->DeviceType)
-    {
-    case DualShock3:
-        pDs3DeviceContext = Ds3GetContext(Device);
-        WdfTimerStop(pDs3DeviceContext->OutputReportTimer, TRUE);
-        break;
-    }
 
     WdfIoTargetStop(WdfUsbTargetPipeGetIoTarget(pDeviceContext->InterruptReadPipe), WdfIoTargetCancelSentIo);
     WdfIoTargetStop(WdfUsbTargetPipeGetIoTarget(pDeviceContext->InterruptWritePipe), WdfIoTargetCancelSentIo);

@@ -20,6 +20,8 @@ namespace FireShock.Chastity.Server
 
         #endregion
 
+        private const int Ds3HidOutputReportSize = 0x30;
+
         #region Managed to unmanaged structs
 
         [StructLayout(LayoutKind.Sequential)]

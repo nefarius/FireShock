@@ -107,5 +107,3 @@ typedef enum _DS3_FEATURE_VALUE
 
 #define USB_SETUP_VALUE(_type_, _id_) (USHORT)((_type_ << 8) | _id_)
 
-EVT_WDF_TIMER Ds3OutputEvtTimerFunc;
-

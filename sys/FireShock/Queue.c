@@ -365,14 +365,11 @@ VOID FireShockEvtIoWrite(
     _In_ size_t     Length
 )
 {
-    NTSTATUS            status = STATUS_SUCCESS;
+    NTSTATUS            status;
     PDEVICE_CONTEXT     pDeviceContext;
     LPVOID              buffer;
     size_t              bufferLength;
     size_t              transferred = 0;
-
-    UNREFERENCED_PARAMETER(Request);
-    UNREFERENCED_PARAMETER(Length);
 
     pDeviceContext = DeviceGetContext(WdfIoQueueGetDevice(Queue));
 
@@ -380,13 +377,13 @@ VOID FireShockEvtIoWrite(
     {
     case DualShock3:
 
-        status = WdfRequestRetrieveOutputBuffer(
+        status = WdfRequestRetrieveInputBuffer(
             Request,
             DS3_HID_OUTPUT_REPORT_SIZE,
             &buffer,
             &bufferLength);
 
-        if (!NT_SUCCESS(status) && Length == bufferLength)
+        if (NT_SUCCESS(status) && Length == bufferLength)
         {
             status = SendControlRequest(
                 pDeviceContext,
