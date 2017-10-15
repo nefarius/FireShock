@@ -24,6 +24,8 @@ namespace FireShock.Chastity.Server
         public FireShockDevice(string path)
         {
             DevicePath = path;
+            DeviceType = DualShockDeviceType.DualShock3;
+            ClientAddress = PhysicalAddress.None;
 
             //
             // Open device
@@ -57,21 +59,9 @@ namespace FireShock.Chastity.Server
 
         public Kernel32.SafeObjectHandle DeviceHandle { get; }
 
-        public DualShockDeviceTypes DeviceType
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public DualShockDeviceType DeviceType { get; }
 
-        public PhysicalAddress ClientAddress
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public PhysicalAddress ClientAddress { get; }
 
         private void RequestInputReportWorker(object cancellationToken)
         {
