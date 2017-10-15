@@ -93,6 +93,98 @@ SendControlRequest(
 }
 
 NTSTATUS
+SendReceiveControlRequest(
+    PDEVICE_CONTEXT Context,
+    BYTE Type,
+    BYTE Request,
+    USHORT Value,
+    USHORT Index,
+    PVOID Buffer,
+    ULONG BufferLength,
+    WDFCONTEXT CompletionContext)
+{
+    WDF_USB_CONTROL_SETUP_PACKET    packet;
+    NTSTATUS                        status;
+    WDF_OBJECT_ATTRIBUTES           attributes;
+    WDFMEMORY                       memHandle;
+    WDFREQUEST                      request;
+
+    WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
+
+    status = WdfRequestCreate(
+        &attributes,
+        WdfUsbTargetDeviceGetIoTarget(Context->UsbDevice),
+        &request
+    );
+    if (!NT_SUCCESS(status)) {
+        TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
+            "WdfRequestCreate failed with status %!STATUS!",
+            status);
+        return status;
+    }
+
+    WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
+    attributes.ParentObject = request;
+    status = WdfMemoryCreate(
+        &attributes,
+        NonPagedPool,
+        0,
+        BufferLength,
+        &memHandle,
+        &Buffer
+    );
+    if (!NT_SUCCESS(status)) {
+        TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
+            "WdfMemoryCreate failed with status %!STATUS!",
+            status);
+        return status;
+    }
+
+    switch (Type)
+    {
+    case BmRequestClass:
+        WDF_USB_CONTROL_SETUP_PACKET_INIT_CLASS(&packet,
+            BmRequestHostToDevice,
+            BmRequestToInterface,
+            Request,
+            Value,
+            Index);
+        break;
+
+    default:
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    status = WdfUsbTargetDeviceFormatRequestForControlTransfer(
+        Context->UsbDevice,
+        request,
+        &packet,
+        memHandle,
+        NULL
+    );
+    if (!NT_SUCCESS(status)) {
+        TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
+            "WdfUsbTargetDeviceFormatRequestForControlTransfer failed with status %!STATUS!",
+            status);
+        return status;
+    }
+    WdfRequestSetCompletionRoutine(
+        request,
+        DsUsbControlRequestCompletionRoutine,
+        CompletionContext
+    );
+    if (WdfRequestSend(
+        request,
+        WdfUsbTargetDeviceGetIoTarget(Context->UsbDevice),
+        NULL
+    ) == FALSE) {
+        status = WdfRequestGetStatus(request);
+    }
+
+    return status;
+}
+
+NTSTATUS
 DsUsbConfigContReaderForInterruptEndPoint(
     _In_ WDFDEVICE Device
 )
@@ -192,4 +284,22 @@ DsUsbEvtUsbInterruptReadersFailed(
         Status);
 
     return TRUE;
+}
+
+void DsUsbControlRequestCompletionRoutine(
+    _In_ WDFREQUEST                     Request,
+    _In_ WDFIOTARGET                    Target,
+    _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
+    _In_ WDFCONTEXT                     Context
+)
+{
+    UNREFERENCED_PARAMETER(Request);
+    UNREFERENCED_PARAMETER(Target);
+    UNREFERENCED_PARAMETER(Params);
+    UNREFERENCED_PARAMETER(Context);
+
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! Entry");
+
+
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! Exit");
 }
