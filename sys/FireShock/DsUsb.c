@@ -32,7 +32,8 @@ SOFTWARE.
 NTSTATUS
 SendControlRequest(
     _In_ PDEVICE_CONTEXT Context,
-    _In_ BYTE Type,
+    _In_ WDF_USB_BMREQUEST_DIRECTION Direction,
+    _In_ WDF_USB_BMREQUEST_TYPE Type,
     _In_ BYTE Request,
     _In_ USHORT Value,
     _In_ USHORT Index,
@@ -59,7 +60,7 @@ SendControlRequest(
     {
     case BmRequestClass:
         WDF_USB_CONTROL_SETUP_PACKET_INIT_CLASS(&controlSetupPacket,
-            BmRequestHostToDevice,
+            Direction,
             BmRequestToInterface,
             Request,
             Value,
@@ -87,98 +88,6 @@ SendControlRequest(
         TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
             "WdfUsbTargetDeviceSendControlTransferSynchronously failed with status %!STATUS! (%d)\n",
             status, bytesTransferred);
-    }
-
-    return status;
-}
-
-NTSTATUS
-SendReceiveControlRequest(
-    PDEVICE_CONTEXT Context,
-    BYTE Type,
-    BYTE Request,
-    USHORT Value,
-    USHORT Index,
-    PVOID Buffer,
-    ULONG BufferLength,
-    WDFCONTEXT CompletionContext)
-{
-    WDF_USB_CONTROL_SETUP_PACKET    packet;
-    NTSTATUS                        status;
-    WDF_OBJECT_ATTRIBUTES           attributes;
-    WDFMEMORY                       memHandle;
-    WDFREQUEST                      request;
-
-    WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
-
-    status = WdfRequestCreate(
-        &attributes,
-        WdfUsbTargetDeviceGetIoTarget(Context->UsbDevice),
-        &request
-    );
-    if (!NT_SUCCESS(status)) {
-        TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
-            "WdfRequestCreate failed with status %!STATUS!",
-            status);
-        return status;
-    }
-
-    WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
-    attributes.ParentObject = request;
-    status = WdfMemoryCreate(
-        &attributes,
-        NonPagedPool,
-        0,
-        BufferLength,
-        &memHandle,
-        &Buffer
-    );
-    if (!NT_SUCCESS(status)) {
-        TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
-            "WdfMemoryCreate failed with status %!STATUS!",
-            status);
-        return status;
-    }
-
-    switch (Type)
-    {
-    case BmRequestClass:
-        WDF_USB_CONTROL_SETUP_PACKET_INIT_CLASS(&packet,
-            BmRequestHostToDevice,
-            BmRequestToInterface,
-            Request,
-            Value,
-            Index);
-        break;
-
-    default:
-        return STATUS_INVALID_PARAMETER;
-    }
-
-    status = WdfUsbTargetDeviceFormatRequestForControlTransfer(
-        Context->UsbDevice,
-        request,
-        &packet,
-        memHandle,
-        NULL
-    );
-    if (!NT_SUCCESS(status)) {
-        TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
-            "WdfUsbTargetDeviceFormatRequestForControlTransfer failed with status %!STATUS!",
-            status);
-        return status;
-    }
-    WdfRequestSetCompletionRoutine(
-        request,
-        DsUsbControlRequestCompletionRoutine,
-        CompletionContext
-    );
-    if (WdfRequestSend(
-        request,
-        WdfUsbTargetDeviceGetIoTarget(Context->UsbDevice),
-        NULL
-    ) == FALSE) {
-        status = WdfRequestGetStatus(request);
     }
 
     return status;
@@ -286,66 +195,3 @@ DsUsbEvtUsbInterruptReadersFailed(
     return TRUE;
 }
 
-void DsUsbControlRequestCompletionRoutine(
-    _In_ WDFREQUEST                     Request,
-    _In_ WDFIOTARGET                    Target,
-    _In_ PWDF_REQUEST_COMPLETION_PARAMS Params,
-    _In_ WDFCONTEXT                     Context
-)
-{
-    //NTSTATUS status;
-    //LPVOID buffer;
-    //size_t bufferLength;
-
-    UNREFERENCED_PARAMETER(Request);
-    UNREFERENCED_PARAMETER(Target);
-    UNREFERENCED_PARAMETER(Params);
-    UNREFERENCED_PARAMETER(Context);
-        
-
-    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! Entry");
-
-    ULONG buflen = Params->Parameters.Usb.Completion->Parameters.DeviceControlTransfer.Length;
-    PUCHAR buffer = WdfMemoryGetBuffer(Params->Parameters.Usb.Completion->Parameters.DeviceControlTransfer.Buffer, NULL);
-
-    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, 
-        "Buflen: %d", buflen);
-
-    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB,
-        "Address: %02X:%02X:%02X:%02X:%02X:%02X",
-        ((PUCHAR)buffer)[2],
-        ((PUCHAR)buffer)[3],
-        ((PUCHAR)buffer)[4],
-        ((PUCHAR)buffer)[5],
-        ((PUCHAR)buffer)[6],
-        ((PUCHAR)buffer)[7]);
-
-      /*   
-    status = WdfRequestRetrieveOutputBuffer(Request, 64, &buffer, &bufferLength);
-    if (!NT_SUCCESS(status))
-    {
-        TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
-            "WdfRequestRetrieveOutputBuffer failed with status %!STATUS!",
-            status);
-        return;
-    }
-        
-
-   
-
-    //TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB,
-    //    "Length: %d", (ULONG)bufferLength);
-
-    
-    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB,
-        "Address: %02X:%02X:%02X:%02X:%02X:%02X",
-        ((PUCHAR)buffer)[2],
-        ((PUCHAR)buffer)[3], 
-        ((PUCHAR)buffer)[4], 
-        ((PUCHAR)buffer)[5], 
-        ((PUCHAR)buffer)[6], 
-        ((PUCHAR)buffer)[7]);
-        */
-
-    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! Exit");
-}

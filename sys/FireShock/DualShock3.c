@@ -40,6 +40,7 @@ VOID Ds3OutputEvtTimerFunc(
 
     status = SendControlRequest(
         DeviceGetContext(hDevice),
+        BmRequestHostToDevice,
         BmRequestClass,
         SetReport,
         USB_SETUP_VALUE(HidReportRequestTypeOutput, HidReportRequestIdOne),
@@ -69,6 +70,7 @@ NTSTATUS Ds3Init(PDEVICE_CONTEXT Context)
 
     return SendControlRequest(
         Context,
+        BmRequestHostToDevice,
         BmRequestClass,
         SetReport,
         Ds3FeatureStartDevice,

@@ -284,6 +284,7 @@ NTSTATUS FireShockEvtDeviceD0Entry(
     PDEVICE_CONTEXT         pDeviceContext;
     NTSTATUS                status;
     BOOLEAN                 isTargetStarted;
+    UCHAR                   controlTransferBuffer[CONTROL_TRANSFER_BUFFER_LENGTH];
 
     pDeviceContext = DeviceGetContext(Device);
     isTargetStarted = FALSE;
@@ -337,16 +338,49 @@ End:
         }
         else
         {
-            SendReceiveControlRequest(
+            status = SendControlRequest(
                 pDeviceContext,
+                BmRequestDeviceToHost,
+                BmRequestClass,
+                GetReport,
+                Ds3FeatureDeviceAddress,
+                0,
+                controlTransferBuffer,
+                CONTROL_TRANSFER_BUFFER_LENGTH);
+
+            if (!NT_SUCCESS(status))
+            {
+                TraceEvents(TRACE_LEVEL_ERROR, TRACE_POWER,
+                    "Requesting device address failed with %!STATUS!", status);
+                return status;
+            }
+
+            RtlCopyMemory(
+                &pDeviceContext->DeviceAddress,
+                &controlTransferBuffer[4],
+                sizeof(BD_ADDR));
+
+            status = SendControlRequest(
+                pDeviceContext,
+                BmRequestDeviceToHost,
                 BmRequestClass,
                 GetReport,
                 Ds3FeatureHostAddress,
                 0,
-                NULL,
-                64,
-                NULL);
+                controlTransferBuffer,
+                CONTROL_TRANSFER_BUFFER_LENGTH);
 
+            if (!NT_SUCCESS(status))
+            {
+                TraceEvents(TRACE_LEVEL_ERROR, TRACE_POWER,
+                    "Requesting device address failed with %!STATUS!", status);
+                return status;
+            }
+
+            RtlCopyMemory(
+                &pDeviceContext->HostAddress,
+                &controlTransferBuffer[2],
+                sizeof(BD_ADDR));
 
             //
             // Frequently pushed output report state changes to the DS3

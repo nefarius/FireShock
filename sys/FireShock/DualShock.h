@@ -60,6 +60,17 @@ SOFTWARE.
 #define IS_INTERRUPT_IN(_urb_)    ((_urb_->UrbBulkOrInterruptTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN))
 
 
+/**
+* \typedef struct _BD_ADDR
+*
+* \brief   Defines a Bluetooth client MAC address.
+*/
+typedef struct _BD_ADDR
+{
+    BYTE Address[6];
+
+} BD_ADDR, *PBD_ADDR;
+
 typedef enum _USB_HID_REQUEST
 {
     // Class-Specific Requests
