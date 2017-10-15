@@ -14,6 +14,7 @@ using Serilog;
 namespace FireShock.Chastity.Server
 {
     public delegate void FireShockDeviceDisconnectedEventHandler(object sender, EventArgs e);
+
     public delegate void FireShockInputReportReceivedEventHandler(object sender, InputReportEventArgs e);
 
     public partial class FireShockDevice : IDisposable, IDualShockDevice
@@ -130,15 +131,15 @@ namespace FireShock.Chastity.Server
 
         public Kernel32.SafeObjectHandle DeviceHandle { get; }
 
+        public PhysicalAddress HostAddress { get; }
+
         public DualShockDeviceType DeviceType { get; }
 
         public PhysicalAddress ClientAddress { get; }
 
-        public PhysicalAddress HostAddress { get; }
-
         private void RequestInputReportWorker(object cancellationToken)
         {
-            var token = (CancellationToken)cancellationToken;
+            var token = (CancellationToken) cancellationToken;
             var buffer = new byte[512];
             var unmanagedBuffer = Marshal.AllocHGlobal(buffer.Length);
 
