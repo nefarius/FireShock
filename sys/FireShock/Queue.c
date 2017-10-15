@@ -365,7 +365,55 @@ VOID FireShockEvtIoWrite(
     _In_ size_t     Length
 )
 {
-    UNREFERENCED_PARAMETER(Queue);
+    NTSTATUS            status = STATUS_SUCCESS;
+    PDEVICE_CONTEXT     pDeviceContext;
+    LPVOID              buffer;
+    size_t              bufferLength;
+    size_t              transferred = 0;
+
     UNREFERENCED_PARAMETER(Request);
     UNREFERENCED_PARAMETER(Length);
+
+    pDeviceContext = DeviceGetContext(WdfIoQueueGetDevice(Queue));
+
+    switch (pDeviceContext->DeviceType)
+    {
+    case DualShock3:
+
+        status = WdfRequestRetrieveOutputBuffer(
+            Request,
+            DS3_HID_OUTPUT_REPORT_SIZE,
+            &buffer,
+            &bufferLength);
+
+        if (!NT_SUCCESS(status) && Length == bufferLength)
+        {
+            status = SendControlRequest(
+                pDeviceContext,
+                BmRequestHostToDevice,
+                BmRequestClass,
+                SetReport,
+                USB_SETUP_VALUE(HidReportRequestTypeOutput, HidReportRequestIdOne),
+                0,
+                buffer,
+                (ULONG)bufferLength);
+
+            if (!NT_SUCCESS(status))
+            {
+                TraceEvents(TRACE_LEVEL_ERROR, TRACE_QUEUE,
+                    "SendControlRequest failed with status %!STATUS!",
+                    status);
+                break;
+            }
+
+            transferred = bufferLength;
+        }
+
+        break;
+    default:
+        status = STATUS_NOT_SUPPORTED;
+        break;
+    }
+
+    WdfRequestCompleteWithInformation(Request, status, transferred);
 }

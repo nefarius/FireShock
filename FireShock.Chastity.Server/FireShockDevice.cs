@@ -208,6 +208,16 @@ namespace FireShock.Chastity.Server
             return $"{DeviceType} ({ClientAddress})";
         }
 
+        public void Rumble(byte largeMotor, byte smallMotor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PairTo(PhysicalAddress host)
+        {
+            throw new NotImplementedException();
+        }
+
         #region Equals Support
 
         public override bool Equals(object obj)
