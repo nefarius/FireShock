@@ -20,6 +20,7 @@ Environment:
 #include <wdfusb.h>
 #include <initguid.h>
 
+#include "FireShock.h"
 #include "DualShock.h"
 #include "device.h"
 #include "Power.h"

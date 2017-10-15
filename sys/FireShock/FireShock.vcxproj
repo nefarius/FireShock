@@ -50,6 +50,7 @@
     <ClInclude Include="Driver.h" />
     <ClInclude Include="DsUsb.h" />
     <ClInclude Include="DualShock.h" />
+    <ClInclude Include="FireShock.h" />
     <ClInclude Include="Power.h" />
     <ClInclude Include="Trace.h" />
     <ClInclude Include="Queue.h" />
