@@ -43,6 +43,8 @@ SOFTWARE.
                                                             METHOD_BUFFERED,    \
                                                             FILE_WRITE_ACCESS)
 
+#define SET_HOST_BD_ADDR_CONTROL_BUFFER_LENGTH  8
+
 #include <pshpack1.h>
 
 /**

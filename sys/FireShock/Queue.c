@@ -141,14 +141,115 @@ Return Value:
 
 --*/
 {
+    NTSTATUS                        status = STATUS_SUCCESS;
+    size_t                          bufferLength;
+    size_t                          transferred = 0;
+    PDEVICE_CONTEXT                 pDeviceContext;
+    PFIRESHOCK_GET_HOST_BD_ADDR     pGetHostAddr;
+    PFIRESHOCK_GET_DEVICE_BD_ADDR   pGetDeviceAddr;
+    PFIRESHOCK_SET_HOST_BD_ADDR     pSetHostAddr;
+
     TraceEvents(TRACE_LEVEL_INFORMATION,
         TRACE_QUEUE,
         "%!FUNC! Queue 0x%p, Request 0x%p OutputBufferLength %d InputBufferLength %d IoControlCode %d",
         Queue, Request, (int)OutputBufferLength, (int)InputBufferLength, IoControlCode);
 
-    WdfRequestComplete(Request, STATUS_SUCCESS);
+    pDeviceContext = DeviceGetContext(WdfIoQueueGetDevice(Queue));
 
-    return;
+    switch (IoControlCode)
+    {
+#pragma region IOCTL_FIRESHOCK_GET_HOST_BD_ADDR
+
+    case IOCTL_FIRESHOCK_GET_HOST_BD_ADDR:
+
+        TraceEvents(TRACE_LEVEL_INFORMATION,
+            TRACE_QUEUE, "IOCTL_FIRESHOCK_GET_HOST_BD_ADDR");
+
+        status = WdfRequestRetrieveOutputBuffer(
+            Request,
+            sizeof(FIRESHOCK_GET_HOST_BD_ADDR),
+            (LPVOID)&pGetHostAddr,
+            &bufferLength);
+
+        if (NT_SUCCESS(status) && OutputBufferLength == sizeof(FIRESHOCK_GET_HOST_BD_ADDR))
+        {
+            transferred = OutputBufferLength;
+            RtlCopyMemory(&pGetHostAddr->Host, &pDeviceContext->HostAddress, sizeof(BD_ADDR));
+        }
+
+        break;
+
+#pragma endregion
+
+#pragma region IOCTL_FIRESHOCK_GET_DEVICE_BD_ADDR
+
+    case IOCTL_FIRESHOCK_GET_DEVICE_BD_ADDR:
+
+        TraceEvents(TRACE_LEVEL_INFORMATION,
+            TRACE_QUEUE, "IOCTL_FIRESHOCK_GET_DEVICE_BD_ADDR");
+
+        status = WdfRequestRetrieveOutputBuffer(
+            Request,
+            sizeof(FIRESHOCK_GET_DEVICE_BD_ADDR),
+            (LPVOID)&pGetDeviceAddr,
+            &bufferLength);
+
+        if (NT_SUCCESS(status) && OutputBufferLength == sizeof(FIRESHOCK_GET_DEVICE_BD_ADDR))
+        {
+            transferred = OutputBufferLength;
+            RtlCopyMemory(&pGetDeviceAddr->Device, &pDeviceContext->DeviceAddress, sizeof(BD_ADDR));
+        }
+
+        break;
+
+#pragma endregion
+
+#pragma region IOCTL_FIRESHOCK_SET_HOST_BD_ADDR
+
+    case IOCTL_FIRESHOCK_SET_HOST_BD_ADDR:
+
+        TraceEvents(TRACE_LEVEL_INFORMATION,
+            TRACE_QUEUE, "IOCTL_FIRESHOCK_SET_HOST_BD_ADDR");
+
+        status = WdfRequestRetrieveInputBuffer(
+            Request,
+            sizeof(FIRESHOCK_SET_HOST_BD_ADDR),
+            (LPVOID)&pSetHostAddr,
+            &bufferLength);
+
+        if (NT_SUCCESS(status) && InputBufferLength == sizeof(FIRESHOCK_SET_HOST_BD_ADDR))
+        {
+            UCHAR controlBuffer[SET_HOST_BD_ADDR_CONTROL_BUFFER_LENGTH];
+            RtlZeroMemory(controlBuffer, SET_HOST_BD_ADDR_CONTROL_BUFFER_LENGTH);
+
+            RtlCopyMemory(&controlBuffer[2], &pSetHostAddr->Host, sizeof(BD_ADDR));
+
+            status = SendControlRequest(
+                pDeviceContext,
+                BmRequestHostToDevice,
+                BmRequestClass,
+                SetReport,
+                Ds3FeatureHostAddress,
+                0,
+                controlBuffer,
+                SET_HOST_BD_ADDR_CONTROL_BUFFER_LENGTH);
+
+            if (!NT_SUCCESS(status))
+            {
+                TraceEvents(TRACE_LEVEL_ERROR, TRACE_QUEUE,
+                    "Setting host address failed with %!STATUS!", status);
+                break;
+            }
+
+            RtlCopyMemory(&pDeviceContext->HostAddress, &pSetHostAddr->Host, sizeof(BD_ADDR));
+        }
+
+        break;
+
+#pragma endregion
+    }
+
+    WdfRequestCompleteWithInformation(Request, status, transferred);
 }
 
 VOID
