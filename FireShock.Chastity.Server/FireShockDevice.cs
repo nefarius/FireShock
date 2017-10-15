@@ -16,7 +16,7 @@ namespace FireShock.Chastity.Server
     public delegate void FireShockDeviceDisconnectedEventHandler(object sender, EventArgs e);
     public delegate void FireShockInputReportReceivedEventHandler(object sender, InputReportEventArgs e);
 
-    public class FireShockDevice : IDisposable, IDualShockDevice
+    public partial class FireShockDevice : IDisposable, IDualShockDevice
     {
         private readonly CancellationTokenSource _inputCancellationTokenSourcePrimary = new CancellationTokenSource();
         private readonly CancellationTokenSource _inputCancellationTokenSourceSecondary = new CancellationTokenSource();

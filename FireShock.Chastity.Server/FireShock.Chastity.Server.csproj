@@ -116,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Compile Include="FireShockDevice.Native.cs" />
     <None Include="packages.config" />
     <None Include="Plugins\README.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
