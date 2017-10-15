@@ -38,6 +38,11 @@ SOFTWARE.
                                                             METHOD_BUFFERED,    \
                                                             FILE_READ_ACCESS)
 
+#define IOCTL_FIRESHOCK_SET_HOST_BD_ADDR        CTL_CODE(FILE_DEVICE_AIRBENDER, \
+                                                            IOCTL_INDEX + 0x02, \
+                                                            METHOD_BUFFERED,    \
+                                                            FILE_WRITE_ACCESS)
+
 #include <pshpack1.h>
 
 /**
@@ -71,5 +76,11 @@ typedef struct _FIRESHOCK_GET_DEVICE_BD_ADDR
     BD_ADDR Device;
 
 } FIRESHOCK_GET_DEVICE_BD_ADDR, *PFIRESHOCK_GET_DEVICE_BD_ADDR;
+
+typedef struct _FIRESHOCK_SET_HOST_BD_ADDR
+{
+    BD_ADDR Host;
+
+} FIRESHOCK_SET_HOST_BD_ADDR, *PFIRESHOCK_SET_HOST_BD_ADDR;
 
 #include <poppack.h>
