@@ -59,6 +59,7 @@ namespace FireShock.Chastity.Server
                 device.DeviceDisconnected += (sender, args) =>
                 {
                     var dev = (FireShockDevice) sender;
+                    Log.Information($"Device {dev} disconnected");
                     _devices.Remove(dev);
                     dev.Dispose();
                 };
@@ -73,6 +74,11 @@ namespace FireShock.Chastity.Server
         public void Stop()
         {
             _deviceLookupTask?.Dispose();
+
+            foreach (var device in _devices)
+                device.Dispose();
+
+            _devices.Clear();
 
             Log.Information("FireShock Chastity Server stopped");
         }

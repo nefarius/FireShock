@@ -358,17 +358,29 @@ NTSTATUS FireShockEvtDeviceD0Exit(
     _In_ WDF_POWER_DEVICE_STATE TargetState
 )
 {
-    PDEVICE_CONTEXT     pDeviceContext;
-
-    UNREFERENCED_PARAMETER(Device);
+    PDEVICE_CONTEXT         pDeviceContext;
+    PDS3_DEVICE_CONTEXT     pDs3DeviceContext;
+        
     UNREFERENCED_PARAMETER(TargetState);
 
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER, "%!FUNC! Entry");
+
     pDeviceContext = DeviceGetContext(Device);
+
+    switch (pDeviceContext->DeviceType)
+    {
+    case DualShock3:
+        pDs3DeviceContext = Ds3GetContext(Device);
+        WdfTimerStop(pDs3DeviceContext->OutputReportTimer, TRUE);
+        break;
+    }
 
     WdfIoTargetStop(WdfUsbTargetPipeGetIoTarget(pDeviceContext->InterruptReadPipe), WdfIoTargetCancelSentIo);
     WdfIoTargetStop(WdfUsbTargetPipeGetIoTarget(pDeviceContext->InterruptWritePipe), WdfIoTargetCancelSentIo);
 
     WdfIoQueuePurgeSynchronously(pDeviceContext->IoReadQueue);
+
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER, "%!FUNC! Exit");
 
     return STATUS_SUCCESS;
 }

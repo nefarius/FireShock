@@ -20,7 +20,8 @@ namespace FireShock.Chastity.Server
     {
         private readonly CancellationTokenSource _inputCancellationTokenSourcePrimary = new CancellationTokenSource();
         private readonly CancellationTokenSource _inputCancellationTokenSourceSecondary = new CancellationTokenSource();
-        
+        private const int ErrorOperationAborted = 0x3E3;
+
         public FireShockDevice(string path)
         {
             DevicePath = path;
@@ -65,7 +66,7 @@ namespace FireShock.Chastity.Server
 
         private void RequestInputReportWorker(object cancellationToken)
         {
-            var token = (CancellationToken) cancellationToken;
+            var token = (CancellationToken)cancellationToken;
             var buffer = new byte[512];
             var unmanagedBuffer = Marshal.AllocHGlobal(buffer.Length);
 
@@ -83,14 +84,40 @@ namespace FireShock.Chastity.Server
                     if (ret)
                     {
                         Marshal.Copy(unmanagedBuffer, buffer, 0, bytesReturned);
-                        
+
                         OnInputReport(new DualShock3InputReport(buffer));
+                        continue;
                     }
+
+                    if (Marshal.GetLastWin32Error() == ErrorOperationAborted)
+                    {
+                        OnDisconnected();
+                        return;
+                    }
+
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
             }
             finally
             {
                 Marshal.FreeHGlobal(unmanagedBuffer);
+            }
+        }
+
+        private void OnDisconnected()
+        {
+            _inputCancellationTokenSourcePrimary.Cancel();
+            _inputCancellationTokenSourceSecondary.Cancel();
+
+            if (!Monitor.TryEnter(this)) return;
+
+            try
+            {
+                DeviceDisconnected?.Invoke(this, EventArgs.Empty);
+            }
+            finally
+            {
+                Monitor.Exit(this);
             }
         }
 
@@ -138,29 +165,28 @@ namespace FireShock.Chastity.Server
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects).
+                    _inputCancellationTokenSourcePrimary.Cancel();
+                    _inputCancellationTokenSourceSecondary.Cancel();
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
+                DeviceHandle.Dispose();
 
                 disposedValue = true;
             }
         }
 
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~FireShockDevice() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
+        ~FireShockDevice()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
 
         // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
 
         #endregion
