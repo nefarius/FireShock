@@ -148,6 +148,7 @@ Return Value:
     PFIRESHOCK_GET_HOST_BD_ADDR     pGetHostAddr;
     PFIRESHOCK_GET_DEVICE_BD_ADDR   pGetDeviceAddr;
     PFIRESHOCK_SET_HOST_BD_ADDR     pSetHostAddr;
+    PFIRESHOCK_GET_DEVICE_TYPE      pGetDeviceType;
 
     TraceEvents(TRACE_LEVEL_INFORMATION,
         TRACE_QUEUE,
@@ -242,6 +243,29 @@ Return Value:
             }
 
             RtlCopyMemory(&pDeviceContext->HostAddress, &pSetHostAddr->Host, sizeof(BD_ADDR));
+        }
+
+        break;
+
+#pragma endregion
+
+#pragma region IOCTL_FIRESHOCK_GET_DEVICE_TYPE
+
+    case IOCTL_FIRESHOCK_GET_DEVICE_TYPE:
+
+        TraceEvents(TRACE_LEVEL_INFORMATION,
+            TRACE_QUEUE, "IOCTL_FIRESHOCK_GET_DEVICE_TYPE");
+
+        status = WdfRequestRetrieveOutputBuffer(
+            Request,
+            sizeof(FIRESHOCK_GET_DEVICE_TYPE),
+            (LPVOID)&pGetDeviceType,
+            &bufferLength);
+
+        if (NT_SUCCESS(status) && OutputBufferLength == sizeof(FIRESHOCK_GET_DEVICE_TYPE))
+        {
+            transferred = OutputBufferLength;
+            pGetDeviceType->DeviceType = pDeviceContext->DeviceType;
         }
 
         break;

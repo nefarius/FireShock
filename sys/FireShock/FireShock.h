@@ -43,6 +43,11 @@ SOFTWARE.
                                                             METHOD_BUFFERED,    \
                                                             FILE_WRITE_ACCESS)
 
+#define IOCTL_FIRESHOCK_GET_DEVICE_TYPE         CTL_CODE(FILE_DEVICE_FIRESHOCK, \
+                                                            IOCTL_INDEX + 0x03, \
+                                                            METHOD_BUFFERED,    \
+                                                            FILE_READ_ACCESS)
+
 #define SET_HOST_BD_ADDR_CONTROL_BUFFER_LENGTH  8
 
 #include <pshpack1.h>
@@ -84,5 +89,11 @@ typedef struct _FIRESHOCK_SET_HOST_BD_ADDR
     BD_ADDR Host;
 
 } FIRESHOCK_SET_HOST_BD_ADDR, *PFIRESHOCK_SET_HOST_BD_ADDR;
+
+typedef struct _FIRESHOCK_GET_DEVICE_TYPE
+{
+    DS_DEVICE_TYPE DeviceType;
+
+} FIRESHOCK_GET_DEVICE_TYPE, *PFIRESHOCK_GET_DEVICE_TYPE;
 
 #include <poppack.h>
