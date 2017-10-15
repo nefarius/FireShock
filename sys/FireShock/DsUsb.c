@@ -293,13 +293,59 @@ void DsUsbControlRequestCompletionRoutine(
     _In_ WDFCONTEXT                     Context
 )
 {
+    //NTSTATUS status;
+    //LPVOID buffer;
+    //size_t bufferLength;
+
     UNREFERENCED_PARAMETER(Request);
     UNREFERENCED_PARAMETER(Target);
     UNREFERENCED_PARAMETER(Params);
     UNREFERENCED_PARAMETER(Context);
+        
 
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! Entry");
 
+    ULONG buflen = Params->Parameters.Usb.Completion->Parameters.DeviceControlTransfer.Length;
+    PUCHAR buffer = WdfMemoryGetBuffer(Params->Parameters.Usb.Completion->Parameters.DeviceControlTransfer.Buffer, NULL);
+
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, 
+        "Buflen: %d", buflen);
+
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB,
+        "Address: %02X:%02X:%02X:%02X:%02X:%02X",
+        ((PUCHAR)buffer)[2],
+        ((PUCHAR)buffer)[3],
+        ((PUCHAR)buffer)[4],
+        ((PUCHAR)buffer)[5],
+        ((PUCHAR)buffer)[6],
+        ((PUCHAR)buffer)[7]);
+
+      /*   
+    status = WdfRequestRetrieveOutputBuffer(Request, 64, &buffer, &bufferLength);
+    if (!NT_SUCCESS(status))
+    {
+        TraceEvents(TRACE_LEVEL_ERROR, TRACE_DSUSB,
+            "WdfRequestRetrieveOutputBuffer failed with status %!STATUS!",
+            status);
+        return;
+    }
+        
+
+   
+
+    //TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB,
+    //    "Length: %d", (ULONG)bufferLength);
+
+    
+    TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB,
+        "Address: %02X:%02X:%02X:%02X:%02X:%02X",
+        ((PUCHAR)buffer)[2],
+        ((PUCHAR)buffer)[3], 
+        ((PUCHAR)buffer)[4], 
+        ((PUCHAR)buffer)[5], 
+        ((PUCHAR)buffer)[6], 
+        ((PUCHAR)buffer)[7]);
+        */
 
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_DSUSB, "%!FUNC! Exit");
 }

@@ -99,9 +99,9 @@ typedef enum _USB_HID_CLASS_DESCRIPTOR_TYPE
 
 typedef enum _DS3_FEATURE_VALUE
 {
-    Ds3GetDeviceAddress = 0x03F2,
-    Ds3StartDevice = 0x03F4,
-    Ds3SetHostAddress = 0x03F5
+    Ds3FeatureDeviceAddress = 0x03F2,
+    Ds3FeatureStartDevice = 0x03F4,
+    Ds3FeatureHostAddress = 0x03F5
 
 } DS3_FEATURE_VALUE;
 

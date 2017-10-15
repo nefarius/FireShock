@@ -71,7 +71,7 @@ NTSTATUS Ds3Init(PDEVICE_CONTEXT Context)
         Context,
         BmRequestClass,
         SetReport,
-        Ds3StartDevice,
+        Ds3FeatureStartDevice,
         0,
         hidCommandEnable,
         DS3_HID_COMMAND_ENABLE_SIZE

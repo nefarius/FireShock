@@ -337,12 +337,23 @@ End:
         }
         else
         {
+            SendReceiveControlRequest(
+                pDeviceContext,
+                BmRequestClass,
+                GetReport,
+                Ds3FeatureHostAddress,
+                0,
+                NULL,
+                64,
+                NULL);
+
+
             //
             // Frequently pushed output report state changes to the DS3
             // 
             WdfTimerStart(Ds3GetContext(Device)->OutputReportTimer, WDF_REL_TIMEOUT_IN_MS(DS3_OUTPUT_REPORT_SEND_DELAY));
         }
-        
+
         break;
     default:
         break;
@@ -360,7 +371,7 @@ NTSTATUS FireShockEvtDeviceD0Exit(
 {
     PDEVICE_CONTEXT         pDeviceContext;
     PDS3_DEVICE_CONTEXT     pDs3DeviceContext;
-        
+
     UNREFERENCED_PARAMETER(TargetState);
 
     TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER, "%!FUNC! Entry");
