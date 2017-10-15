@@ -1,0 +1,3 @@
+[submodule "Kinbaku"]
+	path = Kinbaku
+	url = git@github.com:nefarius/Kinbaku.git
