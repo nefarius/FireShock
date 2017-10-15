@@ -358,10 +358,17 @@ NTSTATUS FireShockEvtDeviceD0Exit(
     _In_ WDF_POWER_DEVICE_STATE TargetState
 )
 {
+    PDEVICE_CONTEXT     pDeviceContext;
+
     UNREFERENCED_PARAMETER(Device);
     UNREFERENCED_PARAMETER(TargetState);
 
-    // TODO: implement!
+    pDeviceContext = DeviceGetContext(Device);
+
+    WdfIoTargetStop(WdfUsbTargetPipeGetIoTarget(pDeviceContext->InterruptReadPipe), WdfIoTargetCancelSentIo);
+    WdfIoTargetStop(WdfUsbTargetPipeGetIoTarget(pDeviceContext->InterruptWritePipe), WdfIoTargetCancelSentIo);
+
+    WdfIoQueuePurgeSynchronously(pDeviceContext->IoReadQueue);
 
     return STATUS_SUCCESS;
 }

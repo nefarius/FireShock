@@ -45,6 +45,7 @@ Return Value:
     WDF_OBJECT_ATTRIBUTES           deviceAttributes;
     WDFDEVICE                       device;
     NTSTATUS                        status;
+    WDF_DEVICE_PNP_CAPABILITIES     pnpCapabilities;
 
     WDF_PNPPOWER_EVENT_CALLBACKS_INIT(&pnpPowerCallbacks);
     pnpPowerCallbacks.EvtDevicePrepareHardware = FireShockEvtDevicePrepareHardware;
@@ -58,6 +59,11 @@ Return Value:
 
     if (NT_SUCCESS(status)) 
     {
+        WDF_DEVICE_PNP_CAPABILITIES_INIT(&pnpCapabilities);
+        pnpCapabilities.Removable = WdfTrue;
+        pnpCapabilities.SurpriseRemovalOK = WdfTrue;
+        WdfDeviceSetPnpCapabilities(device, &pnpCapabilities);
+
         //
         // Create a device interface so that applications can find and talk
         // to us.
