@@ -101,20 +101,25 @@ namespace FireShock.Chastity.Server
 
         public Kernel32.SafeObjectHandle DeviceHandle { get; }
 
+        protected virtual byte[] HidOutputReport { get; }
+
         public PhysicalAddress HostAddress { get; }
 
         public DualShockDeviceType DeviceType { get; }
 
         public PhysicalAddress ClientAddress { get; }
 
-        protected virtual byte[] HidOutputReport { get; }
-
-        public void Rumble(byte largeMotor, byte smallMotor)
+        /// <summary>
+        ///     Send Rumble request to the controller.
+        /// </summary>
+        /// <param name="largeMotor">Large motor intensity (0 = off, 255 = max).</param>
+        /// <param name="smallMotor">Small motor intensity (0 = off, >0 = on).</param>
+        public virtual void Rumble(byte largeMotor, byte smallMotor)
         {
             throw new NotImplementedException();
         }
 
-        public void PairTo(PhysicalAddress host)
+        public virtual void PairTo(PhysicalAddress host)
         {
             throw new NotImplementedException();
         }
@@ -123,7 +128,7 @@ namespace FireShock.Chastity.Server
         ///     Factors a FireShock wrapper depending on the device type.
         /// </summary>
         /// <param name="path">Path of the device to open.</param>
-        /// <returns>A <see cref="FireShockDevice"/> implementation.</returns>
+        /// <returns>A <see cref="FireShockDevice" /> implementation.</returns>
         public static FireShockDevice CreateDevice(string path)
         {
             //
@@ -182,6 +187,9 @@ namespace FireShock.Chastity.Server
                     buffer,
                     Ds3HidOutputReportSize,
                     out bytesReturned);
+
+                if (!ret)
+                    throw new InvalidOperationException("Sending output report failed");
             }
             finally
             {
@@ -191,7 +199,7 @@ namespace FireShock.Chastity.Server
 
         private void RequestInputReportWorker(object cancellationToken)
         {
-            var token = (CancellationToken)cancellationToken;
+            var token = (CancellationToken) cancellationToken;
             var buffer = new byte[512];
             var unmanagedBuffer = Marshal.AllocHGlobal(buffer.Length);
 
@@ -272,10 +280,24 @@ namespace FireShock.Chastity.Server
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
             });
 
-            protected override byte[] HidOutputReport => _hidOutputReportLazy.Value;
-
             public FireShock3Device(string path, Kernel32.SafeObjectHandle handle) : base(path, handle)
             {
+            }
+
+            protected override byte[] HidOutputReport => _hidOutputReportLazy.Value;
+
+            /// <inheritdoc />
+            /// <summary>
+            ///     Send Rumble request to the controller.
+            /// </summary>
+            /// <param name="largeMotor">Large motor intensity (0 = off, 255 = max).</param>
+            /// <param name="smallMotor">Small motor intensity (0 = off, >0 = on).</param>
+            public override void Rumble(byte largeMotor, byte smallMotor)
+            {
+                HidOutputReport[2] = (byte)(smallMotor > 0 ? 0x01 : 0x00);
+                HidOutputReport[4] = largeMotor;
+
+                OnOutputReport(0);
             }
         }
 
@@ -283,10 +305,13 @@ namespace FireShock.Chastity.Server
 
         public override bool Equals(object obj)
         {
-            return base.Equals(obj);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            var other = obj as FireShockDevice;
+            return other != null && Equals(other);
         }
 
-        protected bool Equals(FireShockDevice other)
+        private bool Equals(FireShockDevice other)
         {
             return ClientAddress.Equals(other.ClientAddress);
         }
@@ -318,6 +343,8 @@ namespace FireShock.Chastity.Server
             {
                 if (disposing)
                 {
+                    _outputReportTask.Dispose();
+
                     _inputCancellationTokenSourcePrimary.Cancel();
                     _inputCancellationTokenSourceSecondary.Cancel();
                 }

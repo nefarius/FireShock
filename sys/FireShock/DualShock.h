@@ -25,21 +25,8 @@ SOFTWARE.
 
 #pragma once
 
-#define DS3_CONFIGURATION_DESCRIPTOR_SIZE       0x29
-#define DS3_OUTPUT_REPORT_SEND_DELAY            0x0A
 #define DS3_HID_COMMAND_ENABLE_SIZE             0x04
 #define DS3_HID_OUTPUT_REPORT_SIZE              0x30
-#define DS3_HID_REPORT_DESCRIPTOR_SIZE          0xB0
-#define DS3_INTERRUPT_IN_BUFFER_SIZE            0x40
-#define DS3_ORIGINAL_HID_REPORT_SIZE            0x31
-#define DS3_INPUT_ENABLE_SEND_DELAY             0x012C
-
-#define DS3_OFFSET_LED_0                        0x02
-#define DS3_OFFSET_LED_1                        0x04
-#define DS3_OFFSET_LED_2                        0x08
-#define DS3_OFFSET_LED_3                        0x10
-
-#define DS3_OFFSET_LED_INDEX                    0x09
 
 #define DS3_VENDOR_ID                           0x054C
 #define DS3_PRODUCT_ID                          0x0268
@@ -51,13 +38,6 @@ SOFTWARE.
 #define DS4_WIRELESS_ADAPTER_PRODUCT_ID         0x0BA0
 
 #define PS_MOVE_NAVI_PRODUCT_ID                 0x042F
-
-#define VIGEM_SERIAL_BEGIN                      0x01
-#define VIGEM_SERIAL_END                        0x04
-
-#define IS_DS3(_ctx_)             ((_ctx_->DeviceType == DualShock3))
-#define IS_DS4(_ctx_)             ((_ctx_->DeviceType == DualShock4))
-#define IS_INTERRUPT_IN(_urb_)    ((_urb_->UrbBulkOrInterruptTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN))
 
 
 typedef enum _USB_HID_REQUEST
