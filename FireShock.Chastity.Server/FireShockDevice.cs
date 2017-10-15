@@ -28,7 +28,6 @@ namespace FireShock.Chastity.Server
         protected FireShockDevice(string path, Kernel32.SafeObjectHandle handle)
         {
             DevicePath = path;
-            DeviceType = DualShockDeviceType.DualShock3;
             DeviceHandle = handle;
 
             var length = Marshal.SizeOf(typeof(FireshockGetDeviceBdAddr));
@@ -105,7 +104,7 @@ namespace FireShock.Chastity.Server
 
         public PhysicalAddress HostAddress { get; }
 
-        public DualShockDeviceType DeviceType { get; }
+        public DualShockDeviceType DeviceType { get; private set; }
 
         public PhysicalAddress ClientAddress { get; }
 
@@ -287,6 +286,7 @@ namespace FireShock.Chastity.Server
 
             public FireShock3Device(string path, Kernel32.SafeObjectHandle handle) : base(path, handle)
             {
+                DeviceType = DualShockDeviceType.DualShock3;
             }
 
             protected override byte[] HidOutputReport => _hidOutputReportLazy.Value;
