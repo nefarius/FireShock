@@ -103,6 +103,31 @@ namespace FireShock.Chastity.Server
 
         public event FireShockInputReportReceivedEventHandler InputReportReceived;
 
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        protected bool Equals(FireShockDevice other)
+        {
+            return ClientAddress.Equals(other.ClientAddress);
+        }
+
+        public override int GetHashCode()
+        {
+            return ClientAddress.GetHashCode();
+        }
+
+        public static bool operator ==(FireShockDevice left, FireShockDevice right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(FireShockDevice left, FireShockDevice right)
+        {
+            return !Equals(left, right);
+        }
+
         #region IDisposable Support
 
         private bool disposedValue; // To detect redundant calls
