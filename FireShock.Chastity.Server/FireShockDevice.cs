@@ -175,8 +175,13 @@ namespace FireShock.Chastity.Server
             return null;
         }
 
+        /// <summary>
+        ///     Periodically submits output report state changes of this controller.
+        /// </summary>
+        /// <param name="l">The interval.</param>
         private void OnOutputReport(long l)
         {
+            // TODO: optimize periodical memory allocation
             var buffer = Marshal.AllocHGlobal(HidOutputReport.Length);
             Marshal.Copy(HidOutputReport, 0, buffer, HidOutputReport.Length);
 
