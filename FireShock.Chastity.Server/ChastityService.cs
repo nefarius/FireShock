@@ -25,6 +25,11 @@ namespace FireShock.Chastity.Server
         {
             Log.Information("FireShock Chastity Server started");
 
+            foreach (var plugin in _sinkPluginHost.SinkPlugins)
+            {
+                Log.Information($"Loaded plugin {plugin.Metadata["PluginName"]}");
+            }
+
             _devices.CollectionChanged += (sender, args) =>
             {
                 switch (args.Action)
