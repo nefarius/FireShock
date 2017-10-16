@@ -307,7 +307,25 @@ namespace FireShock.Chastity.Server
 
             public override void PairTo(PhysicalAddress host)
             {
-                base.PairTo(host);
+                var length = Marshal.SizeOf(typeof(FireshockSetHostBdAddr));
+                var pData = Marshal.AllocHGlobal(length);
+                Marshal.Copy(host.GetAddressBytes(), 0, pData, length);
+
+                try
+                {
+                    var bytesReturned = 0;
+                    var ret = DeviceHandle.OverlappedDeviceIoControl(
+                        IoctlFireshockSetHostBdAddr,
+                        pData, length, IntPtr.Zero, 0,
+                        out bytesReturned);
+
+                    if (!ret)
+                        throw new Exception("Failed to set host address");
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(pData);
+                }
             }
         }
 
