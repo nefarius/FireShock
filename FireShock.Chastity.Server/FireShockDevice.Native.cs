@@ -20,7 +20,11 @@ namespace FireShock.Chastity.Server
 
         #endregion
 
+        #region Misc. Consts
+
         private const int Ds3HidOutputReportSize = 0x30;
+
+        #endregion
 
         #region Managed to unmanaged structs
 

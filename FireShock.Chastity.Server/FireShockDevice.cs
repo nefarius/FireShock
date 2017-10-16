@@ -304,6 +304,11 @@ namespace FireShock.Chastity.Server
 
                 OnOutputReport(0);
             }
+
+            public override void PairTo(PhysicalAddress host)
+            {
+                base.PairTo(host);
+            }
         }
 
         #region Equals Support
