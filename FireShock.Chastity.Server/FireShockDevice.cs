@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using FireShock.Chastity.Server.Exceptions;
 using FireShock.Chastity.Server.Properties;
 using Nefarius.Sub.Kinbaku.Core.Plugins;
 using Nefarius.Sub.Kinbaku.Core.Reports.Common;
@@ -42,7 +43,7 @@ namespace FireShock.Chastity.Server
                     out bytesReturned);
 
                 if (!ret)
-                    throw new Exception("Failed to request device address");
+                    throw new FireShockGetDeviceBdAddrFailedException($"Failed to request address of device {path}");
 
                 var resp = Marshal.PtrToStructure<FireshockGetDeviceBdAddr>(pData);
 
@@ -65,7 +66,7 @@ namespace FireShock.Chastity.Server
                     out bytesReturned);
 
                 if (!ret)
-                    throw new Exception("Failed to request host address");
+                    throw new FireShockGetHostBdAddrFailedException($"Failed to request host address for device {ClientAddress}");
 
                 var resp = Marshal.PtrToStructure<FireshockGetHostBdAddr>(pData);
 
@@ -156,7 +157,7 @@ namespace FireShock.Chastity.Server
                     out bytesReturned);
 
                 if (!ret)
-                    throw new Exception("Failed to request device type");
+                    throw new FireShockGetDeviceTypeFailedException($"Failed to request type of device {path}");
 
                 var resp = Marshal.PtrToStructure<FireshockGetDeviceType>(pData);
 
@@ -164,6 +165,8 @@ namespace FireShock.Chastity.Server
                 {
                     case DualShockDeviceType.DualShock3:
                         return new FireShock3Device(path, deviceHandle);
+                    default:
+                        throw new NotImplementedException();
                 }
             }
             finally
@@ -193,7 +196,7 @@ namespace FireShock.Chastity.Server
                     out bytesReturned);
 
                 if (!ret)
-                    throw new InvalidOperationException("Sending output report failed");
+                    throw new FireShockWriteOutputReportFailedException("Sending output report failed");
             }
             finally
             {
@@ -203,7 +206,7 @@ namespace FireShock.Chastity.Server
 
         private void RequestInputReportWorker(object cancellationToken)
         {
-            var token = (CancellationToken) cancellationToken;
+            var token = (CancellationToken)cancellationToken;
             var buffer = new byte[512];
             var unmanagedBuffer = Marshal.AllocHGlobal(buffer.Length);
 
@@ -320,7 +323,7 @@ namespace FireShock.Chastity.Server
                         out bytesReturned);
 
                     if (!ret)
-                        throw new Exception("Failed to set host address");
+                        throw new FireShockSetHostBdAddrFailedException($"Failed to pair {ClientAddress} to {host}");
                 }
                 finally
                 {
