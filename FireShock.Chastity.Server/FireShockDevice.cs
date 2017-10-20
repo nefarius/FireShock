@@ -26,7 +26,7 @@ namespace FireShock.Chastity.Server
         private readonly IObservable<long> _outputReportSchedule = Observable.Interval(TimeSpan.FromMilliseconds(10));
         private readonly IDisposable _outputReportTask;
 
-        protected FireShockDevice(string path, Kernel32.SafeObjectHandle handle)
+        internal FireShockDevice(string path, Kernel32.SafeObjectHandle handle)
         {
             DevicePath = path;
             DeviceHandle = handle;
