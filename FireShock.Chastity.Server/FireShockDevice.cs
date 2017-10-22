@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FireShock.Chastity.Server.Exceptions;
 using FireShock.Chastity.Server.Properties;
+using Nefarius.Sub.Kinbaku.Core.Hub.Client;
 using Nefarius.Sub.Kinbaku.Core.Plugins;
 using Nefarius.Sub.Kinbaku.Core.Reports.Common;
 using Nefarius.Sub.Kinbaku.Core.Reports.DualShock3;
@@ -269,6 +270,7 @@ namespace FireShock.Chastity.Server
         public event FireShockDeviceDisconnectedEventHandler DeviceDisconnected;
 
         public event FireShockInputReportReceivedEventHandler InputReportReceived;
+        public event RumbleRequestReceivedEventHandler RumbleRequestReceived;
 
         public override string ToString()
         {
