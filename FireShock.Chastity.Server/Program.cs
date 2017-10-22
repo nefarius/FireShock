@@ -26,6 +26,7 @@ namespace FireShock.Chastity.Server
                 x.SetDescription("Communicates with FireShock USB Devices.");
                 x.SetDisplayName("FireShock Chastity Server");
                 x.SetServiceName("FireShock.Chastity.Server");
+                x.DependsOn("Kinbaku.Hub.Server");
             });
         }
     }
