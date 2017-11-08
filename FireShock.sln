@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 12.0
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = ".build", "build\.build.csproj", "{A3160543-B6D1-4928-823B-7DD6004002DF}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FireShock", "sys\FireShock\FireShock.vcxproj", "{5358EDF5-FF61-4DA0-B4C9-5CB71E5836A9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Driver", "Driver", "{594D99D9-F1C5-4AE4-9852-22E8CAC6648B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +23,24 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Debug|ARM.Build.0 = Debug|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Debug|Win32.Build.0 = Debug|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Debug|x64.Build.0 = Debug|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Release|ARM.ActiveCfg = Release|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Release|ARM.Build.0 = Release|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Release|ARM64.Build.0 = Release|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Release|Win32.ActiveCfg = Release|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Release|Win32.Build.0 = Release|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Release|x64.ActiveCfg = Release|Any CPU
+		{A3160543-B6D1-4928-823B-7DD6004002DF}.Release|x64.Build.0 = Release|Any CPU
 		{5358EDF5-FF61-4DA0-B4C9-5CB71E5836A9}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{5358EDF5-FF61-4DA0-B4C9-5CB71E5836A9}.Debug|ARM.ActiveCfg = Debug|ARM
 		{5358EDF5-FF61-4DA0-B4C9-5CB71E5836A9}.Debug|ARM.Build.0 = Debug|ARM
@@ -48,6 +70,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5358EDF5-FF61-4DA0-B4C9-5CB71E5836A9} = {594D99D9-F1C5-4AE4-9852-22E8CAC6648B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3C53DF26-FB8E-4D44-A9DD-843FF160604F}
