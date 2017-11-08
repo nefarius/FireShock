@@ -1,14 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 12.0
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Driver", "Driver", "{C86EDC2A-0353-4B65-9429-5A7161C37728}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FireShock Driver Redistributable", "FireShock Driver Redistributable\FireShock Driver Redistributable.vcxproj", "{32DE4A83-31A8-45FA-A9AD-041FD12C5434}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Package", "Package", "{A2524730-8967-4C46-A77A-F8792DC6A05C}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FireShock", "sys\FireShock\FireShock.vcxproj", "{5358EDF5-FF61-4DA0-B4C9-5CB71E5836A9}"
 EndProject
 Global
@@ -25,32 +19,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|ARM.ActiveCfg = Debug|ARM
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|ARM.Build.0 = Debug|ARM
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|ARM.Deploy.0 = Debug|ARM
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|ARM64.Build.0 = Debug|ARM64
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|ARM64.Deploy.0 = Debug|ARM64
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|Win32.ActiveCfg = Debug|Win32
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|Win32.Build.0 = Debug|Win32
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|Win32.Deploy.0 = Debug|Win32
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|x64.ActiveCfg = Debug|x64
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|x64.Build.0 = Debug|x64
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Debug|x64.Deploy.0 = Debug|x64
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|Any CPU.ActiveCfg = Release|Win32
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|ARM.ActiveCfg = Release|ARM
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|ARM.Build.0 = Release|ARM
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|ARM.Deploy.0 = Release|ARM
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|ARM64.ActiveCfg = Release|ARM64
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|ARM64.Build.0 = Release|ARM64
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|ARM64.Deploy.0 = Release|ARM64
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|Win32.ActiveCfg = Release|Win32
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|Win32.Build.0 = Release|Win32
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|Win32.Deploy.0 = Release|Win32
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|x64.ActiveCfg = Release|x64
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|x64.Build.0 = Release|x64
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434}.Release|x64.Deploy.0 = Release|x64
 		{5358EDF5-FF61-4DA0-B4C9-5CB71E5836A9}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{5358EDF5-FF61-4DA0-B4C9-5CB71E5836A9}.Debug|ARM.ActiveCfg = Debug|ARM
 		{5358EDF5-FF61-4DA0-B4C9-5CB71E5836A9}.Debug|ARM.Build.0 = Debug|ARM
@@ -81,8 +49,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{32DE4A83-31A8-45FA-A9AD-041FD12C5434} = {A2524730-8967-4C46-A77A-F8792DC6A05C}
-		{5358EDF5-FF61-4DA0-B4C9-5CB71E5836A9} = {C86EDC2A-0353-4B65-9429-5A7161C37728}
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3C53DF26-FB8E-4D44-A9DD-843FF160604F}
 	EndGlobalSection
 EndGlobal
