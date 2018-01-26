@@ -36,7 +36,7 @@ class Build : NukeBuild
             .Executes(() =>
             {
                 MSBuild(s => DefaultMSBuildRestore.SetTargetPlatform(MSBuildTargetPlatform.x64));
-                MSBuild(s => DefaultMSBuildRestore.SetTargetPlatform(MSBuildTargetPlatform.x86));
+                MSBuild(s => DefaultMSBuildRestore.SetTargetPlatform(MSBuildTargetPlatform.Win32));
             });
 
     Target Compile => _ => _
