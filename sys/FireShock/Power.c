@@ -119,7 +119,8 @@ FireShockEvtDevicePrepareHardware(
         status = WdfObjectAllocateContext(Device, &attributes, (PVOID)&pDs4Context);
         if (!NT_SUCCESS(status))
         {
-            KdPrint((DRIVERNAME "WdfObjectAllocateContext failed status 0x%x\n", status));
+            TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_POWER,
+                "WdfObjectAllocateContext failed status %!STATUS!", status);
             return status;
         }
 
