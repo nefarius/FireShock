@@ -3,6 +3,10 @@
 # FireShock
 Windows USB Driver for Sony DualShock Controllers
 
+![Disclaimer](http://nefarius.at/public/Alpha-Disclaimer.png)
+
+**ATTENTION: this project is currently incubating on [git.vigem.org](https://git.vigem.org/) and will be re-released here once finished.**
+
 ## Summary
 `FireShock` consists of a custom USB user-mode driver and a user-mode dispatch service handling wired communication with Sony DualShock 3 and 4 controllers. It allows 3rd party developers to handle controller inputs and ouputs via a simple plug-in system.
 
