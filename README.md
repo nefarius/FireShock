@@ -3,7 +3,7 @@
 # FireShock
 Windows USB Driver for Sony DualShock Controllers
 
-![Disclaimer](http://nefarius.at/public/Alpha-Disclaimer.png)
+![Disclaimer](https://forums.vigem.org/assets/uploads/files/alpha_disclaimer.png)
 
 🔥 **ATTENTION: this project is currently incubating at [git.vigem.org](https://git.vigem.org/) and will be re-released here once finished** 🔥
 
