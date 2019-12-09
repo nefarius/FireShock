@@ -9,3 +9,12 @@ install:
 - git submodule update --init --recursive
 build:
   project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln
+artifacts:
+- path: 'bin**\*.inf'
+- path: 'bin**\*.dll'
+- path: 'bin**\*.pdb'
+deploy:
+- provider: Environment
+  name: BUILDBOT
+  on:
+    appveyor_repo_tag: true
