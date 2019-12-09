@@ -1,7 +1,7 @@
 version: 3.0.{build}
 image: Visual Studio 2019
 platform:
-- x86
+- Win32
 - x64
 configuration:
 - Release
