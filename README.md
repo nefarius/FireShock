@@ -8,7 +8,7 @@ Windows USB Driver for Sony DualShock Controllers
 
 ## Summary
 
-`FireShock` consists of a custom USB user-mode driver and a user-mode dispatch service handling wired communication with Sony DualShock 3 and 4 controllers. It allows 3rd party developers to handle controller inputs and ouputs via a simple plug-in system.
+`FireShock` consists of a custom USB user-mode driver and a user-mode dispatch service handling wired communication with Sony DualShock 3 and 4 controllers. It allows 3rd party developers to handle controller inputs and outputs via a simple plug-in system.
 
 ## How it works
 
@@ -22,7 +22,7 @@ The driver is built for and tested with Windows 8.1 up to Windows 10 (x86 and am
 
 ## Download
 
-### Latest CI builds
+### Latest CI builds (unsigned)
 
 ### x86
 
