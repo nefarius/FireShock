@@ -26,10 +26,8 @@ The driver is built for and tested with Windows 8.1 up to Windows 10 (x86 and am
 
 ### x86
 
-- [FireShock.inf](https://ci.appveyor.com/api/projects/nefarius/fireshock/artifacts/bin/x86/FireShock/FireShock.inf?
-job=Platform%3A%20Win32)
-- [FireShock.cat](https://ci.appveyor.com/api/projects/nefarius/fireshock/artifacts/bin/x86/FireShock/FireShock.cat?
-job=Platform%3A%20Win32)
+- [FireShock.inf](https://ci.appveyor.com/api/projects/nefarius/fireshock/artifacts/bin/x86/FireShock/FireShock.inf?job=Platform%3A%20Win32)
+- [FireShock.cat](https://ci.appveyor.com/api/projects/nefarius/fireshock/artifacts/bin/x86/FireShock/FireShock.cat?job=Platform%3A%20Win32)
 - [FireShock.dll](https://ci.appveyor.com/api/projects/nefarius/fireshock/artifacts/bin/x86/FireShock/FireShock.dll?job=Platform%3A%20Win32)
 
 ### x64
