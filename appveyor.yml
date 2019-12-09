@@ -11,6 +11,7 @@ build:
   project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln
 artifacts:
 - path: 'bin**\$(APPVEYOR_PROJECT_NAME)\*.inf'
+- path: 'bin**\$(APPVEYOR_PROJECT_NAME)\*.cat'
 - path: 'bin**\$(APPVEYOR_PROJECT_NAME)\*.dll'
 - path: 'bin**\*.pdb'
 deploy:
