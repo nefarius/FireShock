@@ -22,6 +22,11 @@ The driver is built for and tested with Windows 8.1 up to Windows 10 (x86 and am
 
 ## Download
 
+### Latest stable builds (signed)
+
+- [GitHub](../../releases/latest)
+- [Mirror](https://downloads.vigem.org/projects/FireShock/stable/)
+
 ### Latest CI builds (unsigned)
 
 ### x86
