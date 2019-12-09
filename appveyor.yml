@@ -12,7 +12,7 @@ build:
 artifacts:
 - path: 'bin**\$(APPVEYOR_PROJECT_NAME)\*.inf'
 - path: 'bin**\$(APPVEYOR_PROJECT_NAME)\*.dll'
-- path: 'bin**\$(APPVEYOR_PROJECT_NAME)\*.pdb'
+- path: 'bin**\*.pdb'
 deploy:
 - provider: Environment
   name: BUILDBOT
