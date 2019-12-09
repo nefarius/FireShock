@@ -10,9 +10,9 @@ install:
 build:
   project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln
 artifacts:
-- path: 'bin**\*.inf'
-- path: 'bin**\*.dll'
-- path: 'bin**\*.pdb'
+- path: 'bin**\$(APPVEYOR_PROJECT_NAME)\*.inf'
+- path: 'bin**\$(APPVEYOR_PROJECT_NAME)\*.dll'
+- path: 'bin**\$(APPVEYOR_PROJECT_NAME)\*.pdb'
 deploy:
 - provider: Environment
   name: BUILDBOT
