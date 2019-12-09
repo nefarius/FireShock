@@ -1,4 +1,11 @@
-version: 2.0.{build}
-image: Visual Studio 2017
-build_script:
-- ps: .\build.ps1 -configuration release
+version: 3.0.{build}
+image: Visual Studio 2019
+platform:
+- x86
+- x64
+configuration:
+- Release
+install:
+- git submodule update --init --recursive
+build:
+  project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln
