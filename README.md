@@ -4,11 +4,9 @@
 
 Windows USB Driver for Sony DualShock Controllers
 
-![Disclaimer](https://forums.vigem.org/assets/uploads/files/alpha_disclaimer.png)
-
 ## Summary
 
-`FireShock` consists of a custom USB user-mode driver and a user-mode dispatch service handling wired communication with Sony DualShock 3 and 4 controllers. It allows 3rd party developers to handle controller inputs and outputs via a simple plug-in system.
+`FireShock` consists of a custom USB user-mode driver and a [user-mode dispatch service](https://github.com/ViGEm/Shibari) handling wired communication with Sony DualShock 3 and 4 controllers. It allows 3rd party developers to handle controller inputs and outputs via a simple plug-in system.
 
 ## How it works
 
@@ -21,6 +19,11 @@ If a DualShock 3 gets connected to the USB hub, the filter will send a "magic" s
 The driver is built for and tested with Windows 8.1 up to Windows 10 (x86 and amd64).
 
 ## Download
+
+### Latest stable builds (signed)
+
+- [GitHub](../../releases/latest)
+- [Mirror](https://downloads.vigem.org/projects/FireShock/stable/)
 
 ### Latest CI builds (unsigned)
 
