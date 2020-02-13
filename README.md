@@ -12,7 +12,7 @@ Windows USB Driver for Sony DualShock Controllers
 
 Once installed the `fireshock.dll` user-mode driver will be loaded on any compatible DualShock 3 or 4 controller connected to the system via USB. It replaces the default `HIDUSB.SYS` driver with `WinUSB.sys`.
 
-If a DualShock 3 gets connected to the USB hub, the filter will send a "magic" start packet to the _control endpoint_ so the controller will continuously start sending HID input reports via the _interrupt in endpoint_ on interface 0. If an _interrupt in_ transfer arrives, the contents of the transfer buffer (the HID report) get streamed to any user-mode application calling [`ReadFile(...)`](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365467(v=vs.85).aspx) on the device. If a packet war written to the device via [`WriteFile(...)`](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365747(v=vs.85).aspx), the request gets converted into an output report and redirected to the _control endpoint_.
+If a DualShock 3 gets connected to the USB hub, the filter will send a "magic" start packet to the _control endpoint_ so the controller will continuously start sending HID input reports via the _interrupt in endpoint_ on interface 0. If an _interrupt in_ transfer arrives, the contents of the transfer buffer (the HID report) get streamed to any user-mode application calling [`ReadFile(...)`](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile) on the device. If a packet war written to the device via [`WriteFile(...)`](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-writefile), the request gets converted into an output report and redirected to the _control endpoint_.
 
 ## Supported systems
 
@@ -41,13 +41,13 @@ The driver is built for and tested with Windows 8.1 up to Windows 10 (x86 and am
 
 ## Sources
 
-- http://eleccelerator.com/wiki/index.php?title=DualShock_3
-- https://github.com/felis/USB_Host_Shield_2.0/wiki/PS3-Information
-- https://www.circuitsathome.com/mcu/ps3-and-wiimote-game-controllers-on-the-arduino-host-shield-part-2
-- https://github.com/ribbotson/USB-Host/tree/master/ps3/PS3USB
-- https://github.com/Microsoft/Windows-driver-samples/tree/master/hid/firefly/driver
-- https://github.com/Microsoft/Windows-driver-samples/tree/master/general/toaster/toastDrv/kmdf/filter/sideband
-- https://msdn.microsoft.com/en-us/library/windows/hardware/dn265671(v=vs.85).aspx
-- http://eleccelerator.com/usbdescreqparser/
-- http://www.psdevwiki.com/ps4/DS4-USB
-- https://patchwork.kernel.org/patch/9367441/
+- [Eleccelerator Wiki](http://eleccelerator.com/wiki/index.php?title=DualShock_3)
+- [felis/USB_Host_Shield_2.0 - PS3 Information](https://github.com/felis/USB_Host_Shield_2.0/wiki/PS3-Information)
+- [PS3 and Wiimote Game Controllers on the Arduino Host Shield: Part 2](https://web.archive.org/web/20160326093555/https://www.circuitsathome.com/mcu/ps3-and-wiimote-game-controllers-on-the-arduino-host-shield-part-2)
+- [ribbotson/USB-Host](https://github.com/ribbotson/USB-Host/tree/master/ps3/PS3USB)
+- [Windows-driver-samples/hid/firefly/driver](https://github.com/Microsoft/Windows-driver-samples/tree/master/hid/firefly/driver)
+- [Windows-driver-samples/general/toaster/toastDrv/kmdf/filter/sideband](https://github.com/Microsoft/Windows-driver-samples/tree/master/general/toaster/toastDrv/kmdf/filter/sideband)
+- [wdfusb.h header](https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/wdfusb/index)
+- [USB Descriptor and Request Parser](http://eleccelerator.com/usbdescreqparser/)
+- [PS4 Developer wiki - DS4-USB](http://www.psdevwiki.com/ps4/DS4-USB)
+- [HID: sony: Update device ids](https://patchwork.kernel.org/patch/9367441/)
