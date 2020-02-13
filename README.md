@@ -1,4 +1,4 @@
-![Icon](https://raw.githubusercontent.com/nefarius/FireShock/master/Installer/FireShock.png)
+![Icon](assets/FireShock.png)
 
 # FireShock
 
