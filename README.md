@@ -8,11 +8,11 @@ Windows USB Driver for Sony DualShock Controllers
 
 ## Summary
 
-`FireShock` consists of a custom USB user-mode driver and a [user-mode dispatch service](https://github.com/ViGEm/Shibari) handling wired communication with Sony DualShock 3 and 4 controllers. It allows 3rd party developers to handle controller inputs and outputs via a simple plug-in system.
+`FireShock` consists of a custom USB user-mode driver and a [user-mode dispatch service](https://github.com/ViGEm/Shibari) handling wired communication with Sony DualShock **3** Controllers. It allows 3rd party developers to handle controller inputs and outputs via a simple plug-in system.
 
 ## How it works
 
-Once installed the `fireshock.dll` user-mode driver will be loaded on any compatible DualShock 3 or 4 controller connected to the system via USB. It replaces the default `HIDUSB.SYS` driver with `WinUSB.sys`.
+Once installed the `fireshock.dll` user-mode driver will be loaded on any compatible DualShock 3 Cntroller connected to the system via USB. It replaces the default `HIDUSB.SYS` driver with `WinUSB.sys`.
 
 If a DualShock 3 gets connected to the USB hub, the filter will send a "magic" start packet to the _control endpoint_ so the controller will continuously start sending HID input reports via the _interrupt in endpoint_ on interface 0. If an _interrupt in_ transfer arrives, the contents of the transfer buffer (the HID report) get streamed to any user-mode application calling [`ReadFile(...)`](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile) on the device. If a packet war written to the device via [`WriteFile(...)`](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-writefile), the request gets converted into an output report and redirected to the _control endpoint_.
 
