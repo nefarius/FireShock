@@ -58,7 +58,7 @@ Return Value:
 
     //
     // Configure a default queue so that requests that are not
-    // configure-fowarded using WdfDeviceConfigureRequestDispatching to goto
+    // configure-forwarded using WdfDeviceConfigureRequestDispatching to goto
     // other queues get dispatched here.
     //
     WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(
@@ -340,7 +340,7 @@ Return Value:
     //
     // A driver might choose to take no action in EvtIoStop for requests that are
     // guaranteed to complete in a small amount of time. For example, the driver might
-    // take no action for requests that are completed in one of the driver’s request handlers.
+    // take no action for requests that are completed in one of the driver's request handlers.
     //
 
     return;
