@@ -53,3 +53,4 @@ The driver is built for and tested with Windows 8.1 up to Windows 10 (x86 and am
 - [USB Descriptor and Request Parser](http://eleccelerator.com/usbdescreqparser/)
 - [PS4 Developer wiki - DS4-USB](http://www.psdevwiki.com/ps4/DS4-USB)
 - [HID: sony: Update device ids](https://patchwork.kernel.org/patch/9367441/)
+
