@@ -18,7 +18,7 @@ If a DualShock 3 gets connected to the USB hub, the filter will send a "magic" s
 
 ## How to use
 
-**Important:** this is *not* a(n) HID/XInput compatible driver, you **need** [the Shibari companion application](https://github.com/ViGEm/Shibari#documentation) and follow its setup instructions to get the controller recognized by games!
+**Important:** this is *not* an HID/XInput compatible driver, you **need** [the Shibari companion application](https://github.com/ViGEm/Shibari#documentation) and follow its setup instructions to get the controller recognized by games!
 
 ## Supported systems
 
