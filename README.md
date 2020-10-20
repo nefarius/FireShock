@@ -16,6 +16,10 @@ Once installed the `fireshock.dll` user-mode driver will be loaded on any compat
 
 If a DualShock 3 gets connected to the USB hub, the filter will send a "magic" start packet to the _control endpoint_ so the controller will continuously start sending HID input reports via the _interrupt in endpoint_ on interface 0. If an _interrupt in_ transfer arrives, the contents of the transfer buffer (the HID report) get streamed to any user-mode application calling [`ReadFile(...)`](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile) on the device. If a packet war written to the device via [`WriteFile(...)`](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-writefile), the request gets converted into an output report and redirected to the _control endpoint_.
 
+## How to use
+
+**Important:** this is *not* a(n) HID/XInput compatible driver, you **need** [the Shibari companion application](https://github.com/ViGEm/Shibari#documentation) and follow its setup instructions to get the controller recognized by games!
+
 ## Supported systems
 
 The driver is built for and tested with Windows 8.1 up to Windows 10 (x86 and amd64).
