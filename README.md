@@ -4,7 +4,7 @@
 
 Windows USB Driver for Sony DualShock Controllers
 
-[![GitHub All Releases](https://img.shields.io/github/downloads/ViGEm/FireShock/total)](https://somsubhra.com/github-release-stats/?username=ViGEm&repository=FireShock)
+[![Build status](https://ci.appveyor.com/api/projects/status/qtn7klq26ho8atg6/branch/master?svg=true)](https://ci.appveyor.com/project/nefarius/fireshock/branch/master) [![GitHub All Releases](https://img.shields.io/github/downloads/ViGEm/FireShock/total)](https://somsubhra.com/github-release-stats/?username=ViGEm&repository=FireShock)
 
 ## Summary
 
