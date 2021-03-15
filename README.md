@@ -6,6 +6,12 @@ Windows USB Driver for Sony DualShock Controllers
 
 [![Build status](https://ci.appveyor.com/api/projects/status/qtn7klq26ho8atg6/branch/master?svg=true)](https://ci.appveyor.com/project/nefarius/fireshock/branch/master) [![GitHub All Releases](https://img.shields.io/github/downloads/ViGEm/FireShock/total)](https://somsubhra.com/github-release-stats/?username=ViGEm&repository=FireShock)
 
+---
+
+⚠️ **This project is no longer maintained. It has been superseded by [DsHidMini](https://github.com/ViGEm/DsHidMini).** ⚠️
+
+---
+
 ## Summary
 
 `FireShock` consists of a custom USB user-mode driver and a [user-mode dispatch service](https://github.com/ViGEm/Shibari) handling wired communication with Sony DualShock **3** Controllers. It allows 3rd party developers to handle controller inputs and outputs via a simple plug-in system.
