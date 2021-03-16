@@ -37,20 +37,6 @@ The driver is built for and tested with Windows 8.1 up to Windows 10 (x86 and am
 - [GitHub](../../releases/latest)
 - [Mirror](https://downloads.vigem.org/projects/FireShock/stable/)
 
-### Latest CI builds (unsigned)
-
-### x86
-
-- [FireShock.inf](https://ci.appveyor.com/api/projects/nefarius/fireshock/artifacts/bin/x86/FireShock/FireShock.inf?job=Platform%3A%20Win32)
-- [FireShock.cat](https://ci.appveyor.com/api/projects/nefarius/fireshock/artifacts/bin/x86/FireShock/fireshock.cat?job=Platform%3A%20Win32)
-- [FireShock.dll](https://ci.appveyor.com/api/projects/nefarius/fireshock/artifacts/bin/x86/FireShock/FireShock.dll?job=Platform%3A%20Win32)
-
-### x64
-
-- [FireShock.inf](https://ci.appveyor.com/api/projects/nefarius/fireshock/artifacts/bin/x64/FireShock/FireShock.inf?job=Platform%3A%20x64)
-- [FireShock.cat](https://ci.appveyor.com/api/projects/nefarius/fireshock/artifacts/bin/x64/FireShock/fireshock.cat?job=Platform%3A%20x64)
-- [FireShock.dll](https://ci.appveyor.com/api/projects/nefarius/fireshock/artifacts/bin/x64/FireShock/FireShock.dll?job=Platform%3A%20x64)
-
 ## Sources
 
 - [Eleccelerator Wiki](http://eleccelerator.com/wiki/index.php?title=DualShock_3)
