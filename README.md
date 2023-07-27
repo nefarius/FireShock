@@ -8,13 +8,13 @@ Windows USB Driver for Sony DualShock Controllers
 
 ---
 
-⚠️ **This project is no longer maintained. It has been superseded by [DsHidMini](https://github.com/ViGEm/DsHidMini).** ⚠️
+⚠️ **This project is no longer maintained. It has been superseded by [DsHidMini](https://github.com/nefarius/DsHidMini).** ⚠️
 
 ---
 
 ## Summary
 
-`FireShock` consists of a custom USB user-mode driver and a [user-mode dispatch service](https://github.com/ViGEm/Shibari) handling wired communication with Sony DualShock **3** Controllers. It allows 3rd party developers to handle controller inputs and outputs via a simple plug-in system.
+`FireShock` consists of a custom USB user-mode driver and a [user-mode dispatch service](https://github.com/nefarius/Shibari) handling wired communication with Sony DualShock **3** Controllers. It allows 3rd party developers to handle controller inputs and outputs via a simple plug-in system.
 
 ## How it works
 
@@ -24,7 +24,7 @@ If a DualShock 3 gets connected to the USB hub, the filter will send a "magic" s
 
 ## How to use
 
-**Important:** this is *not* an HID/XInput compatible driver, you **need** [the Shibari companion application](https://github.com/ViGEm/Shibari#documentation) and follow its setup instructions to get the controller recognized by games!
+**Important:** this is *not* an HID/XInput compatible driver, you **need** [the Shibari companion application](https://github.com/nefarius/Shibari#documentation) and follow its setup instructions to get the controller recognized by games!
 
 ## Supported systems
 
@@ -35,7 +35,7 @@ The driver is built for and tested with Windows 8.1 up to Windows 10 (x86 and am
 ### Latest stable builds (signed)
 
 - [GitHub](../../releases/latest)
-- [Mirror](https://downloads.vigem.org/projects/FireShock/stable/)
+- [Mirror](https://downloads.nefarius.at/projects/FireShock/stable/)
 
 ## Sources
 
